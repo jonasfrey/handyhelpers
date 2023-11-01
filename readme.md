@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Tue Oct 31 2023 01:29:02 GMT+0100 (Central European Standard Time)","n_ts_created":1698712142278} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Nov 01 2023 22:30:35 GMT+0100 (Central European Standard Time)","n_ts_created":1698874235172} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -30,9 +30,9 @@ download a file, pass an optional callback, or let log the download state by def
             await f_download_file__from_s_url(
                 // 'https://www.dwsamplefiles.com/?dl_id=409'
                 // 'https://images.unsplash.com/photo-1533144188434-eb0442504392?auto=format&fit=crop&q=80&w=3948&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                
                 // 'a_picture_in_bird_perspective.png'
-                'https://file-examples.com/wp-content/storage/2017/10/file_example_JPG_2500kB.jpg'
+                'https://www.w3schools.com/html/pic_trulli.jpg', 
+                './lol/test.jpg'//if denojs  we can pass a path
             )
 
 ```
@@ -59,4 +59,77 @@ one can also print the download percentage
             )
 
             f_assert_equals(a_n_u8.length, 80118331)
+            
+```
+## f_monkey_patch_fetch__easy
+replace the original fetch function, with a custom fetch function, for example to change
+```javascript
+            var o_data = await (await fetch('https://httpbin.org/headers')).json();
+            f_assert_equals(
+                o_data.headers['User-Agent'].includes('Deno/'),
+                true
+            )
+
+            f_monkey_patch_fetch__easy(
+                function(o_options_passed_to_fetch){
+                    // this function must return an object, 
+                    // the second options object wich is used in the fetc function (fetch(url, options))
+                    // will get assigned this object, so headers could be overwritten for example
+                    return {
+                        headers: {
+                            'User-Agent': [
+                                `Gozilla/${(Math.random()*5+1).toFixed(1)}`, 
+                                `(Dingos TN 2.1; Din64; x128; rv:27.0)`, 
+                                `Lizzard/20100101 Waterwhale/42.0`
+                            ].join(' ')
+                        }
+                    }
+                }
+            );
+
+            // test the custom function
+            var o_data = await (await fetch('https://httpbin.org/headers')).json();
+            f_assert_equals(
+                o_data.headers['User-Agent'].includes('Gozilla/'),
+                true
+                )
+                
+            // restore the default fetch function
+            f_monkey_patch_fetch(
+                null, 
+                true// restore original fetch
+            )
+            // test the restored function
+            var o_data = await (await fetch('https://httpbin.org/headers')).json();
+            f_assert_equals(
+                o_data.headers['User-Agent'].includes('Deno/'),
+                true
+            )
+            
+```
+## f_promise_all_numloop_with_callback
+a handy function to iterate over things and download stuff for example
+```javascript
+            let a_o_result = await f_promise_all_numloop_with_callback(
+                3, 
+                4, 
+                async function(n_num){
+                    let s_url_base = `https://www.tutti.ch`
+                    let o_doc = await f_o_html__from_s_url(
+                        `https://www.tutti.ch/de/q/suche/Ak6dnaXRhcnJlwJTAwMDA?sorting=newest&page=${n_num}&query=gitarre`
+                        );
+                    // console.log(Array.from(o_doc.querySelectorAll('[data-testid="link-to-image"]')))
+                    let a_s_url = Array.from(o_doc.querySelectorAll('[data-testid="link-to-image"]'))
+                        .map(o=>`${s_url_base}${o.getAttribute('href')}`)
+                    a_s_url = [a_s_url[0]]
+                    return Promise.all(
+                        a_s_url.map(async s=>{
+                            let o_doc2 = await f_o_html__from_s_url(s);
+                            await f_download_file__from_s_url(o_doc2.querySelector('img').getAttribute('src'))
+                            return true
+                        })
+                    )
+                }
+            )
+            return true
 ```
