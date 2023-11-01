@@ -19,6 +19,7 @@ let f_o_html_element__from_s_tag = async function(s_tag){
 
 }
 
+
 let f_o_html__from_s_html = async function(s_html){
     let o_dom_parser = null;
     if(f_b_denojs()){
@@ -68,8 +69,7 @@ let f_download_video_denojs = async function(s_url, s_prefix_file=''){
 
 let f_download_file__from_s_url = async function(
     s_url, 
-    s_name_file = '',
-    s_path_folder = './', 
+    s_name_orand_path_file = '',
     f_callback = async function(
         n_mb_downloaded, 
         n_mb_per_sec_domwnload_speed, 
@@ -89,15 +89,14 @@ let f_download_file__from_s_url = async function(
     }, 
     n_ms_callback_interval = 333, 
 ){
-    s_name_file = (s_name_file!='') ? s_name_file : f_s_name_file__from_s_url(s_url);
+    s_name_orand_path_file = (s_name_orand_path_file!='') ? s_name_orand_path_file : f_s_name_file__from_s_url(s_url);
     let b_denojs = f_b_denojs();
 
     let a_n_u8 = await f_a_n_u8__from_s_url_with_download_speed_easy(s_url, f_callback, n_ms_callback_interval);
     
     if(b_denojs){
-        let s_path_file = `${s_path_folder}/${s_name_file}`
         // Write the video to the file
-        return Deno.writeFile(s_path_file, a_n_u8);
+        return Deno.writeFile(s_name_orand_path_file, a_n_u8);
     }
     if(!b_denojs){
         let o_blob = new Blob(
@@ -109,7 +108,7 @@ let f_download_file__from_s_url = async function(
         // Create an anchor link element and set the blob URL as its href
         const a = await f_o_html_element__from_s_tag('a');
         a.href = o_blob_url;
-        a.download = s_name_file;
+        a.download = s_name_orand_path_file;
         document.body.appendChild(a);  // This is necessary as Firefox requires the link to be in the DOM for the download to trigger
         // Trigger a click event to start the download
         a.click();
@@ -280,83 +279,68 @@ let f_a_n_u8__from_o_reader = async function(
     }
     return a_n_u8__merged
 }
-// async function f_o_blob_update_n_len_a_nu8__from_o_resp(
-//     o_resp
-// ) {
-//     const reader = o_resp.body.getReader();
-//     const n_len_a_nu8__content_length = +o_resp.headers.get('Content-Length');
-//     let n_len_a_nu8__fetched = 0;
-//     const a_nu8 = [];
-//     let n_ts_ms_ut__start = new Date().getTime();
-//     let n_ts_ms_ut__now = new Date().getTime();
-//     let n_ts_ms_ut__last = new Date().getTime(); 
-//     let n_ts_ms_ut__diff = new Date().getTime(); 
-//     let n_bytes_per_second = 0;
-//     let n_len_a_nu8__fetched__last = 0;
-//     while (true) {
-//         n_ts_ms_ut__now = new Date().getTime();
-//         n_ts_ms_ut__diff = Math.abs(n_ts_ms_ut__last - n_ts_ms_ut__now);
-//         // console.log(n_ts_ms_ut__diff)
-//         if(n_ts_ms_ut__diff > 1000){
-//             n_ts_ms_ut__last = n_ts_ms_ut__now;
-//             n_bytes_per_second = Math.abs(n_len_a_nu8__fetched__last - n_len_a_nu8__fetched);
-//             n_len_a_nu8__fetched__last = n_len_a_nu8__fetched;
-//         }
-//         const { done, value } = await reader.read();
-//         if (done) break;
-//         a_nu8.push(value);
-//         const progress = (n_len_a_nu8__fetched / n_len_a_nu8__content_length) * 100;
 
-//         await f_console_overwrite_lines(
-//             [
-//                 `${n_len_a_nu8__fetched}/${n_len_a_nu8__content_length} bytes`,
-//                 `(${(n_bytes_per_second/1000/1000).toFixed(2)} mBytes/s average)`,
-//                 `(${progress.toFixed(2)}%)`,
-//                 `${(Math.abs(n_ts_ms_ut__start-n_ts_ms_ut__now)/1000).toFixed(2)}(seconds)`
-//             ]
-//         )
-        
-//         n_len_a_nu8__fetched += value.length;
-//     }
-//     return new Blob(a_nu8);
+let f_promise_all_numloop_with_callback = function(
+    n_start = 1, 
+    n_end = 10, 
+    f_callback
+){
+    return Promise.all(
+        new Array(n_end-n_start).fill(0).map(
+         async (n_val, n_idx)=>{
+            return f_callback(n_idx+1+n_start);
+         }
+        )
+    )
+}
+let f_monkey_patch_fetch = function(
+    f_fetch, 
+    b_restore_original_fetch_function = false
+){
+    
+    if(b_restore_original_fetch_function && window.fetch__original__backup_for_f_monkey_patch_fetch){
+        window.fetch = window.fetch__original__backup_for_f_monkey_patch_fetch
+        return true
+    }
+    if(window.fetch != window.fetch__original__backup_for_f_monkey_patch_fetch){
+        window.fetch__original__backup_for_f_monkey_patch_fetch = window.fetch
+    }
+    window.fetch = async function(){
+        return f_fetch(window.fetch__original__backup_for_f_monkey_patch_fetch, ...arguments)
+    }
+}
+let f_monkey_patch_fetch__easy = function(
+    f_o_options_to_assign
+){
+    f_monkey_patch_fetch(
+        async function(f_fetch_original){
+            let a_v_arg = Array.from(arguments).slice(1)
+            let o_options = (a_v_arg[1]) ? a_v_arg[1]: {}
+            Object.assign(
+                o_options, 
+                f_o_options_to_assign(o_options)
+            )
+            return f_fetch_original(
+                a_v_arg[0],
+                o_options, 
+                ...[
+                    a_v_arg.slice(2)
+                ].filter(v=>v)
+            )
+        }
+    );
 
-//   }
-
-// let f_o_blob__from_s_url = async function(
-//     s_url
-// ){
-//     // Fetch the video data
-//     const o_resp = await f_o_fetch(s_url);
-
-//     if (!o_resp.ok) {
-//         throw new Error('Network o_resp was not ok');
-//     }
-//     const o_blob = await f_o_blob_update_n_len_a_nu8__from_o_resp(o_resp);
-
-//     // Convert it to a blob
-//     // const blob = await o_resp.blob();
-
-//     return o_blob;
-// }
-
-// let f_download_file = async function(s_url, s_prefix_file ='', s_mime_type='text/plain'){
-
-//     let s_name_file = f_s_name_file__from_s_url(s_url);
-//     let s_path_file = `./${s_name_file}`;
-
-//     Deno.writeTextFile("./s_curl_file.sh", window.s_curl_file);
-//     if(b_deno){
-//         return f_download_video_denojs(s_url, s_prefix_file)
-//     }
-//     return f_downloadVideo_browserjs(s_url)
-// }
-
+}
 
 export {
     f_b_denojs, 
     f_o_html_element__from_s_tag, 
     f_o_html__from_s_html,
+    f_o_html__from_s_url,
     f_a_n_u8__from_s_url_with_download_speed_easy,
-    f_download_file__from_s_url
+    f_download_file__from_s_url, 
+    f_promise_all_numloop_with_callback,
+    f_monkey_patch_fetch, 
+    f_monkey_patch_fetch__easy
 }
 
