@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Nov 01 2023 22:30:35 GMT+0100 (Central European Standard Time)","n_ts_created":1698874235172} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Nov 02 2023 22:56:18 GMT+0100 (Central European Standard Time)","n_ts_created":1698962178820} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -43,7 +43,7 @@ one can also print the download percentage
 ```javascript
 
             let a_n_u8 = await f_a_n_u8__from_s_url_with_download_speed_easy(
-                'https://www.dwsamplefiles.com/?dl_id=409', 
+                'https://www.dwsamplefiles.com/?dl_id=406', 
                 function(
                     n_mb_downloaded, 
                     n_mb_per_sec_domwnload_speed, 
@@ -58,7 +58,7 @@ one can also print the download percentage
                 555// callback gets called every 555 milliseconds
             )
 
-            f_assert_equals(a_n_u8.length, 80118331)
+            f_assert_equals(a_n_u8.length, 15944874)
             
 ```
 ## f_monkey_patch_fetch__easy
@@ -71,29 +71,43 @@ replace the original fetch function, with a custom fetch function, for example t
             )
 
             f_monkey_patch_fetch__easy(
-                function(o_options_passed_to_fetch){
-                    // this function must return an object, 
-                    // the second options object wich is used in the fetc function (fetch(url, options))
-                    // will get assigned this object, so headers could be overwritten for example
-                    return {
-                        headers: {
-                            'User-Agent': [
-                                `Gozilla/${(Math.random()*5+1).toFixed(1)}`, 
-                                `(Dingos TN 2.1; Din64; x128; rv:27.0)`, 
-                                `Lizzard/20100101 Waterwhale/42.0`
-                            ].join(' ')
-                        }
+                function(
+                    a_v_arg
+                ){
+                    // this callback will be called before each fetch function , 
+                    // we get the arguments and can overwrite the arguments
+                    let s_url = a_v_arg?.[0];
+                    if(s_url?.includes('httbin_non_existing_lol.org')){
+                        a_v_arg[0] = s_url.replace('httbin_non_existing_lol.org', 'httpbin.org')
                     }
+                    // we could ignore the patching on some fetch calls
+                    if(s_url.includes('#dont_monkey_patch')){
+                        return a_v_arg
+                    }
+                    return [
+                        a_v_arg[0], 
+                        {
+                            headers: {
+                                'User-Agent': [
+                                    `Gozilla/${(Math.random()*5+1).toFixed(1)}`, 
+                                    `(Dingos TN 2.1; Din64; x128; rv:27.0)`, 
+                                    `Lizzard/20100101 Waterwhale/42.0`
+                                ].join(' ')
+                            }
+                        }
+                    ] 
                 }
             );
 
-            // test the custom function
             var o_data = await (await fetch('https://httpbin.org/headers')).json();
-            f_assert_equals(
-                o_data.headers['User-Agent'].includes('Gozilla/'),
-                true
-                )
-                
+            f_assert_equals(o_data.headers['User-Agent'].includes('Gozilla/'),true)
+
+            var o_data = await (await fetch('https://httbin_non_existing_lol.org/headers')).json();
+            f_assert_equals(o_data.headers['User-Agent'].includes('Gozilla/'),true)
+            
+            var o_data = await (await fetch('https://httpbin.org/headers#dont_monkey_patch')).json();
+            f_assert_equals(o_data.headers['User-Agent'].includes('Deno/'),true)
+
             // restore the default fetch function
             f_monkey_patch_fetch(
                 null, 
@@ -132,4 +146,42 @@ a handy function to iterate over things and download stuff for example
                 }
             )
             return true
+            
+```
+## f_s_hashed
+hash a string, using the window.crypto.subtle API, available functions at the moment are
+'sha-1', 'sha-256', 'sha-384', 'sha-512'
+```javascript
+
+            f_assert_equals(
+                await f_s_hashed('lol this is a text', 'SHA-1'),
+                'd2a68e83cffd1f8dc53143c95006f862f199082b'
+            )
+            
+```
+## f_o_resp__fetch_cached
+makes a fetch but caches the response meta (status, statusText, headers) and data as a_n_u8
+```javascript
+
+            let o_resp = await f_o_resp__fetch_cached(
+                'http://www.worldslongestwebsite.com/', 
+                true//overwrite
+            );
+            // console.log(o_resp)
+            let s_text = await o_resp.text()
+
+            let o_resp_from_cache = await f_o_resp__fetch_cached(
+                'http://www.worldslongestwebsite.com/', 
+            );
+            // console.log(o_resp)
+            let s_text_from_cache = await o_resp_from_cache.text()
+
+            f_assert_equals(
+                s_text,
+                s_text_from_cache,
+            )
+            f_assert_equals(
+                JSON.stringify(f_o__from_o_fetch_response(o_resp)),
+                JSON.stringify(f_o__from_o_fetch_response(o_resp_from_cache)),
+            )
 ```
