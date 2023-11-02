@@ -16,7 +16,10 @@ import {
     f_promise_all_numloop_with_callback,
     f_o_html__from_s_url,
     f_monkey_patch_fetch,
-    f_monkey_patch_fetch__easy
+    f_monkey_patch_fetch__easy,
+    f_o_resp__fetch_cached,
+    f_s_hashed,
+    f_o__from_o_fetch_response
 } from "./module.js"
 
 //readme.md:start
@@ -78,7 +81,7 @@ await f_deno_test_all_and_print_summary(
             //md: one can also print the download percentage
 
             let a_n_u8 = await f_a_n_u8__from_s_url_with_download_speed_easy(
-                'https://www.dwsamplefiles.com/?dl_id=409', 
+                'https://www.dwsamplefiles.com/?dl_id=406', 
                 function(
                     n_mb_downloaded, 
                     n_mb_per_sec_domwnload_speed, 
@@ -93,7 +96,7 @@ await f_deno_test_all_and_print_summary(
                 555// callback gets called every 555 milliseconds
             )
 
-            f_assert_equals(a_n_u8.length, 80118331)
+            f_assert_equals(a_n_u8.length, 15944874)
             //readme.md:end
         }),
 
@@ -111,29 +114,43 @@ await f_deno_test_all_and_print_summary(
             )
 
             f_monkey_patch_fetch__easy(
-                function(o_options_passed_to_fetch){
-                    // this function must return an object, 
-                    // the second options object wich is used in the fetc function (fetch(url, options))
-                    // will get assigned this object, so headers could be overwritten for example
-                    return {
-                        headers: {
-                            'User-Agent': [
-                                `Gozilla/${(Math.random()*5+1).toFixed(1)}`, 
-                                `(Dingos TN 2.1; Din64; x128; rv:27.0)`, 
-                                `Lizzard/20100101 Waterwhale/42.0`
-                            ].join(' ')
-                        }
+                function(
+                    a_v_arg
+                ){
+                    // this callback will be called before each fetch function , 
+                    // we get the arguments and can overwrite the arguments
+                    let s_url = a_v_arg?.[0];
+                    if(s_url?.includes('httbin_non_existing_lol.org')){
+                        a_v_arg[0] = s_url.replace('httbin_non_existing_lol.org', 'httpbin.org')
                     }
+                    // we could ignore the patching on some fetch calls
+                    if(s_url.includes('#dont_monkey_patch')){
+                        return a_v_arg
+                    }
+                    return [
+                        a_v_arg[0], 
+                        {
+                            headers: {
+                                'User-Agent': [
+                                    `Gozilla/${(Math.random()*5+1).toFixed(1)}`, 
+                                    `(Dingos TN 2.1; Din64; x128; rv:27.0)`, 
+                                    `Lizzard/20100101 Waterwhale/42.0`
+                                ].join(' ')
+                            }
+                        }
+                    ] 
                 }
             );
 
-            // test the custom function
             var o_data = await (await fetch('https://httpbin.org/headers')).json();
-            f_assert_equals(
-                o_data.headers['User-Agent'].includes('Gozilla/'),
-                true
-                )
-                
+            f_assert_equals(o_data.headers['User-Agent'].includes('Gozilla/'),true)
+
+            var o_data = await (await fetch('https://httbin_non_existing_lol.org/headers')).json();
+            f_assert_equals(o_data.headers['User-Agent'].includes('Gozilla/'),true)
+            
+            var o_data = await (await fetch('https://httpbin.org/headers#dont_monkey_patch')).json();
+            f_assert_equals(o_data.headers['User-Agent'].includes('Deno/'),true)
+
             // restore the default fetch function
             f_monkey_patch_fetch(
                 null, 
@@ -178,6 +195,52 @@ await f_deno_test_all_and_print_summary(
             return true
             //readme.md:end
         }),
+
+        f_deno_test("f_s_hashed", async () => {
+            //readme.md:start
+            
+            //md: ## f_s_hashed
+            //md: hash a string, using the window.crypto.subtle API, available functions at the moment are 
+            //md: 'sha-1', 'sha-256', 'sha-384', 'sha-512'
+
+            f_assert_equals(
+                await f_s_hashed('lol this is a text', 'SHA-1'),
+                'd2a68e83cffd1f8dc53143c95006f862f199082b'
+            )
+            //readme.md:end
+        }),
+
+
+        f_deno_test("f_o_resp__fetch_cached", async () => {
+            //readme.md:start
+            
+            //md: ## f_o_resp__fetch_cached
+            //md: makes a fetch but caches the response meta (status, statusText, headers) and data as a_n_u8
+
+            let o_resp = await f_o_resp__fetch_cached(
+                'http://www.worldslongestwebsite.com/', 
+                true//overwrite
+            );
+            // console.log(o_resp)
+            let s_text = await o_resp.text()
+
+            let o_resp_from_cache = await f_o_resp__fetch_cached(
+                'http://www.worldslongestwebsite.com/', 
+            );
+            // console.log(o_resp)
+            let s_text_from_cache = await o_resp_from_cache.text()
+
+            f_assert_equals(
+                s_text,
+                s_text_from_cache,
+            )
+            f_assert_equals(
+                JSON.stringify(f_o__from_o_fetch_response(o_resp)),
+                JSON.stringify(f_o__from_o_fetch_response(o_resp_from_cache)),
+            )
+            //readme.md:end
+        }),
+
     ]
 )
 

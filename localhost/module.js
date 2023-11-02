@@ -1,3 +1,8 @@
+import {
+    exists as f_b_path_existing, 
+    ensureDir as f_ensure_path_folder,
+    ensureFile as f_ensure_path_file
+} from 'https://deno.land/std@0.205.0/fs/mod.ts'
 let f_b_denojs = function(){
     return 'Deno' in window
 }
@@ -96,6 +101,7 @@ let f_download_file__from_s_url = async function(
     
     if(b_denojs){
         // Write the video to the file
+        await f_ensure_path_file(s_name_orand_path_file);
         return Deno.writeFile(s_name_orand_path_file, a_n_u8);
     }
     if(!b_denojs){
@@ -310,26 +316,85 @@ let f_monkey_patch_fetch = function(
     }
 }
 let f_monkey_patch_fetch__easy = function(
-    f_o_options_to_assign
+    f_a_v_arg
 ){
     f_monkey_patch_fetch(
         async function(f_fetch_original){
             let a_v_arg = Array.from(arguments).slice(1)
-            let o_options = (a_v_arg[1]) ? a_v_arg[1]: {}
-            Object.assign(
-                o_options, 
-                f_o_options_to_assign(o_options)
-            )
+            let a_v_arg__overwritten = f_a_v_arg(a_v_arg);
+            if(a_v_arg__overwritten){
+                a_v_arg = a_v_arg__overwritten
+            }
             return f_fetch_original(
-                a_v_arg[0],
-                o_options, 
-                ...[
-                    a_v_arg.slice(2)
-                ].filter(v=>v)
+                ...a_v_arg
             )
         }
     );
+}
 
+let f_s_hashed = async function(
+    s_text, 
+    s_hash_function = 'SHA-1'
+){
+    let a_s_hash_function__allowed = [
+        'sha-1', 'sha-256', 'sha-384', 'sha-512'
+    ];
+    if(!a_s_hash_function__allowed.includes(s_hash_function.toLowerCase())){
+        throw Error(`hash function '${s_hash_function}' is not allowed, allowed functions are ${a_s_hash_function__allowed.join(',')}`)
+    }
+    const a_n_u8 = new TextEncoder().encode(s_text); // encode as (utf-8) Uint8Array
+    const o_abuffer = await crypto.subtle.digest(s_hash_function, a_n_u8); // hash the message
+    const a_n = Array.from(new Uint8Array(o_abuffer)); // convert buffer to byte array
+    const s_hashed = a_n
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join(""); // convert bytes to hex string
+    return s_hashed;
+}
+
+let f_o__from_o_fetch_response = function(o_resp){
+    //JSON.stringify((await fetch('https://deno.com'))) returns an empty object
+    return {
+        status: o_resp.status, 
+        statusText: o_resp.statusText, 
+        headers: Object.assign(
+            {},
+            ...Array.from(o_resp.headers.entries()).map(([key, value])=>{return {[key]:value}})
+        )
+        
+    }
+}
+let f_o_resp__fetch_cached = async function(
+    s_url,
+    b_overwrite_cached_file = false, 
+    n_ms_diff__overwrite_cached_file = 24*60*60*1000, 
+    s_path_folder_cache = './.cache_for_f_a_n_u8__fetch_cached'
+){
+
+    let s_url_hashed = await f_s_hashed(s_url);
+
+    await f_ensure_path_folder(s_path_folder_cache);
+    let s_name_file = s_url_hashed//btoa(s_url);
+    let s_path_file = `${s_path_folder_cache}/${s_name_file}`
+    let s_path_file_meta_json = `${s_path_folder_cache}/${s_name_file}.json`
+    let a_n_u8 = null;
+    let b_path_existing = await f_b_path_existing(s_path_file);
+    let o_resp_meta = {}
+    if(b_path_existing && !b_overwrite_cached_file){
+        a_n_u8 = await Deno.readFile(s_path_file);
+        let s_json_o_resp_meta = await Deno.readTextFile(s_path_file_meta_json);
+        o_resp_meta = JSON.parse(s_json_o_resp_meta)
+    }else{
+        let o_resp = await fetch(s_url);
+        o_resp_meta = f_o__from_o_fetch_response(o_resp)
+        let s_json_o_resp_meta = JSON.stringify(o_resp_meta)
+        a_n_u8 = new Uint8Array((await o_resp).arrayBuffer());
+        await Deno.writeFile(s_path_file, a_n_u8);
+        await Deno.writeTextFile(s_path_file_meta_json, s_json_o_resp_meta)
+    }
+    return new Response(
+        a_n_u8, 
+        o_resp_meta
+    )
 }
 
 export {
@@ -341,6 +406,9 @@ export {
     f_download_file__from_s_url, 
     f_promise_all_numloop_with_callback,
     f_monkey_patch_fetch, 
-    f_monkey_patch_fetch__easy
+    f_monkey_patch_fetch__easy, 
+    f_o_resp__fetch_cached, 
+    f_s_hashed,
+    f_o__from_o_fetch_response
 }
 
