@@ -364,12 +364,17 @@ let f_o__from_o_fetch_response = function(o_resp){
     }
 }
 let f_o_resp__fetch_cached = async function(
+    f_fetch_original, 
     s_url,
+    o_options = null,
     b_overwrite_cached_file = false, 
     n_ms_diff__overwrite_cached_file = 24*60*60*1000, 
     s_path_folder_cache = './.cache_for_f_a_n_u8__fetch_cached'
 ){
+    if(typeof f_fetch_original != 'function'){
+        throw Error('please provide the original fetch function as first argument');
 
+    }
     let s_url_hashed = await f_s_hashed(s_url);
 
     await f_ensure_path_folder(s_path_folder_cache);
@@ -384,10 +389,10 @@ let f_o_resp__fetch_cached = async function(
         let s_json_o_resp_meta = await Deno.readTextFile(s_path_file_meta_json);
         o_resp_meta = JSON.parse(s_json_o_resp_meta)
     }else{
-        let o_resp = await fetch(s_url);
+        let o_resp = await f_fetch_original(s_url, o_options);
         o_resp_meta = f_o__from_o_fetch_response(o_resp)
         let s_json_o_resp_meta = JSON.stringify(o_resp_meta)
-        a_n_u8 = new Uint8Array((await o_resp).arrayBuffer());
+        a_n_u8 = new Uint8Array(await o_resp.arrayBuffer());
         await Deno.writeFile(s_path_file, a_n_u8);
         await Deno.writeTextFile(s_path_file_meta_json, s_json_o_resp_meta)
     }
