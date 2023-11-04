@@ -3,6 +3,16 @@ import {
     ensureDir as f_ensure_path_folder,
     ensureFile as f_ensure_path_file
 } from 'https://deno.land/std@0.205.0/fs/mod.ts'
+let f_sleep_ms = async function(n_ms){
+    return new Promise(
+        (f_res)=>{
+            return setTimeout(() => {
+                    return f_res(n_ms);
+            }, n_ms);
+        }
+    )
+}
+
 let f_b_denojs = function(){
     return 'Deno' in window
 }
@@ -96,7 +106,8 @@ let f_download_file__from_s_url = async function(
 ){
     s_name_orand_path_file = (s_name_orand_path_file!='') ? s_name_orand_path_file : f_s_name_file__from_s_url(s_url);
     let b_denojs = f_b_denojs();
-
+    
+    console.log('');//write a empty line because cursor will get reset in with_download_speed
     let a_n_u8 = await f_a_n_u8__from_s_url_with_download_speed_easy(s_url, f_callback, n_ms_callback_interval);
     
     if(b_denojs){
@@ -286,51 +297,7 @@ let f_a_n_u8__from_o_reader = async function(
     return a_n_u8__merged
 }
 
-let f_promise_all_numloop_with_callback = function(
-    n_start = 1, 
-    n_end = 10, 
-    f_callback
-){
-    return Promise.all(
-        new Array(n_end-n_start).fill(0).map(
-         async (n_val, n_idx)=>{
-            return f_callback(n_idx+1+n_start);
-         }
-        )
-    )
-}
-let f_monkey_patch_fetch = function(
-    f_fetch, 
-    b_restore_original_fetch_function = false
-){
-    
-    if(b_restore_original_fetch_function && window.fetch__original__backup_for_f_monkey_patch_fetch){
-        window.fetch = window.fetch__original__backup_for_f_monkey_patch_fetch
-        return true
-    }
-    if(window.fetch != window.fetch__original__backup_for_f_monkey_patch_fetch){
-        window.fetch__original__backup_for_f_monkey_patch_fetch = window.fetch
-    }
-    window.fetch = async function(){
-        return f_fetch(window.fetch__original__backup_for_f_monkey_patch_fetch, ...arguments)
-    }
-}
-let f_monkey_patch_fetch__easy = function(
-    f_a_v_arg
-){
-    f_monkey_patch_fetch(
-        async function(f_fetch_original){
-            let a_v_arg = Array.from(arguments).slice(1)
-            let a_v_arg__overwritten = f_a_v_arg(a_v_arg);
-            if(a_v_arg__overwritten){
-                a_v_arg = a_v_arg__overwritten
-            }
-            return f_fetch_original(
-                ...a_v_arg
-            )
-        }
-    );
-}
+
 
 let f_s_hashed = async function(
     s_text, 
@@ -363,43 +330,88 @@ let f_o__from_o_fetch_response = function(o_resp){
         
     }
 }
+
+
+
+
+let f_s_name_file_cached__readable_ignore_fragment_and_getparams = async function(
+    s_url, 
+){
+    s_url = s_url.split('?').shift();
+    s_url = s_url.split('#').shift();
+    s_url = s_url.replaceAll('/', '__')
+    s_url = s_url.replaceAll('.', '__')
+    s_url = s_url.split('.')
+    s_url = s_url.replaceAll(':', '__')
+    return s_url
+}
+let f_s_name_file_cached__hashed = async function(
+    s_url, 
+){
+    return f_s_hashed(s_url);
+}
+let f_s_name_file_cached__base64encoded = async function(
+    s_url, 
+){
+    return btoa(s_url);
+}
 let f_o_resp__fetch_cached = async function(
-    f_fetch_original, 
-    s_url,
-    o_options = null,
+    f_fetch, 
+    a_v_arg__for_f_fetch,
     b_overwrite_cached_file = false, 
     n_ms_diff__overwrite_cached_file = 24*60*60*1000, 
+    f_s_name_file_cached = f_s_name_file_cached__hashed,
     s_path_folder_cache = './.cache_for_f_a_n_u8__fetch_cached'
 ){
-    if(typeof f_fetch_original != 'function'){
-        throw Error('please provide the original fetch function as first argument');
-
+    if(typeof f_fetch != 'function'){
+        throw Error('please provide the (prefered) fetch function as first argument');
     }
-    let s_url_hashed = await f_s_hashed(s_url);
-
     await f_ensure_path_folder(s_path_folder_cache);
-    let s_name_file = s_url_hashed//btoa(s_url);
+    let s_name_file = await f_s_name_file_cached(
+        a_v_arg__for_f_fetch[0] 
+    ) 
     let s_path_file = `${s_path_folder_cache}/${s_name_file}`
     let s_path_file_meta_json = `${s_path_folder_cache}/${s_name_file}.json`
     let a_n_u8 = null;
     let b_path_existing = await f_b_path_existing(s_path_file);
+
+    let n_ts_ms__created = new Date().getTime();
+    if(b_path_existing && !b_overwrite_cached_file){
+        let o_stat = await Deno.stat(s_path_file);
+        n_ts_ms__created = new Date(o_stat.birthtime).getTime();
+        let n_ts_ms_diff = new Date().getTime() - n_ts_ms__created;
+        if(n_ts_ms_diff > n_ms_diff__overwrite_cached_file){
+            b_overwrite_cached_file = true
+        }
+    }
     let o_resp_meta = {}
+    let b_from_disk = false;
     if(b_path_existing && !b_overwrite_cached_file){
         a_n_u8 = await Deno.readFile(s_path_file);
         let s_json_o_resp_meta = await Deno.readTextFile(s_path_file_meta_json);
         o_resp_meta = JSON.parse(s_json_o_resp_meta)
+        b_from_disk = true;
     }else{
-        let o_resp = await f_fetch_original(s_url, o_options);
+        let o_resp = await f_fetch(
+            ...a_v_arg__for_f_fetch
+        );
         o_resp_meta = f_o__from_o_fetch_response(o_resp)
+        // Object.assign(o_resp_meta, {n_ts_ms__created_on_disk:n_ts_ms__created})// we cannot for sure know that n_ts_ms__created is also the ts thath the file gets
         let s_json_o_resp_meta = JSON.stringify(o_resp_meta)
         a_n_u8 = new Uint8Array(await o_resp.arrayBuffer());
         await Deno.writeFile(s_path_file, a_n_u8);
         await Deno.writeTextFile(s_path_file_meta_json, s_json_o_resp_meta)
     }
-    return new Response(
+    let o_resp = new Response(
         a_n_u8, 
         o_resp_meta
     )
+    if(b_from_disk){
+        Object.assign(o_resp, {b_from_disk:true})
+    }
+
+    return o_resp
+
 }
 
 export {
@@ -409,11 +421,12 @@ export {
     f_o_html__from_s_url,
     f_a_n_u8__from_s_url_with_download_speed_easy,
     f_download_file__from_s_url, 
-    f_promise_all_numloop_with_callback,
-    f_monkey_patch_fetch, 
-    f_monkey_patch_fetch__easy, 
     f_o_resp__fetch_cached, 
     f_s_hashed,
-    f_o__from_o_fetch_response
+    f_o__from_o_fetch_response, 
+    f_s_name_file_cached__readable_ignore_fragment_and_getparams,
+    f_s_name_file_cached__hashed,
+    f_s_name_file_cached__base64encoded,
+    f_sleep_ms
 }
 

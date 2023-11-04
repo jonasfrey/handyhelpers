@@ -13,14 +13,16 @@ import {
     f_o_html__from_s_html,
     f_a_n_u8__from_s_url_with_download_speed_easy,
     f_download_file__from_s_url,
-    f_promise_all_numloop_with_callback,
     f_o_html__from_s_url,
-    f_monkey_patch_fetch,
-    f_monkey_patch_fetch__easy,
     f_o_resp__fetch_cached,
     f_s_hashed,
-    f_o__from_o_fetch_response
+    f_o__from_o_fetch_response, 
+    f_sleep_ms, 
+    f_s_name_file_cached__base64encoded, 
+    f_s_name_file_cached__hashed, 
+    f_s_name_file_cached__readable_ignore_fragment_and_getparams
 } from "./module.js"
+
 
 //readme.md:start
 //md: ![handy helpers logo](./logo_banner.png)
@@ -30,6 +32,100 @@ import {
 
 await f_deno_test_all_and_print_summary(
     [
+
+        f_deno_test("f_sleep_ms", async () => {
+            //readme.md:start
+            //md: ## f_sleep_ms
+            let n_ms = window.performance.now();
+            await f_sleep_ms(333);
+            f_assert_equals(
+                (window.performance.now() - n_ms) >= 333, 
+                true
+            )
+            //readme.md:end
+        }),
+        f_deno_test("no_function_but_handy_snippets", () => {
+            //readme.md:start
+            //md: ## no_function_but_handy_snippets
+            //md: extend a file name by '_thumb' 
+            // extend the prototype 
+            f_assert_equals(
+                'some_image.png'
+                    .split('.')
+                    .map((v, n_idx, a)=>{
+                        return (n_idx == a.length-2) ? `${v}_thumb`: v
+                    })
+                    .join('.'), 
+                'some_image_thumb.png'
+            )
+
+            //readme.md:end
+        }),
+        f_deno_test("f_o_resp__fetch_cached", async () => {
+            //readme.md:start
+            
+            //md: ## f_o_resp__fetch_cached
+            //md: makes a fetch but caches the response meta (status, statusText, headers) and data as a_n_u8
+
+            var o_resp = await f_o_resp__fetch_cached(
+                fetch, // f_fetch 
+                [ // a_v_arg__for_f_fetch
+                    'https://deno.com/', 
+                    {'headers': {'User-Agent': "Test 1.2/3"}}
+                ], 
+                true,// b_overwrite_cached_file
+                1000, // n_ms_diff__overwrite_cached_file  
+                async (
+                    s_url
+                )=>{ // f_s_name_file_cached
+                    // available functions 
+                    // f_s_name_file_cached__base64encoded -> 'aHR0cHM6Ly9kZW5vLmNvbS8='
+                    // f_s_name_file_cached__hashed -> 'd2a68e83cffd1f8dc53143c95006f862f199082b'
+                    // f_s_name_file_cached__readable_ignore_fragment_and_getparams -> 'https______deno__com'
+                    return `${s_url.split('?').shift().replaceAll('/', '--').replaceAll(':', '__')}}`
+                }, 
+                './.cache'//a custom path to a folder for the cache
+            );
+            f_assert_equals(
+                o_resp?.b_from_disk, 
+                undefined
+            );
+            //readme.md:end
+            
+            // testing the timeout
+            var o_resp = await f_o_resp__fetch_cached(
+                fetch, // passing the original fetch function 
+                ['https://deno.com/'], 
+                true, 
+                24*60*60*100,
+            );
+            f_assert_equals(
+                o_resp?.b_from_disk, 
+                undefined
+            );
+            var o_resp = await f_o_resp__fetch_cached(
+                fetch, // passing the original fetch function 
+                [
+                    'https://deno.com/', 
+                ], 
+            );
+            f_assert_equals(
+                o_resp?.b_from_disk,
+                true
+            );
+            var o_resp = await f_o_resp__fetch_cached(
+                fetch, // passing the original fetch function 
+                ['https://deno.com/'], 
+                true, 
+                24*60*60*100,
+            );
+            f_assert_equals(
+                o_resp?.b_from_disk, 
+                undefined
+            );
+
+        }),
+
         f_deno_test("f_b_deno", () => {
             //readme.md:start
             //md: ## f_b_deno
@@ -68,7 +164,7 @@ await f_deno_test_all_and_print_summary(
                 // 'https://images.unsplash.com/photo-1533144188434-eb0442504392?auto=format&fit=crop&q=80&w=3948&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 // 'a_picture_in_bird_perspective.png'
                 'https://www.w3schools.com/html/pic_trulli.jpg', 
-                './lol/test.jpg'//if denojs  we can pass a path
+                './.gitignored/lol/test.jpg'//if denojs  we can pass a path
             )
 
             //readme.md:end
@@ -102,46 +198,42 @@ await f_deno_test_all_and_print_summary(
 
 
 
-        f_deno_test("f_monkey_patch_fetch__easy", async () => {
+        f_deno_test("monkey_path_the_fetch_function", async () => {
             //readme.md:start
             
-            //md: ## f_monkey_patch_fetch__easy
-            //md: replace the original fetch function, with a custom fetch function, for example to change 
-            var o_data = await (await fetch('https://httpbin.org/headers')).json();
-            f_assert_equals(
-                o_data.headers['User-Agent'].includes('Deno/'),
-                true
-            )
-
-            f_monkey_patch_fetch__easy(
-                function(
-                    a_v_arg
-                ){
-                    // this callback will be called before each fetch function , 
-                    // we get the arguments and can overwrite the arguments
-                    let s_url = a_v_arg?.[0];
-                    if(s_url?.includes('httbin_non_existing_lol.org')){
-                        a_v_arg[0] = s_url.replace('httbin_non_existing_lol.org', 'httpbin.org')
-                    }
-                    // we could ignore the patching on some fetch calls
-                    if(s_url.includes('#dont_monkey_patch')){
-                        return a_v_arg
-                    }
-                    return [
-                        a_v_arg[0], 
-                        {
-                            headers: {
-                                'User-Agent': [
-                                    `Gozilla/${(Math.random()*5+1).toFixed(1)}`, 
-                                    `(Dingos TN 2.1; Din64; x128; rv:27.0)`, 
-                                    `Lizzard/20100101 Waterwhale/42.0`
-                                ].join(' ')
-                            }
-                        }
-                    ] 
+            //md: ## monkey_path_the_fetch_function
+            //md: replace the original fetch function, with a custom fetch function, for example to change some headers
+            let f_fetch_original = window.fetch
+            window.fetch = async function(){
+                let a_v_arg = Array.from(arguments);
+                let s_url = a_v_arg?.[0];
+                if(s_url?.includes('httbin_non_existing_lol.org')){
+                    a_v_arg[0] = s_url.replace('httbin_non_existing_lol.org', 'httpbin.org')
                 }
-            );
-
+                // we can cache some sites
+                if(s_url == 'https://httpbin.org/status/418'){
+                    return f_o_resp__fetch_cached(
+                        f_fetch_original, 
+                        a_v_arg
+                    );
+                }
+                // we could ignore the patching on some fetch calls
+                if(s_url.includes('#dont_monkey_patch')){
+                    return f_fetch_original(...a_v_arg)
+                }
+                return f_fetch_original(
+                    a_v_arg[0], 
+                    {
+                        headers: {
+                            'User-Agent': [
+                                `Gozilla/${(Math.random()*5+1).toFixed(1)}`, 
+                                `(Dingos TN 2.1; Din64; x128; rv:27.0)`, 
+                                `Lizzard/20100101 Waterwhale/42.0`
+                            ].join(' ')
+                        }
+                    }
+                )
+            }
             var o_data = await (await fetch('https://httpbin.org/headers')).json();
             f_assert_equals(o_data.headers['User-Agent'].includes('Gozilla/'),true)
 
@@ -151,11 +243,13 @@ await f_deno_test_all_and_print_summary(
             var o_data = await (await fetch('https://httpbin.org/headers#dont_monkey_patch')).json();
             f_assert_equals(o_data.headers['User-Agent'].includes('Deno/'),true)
 
-            // restore the default fetch function
-            f_monkey_patch_fetch(
-                null, 
-                true// restore original fetch
-            )
+            var o_data = await fetch('https://httpbin.org/status/418');
+            var o_data = await fetch('https://httpbin.org/status/418');
+            f_assert_equals(o_data.b_from_disk, true)
+
+            // restore the original function 
+            window.fetch = f_fetch_original
+
             // test the restored function
             var o_data = await (await fetch('https://httpbin.org/headers')).json();
             f_assert_equals(
@@ -166,33 +260,18 @@ await f_deno_test_all_and_print_summary(
         }),
 
 
-        f_deno_test("f_promise_all_numloop_with_callback", async () => {
+        f_deno_test("f_o_html__from_s_url", async () => {
             //readme.md:start
             
-            //md: ## f_promise_all_numloop_with_callback
-            //md: a handy function to iterate over things and download stuff for example
-            let a_o_result = await f_promise_all_numloop_with_callback(
-                3, 
-                4, 
-                async function(n_num){
-                    let s_url_base = `https://www.tutti.ch`
-                    let o_doc = await f_o_html__from_s_url(
-                        `https://www.tutti.ch/de/q/suche/Ak6dnaXRhcnJlwJTAwMDA?sorting=newest&page=${n_num}&query=gitarre`
-                        );
-                    // console.log(Array.from(o_doc.querySelectorAll('[data-testid="link-to-image"]')))
-                    let a_s_url = Array.from(o_doc.querySelectorAll('[data-testid="link-to-image"]'))
-                        .map(o=>`${s_url_base}${o.getAttribute('href')}`)
-                    a_s_url = [a_s_url[0]]
-                    return Promise.all(
-                        a_s_url.map(async s=>{
-                            let o_doc2 = await f_o_html__from_s_url(s);
-                            await f_download_file__from_s_url(o_doc2.querySelector('img').getAttribute('src'))
-                            return true
-                        })
-                    )
-                }
+            //md: ## f_o_html__from_s_url
+            //md: a handy function to directly get a js object html document from a url, works in deno and browser
+            let o_doc = (await f_o_html__from_s_url(
+                `https://deno.land`
+            ))
+            f_assert_equals(
+                typeof o_doc.body.querySelectorAll, 
+                'function'
             )
-            return true
             //readme.md:end
         }),
 
@@ -211,35 +290,7 @@ await f_deno_test_all_and_print_summary(
         }),
 
 
-        f_deno_test("f_o_resp__fetch_cached", async () => {
-            //readme.md:start
-            
-            //md: ## f_o_resp__fetch_cached
-            //md: makes a fetch but caches the response meta (status, statusText, headers) and data as a_n_u8
 
-            let o_resp = await f_o_resp__fetch_cached(
-                'http://www.worldslongestwebsite.com/', 
-                true//overwrite
-            );
-            // console.log(o_resp)
-            let s_text = await o_resp.text()
-
-            let o_resp_from_cache = await f_o_resp__fetch_cached(
-                'http://www.worldslongestwebsite.com/', 
-            );
-            // console.log(o_resp)
-            let s_text_from_cache = await o_resp_from_cache.text()
-
-            f_assert_equals(
-                s_text,
-                s_text_from_cache,
-            )
-            f_assert_equals(
-                JSON.stringify(f_o__from_o_fetch_response(o_resp)),
-                JSON.stringify(f_o__from_o_fetch_response(o_resp_from_cache)),
-            )
-            //readme.md:end
-        }),
 
     ]
 )
