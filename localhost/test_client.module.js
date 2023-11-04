@@ -44,9 +44,9 @@ await f_deno_test_all_and_print_summary(
             )
             //readme.md:end
         }),
-        f_deno_test("no_function_but_handy_snippets", () => {
+        f_deno_test("Handy snippets", () => {
             //readme.md:start
-            //md: ## no_function_but_handy_snippets
+            //md: ## Handy snippets
             //md: extend a file name by '_thumb' 
             // extend the prototype 
             f_assert_equals(
@@ -198,11 +198,12 @@ await f_deno_test_all_and_print_summary(
 
 
 
-        f_deno_test("monkey_path_the_fetch_function", async () => {
+        f_deno_test("Overwrite / 'Monkey-Patch' the fetch function", async () => {
             //readme.md:start
             
-            //md: ## monkey_path_the_fetch_function
+            //md: ## Overwrite / 'Monkey-Patch' the fetch function
             //md: replace the original fetch function, with a custom fetch function, for example to change some headers
+            //md: this can be used in combination with `f_o_resp__fetch_cached`, `f_download_file__from_s_url`
             let f_fetch_original = window.fetch
             window.fetch = async function(){
                 let a_v_arg = Array.from(arguments);

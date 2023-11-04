@@ -1,7 +1,60 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Nov 02 2023 22:56:18 GMT+0100 (Central European Standard Time)","n_ts_created":1698962178820} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sat Nov 04 2023 01:35:48 GMT+0100 (Central European Standard Time)","n_ts_created":1699058148665} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
+## f_sleep_ms
+```javascript
+            let n_ms = window.performance.now();
+            await f_sleep_ms(333);
+            f_assert_equals(
+                (window.performance.now() - n_ms) >= 333, 
+                true
+            )
+```
+## Handy snippets
+extend a file name by '_thumb'
+```javascript
+            // extend the prototype 
+            f_assert_equals(
+                'some_image.png'
+                    .split('.')
+                    .map((v, n_idx, a)=>{
+                        return (n_idx == a.length-2) ? `${v}_thumb`: v
+                    })
+                    .join('.'), 
+                'some_image_thumb.png'
+            )
+
+            
+```
+## f_o_resp__fetch_cached
+makes a fetch but caches the response meta (status, statusText, headers) and data as a_n_u8
+```javascript
+
+            var o_resp = await f_o_resp__fetch_cached(
+                fetch, // f_fetch 
+                [ // a_v_arg__for_f_fetch
+                    'https://deno.com/', 
+                    {'headers': {'User-Agent': "Test 1.2/3"}}
+                ], 
+                true,// b_overwrite_cached_file
+                1000, // n_ms_diff__overwrite_cached_file  
+                async (
+                    s_url
+                )=>{ // f_s_name_file_cached
+                    // available functions 
+                    // f_s_name_file_cached__base64encoded -> 'aHR0cHM6Ly9kZW5vLmNvbS8='
+                    // f_s_name_file_cached__hashed -> 'd2a68e83cffd1f8dc53143c95006f862f199082b'
+                    // f_s_name_file_cached__readable_ignore_fragment_and_getparams -> 'https______deno__com'
+                    return `${s_url.split('?').shift().replaceAll('/', '--').replaceAll(':', '__')}}`
+                }, 
+                './.cache'//a custom path to a folder for the cache
+            );
+            f_assert_equals(
+                o_resp?.b_from_disk, 
+                undefined
+            );
+```
 ## f_b_deno
 check if script is running with https://deno.com/
 ```javascript
@@ -32,7 +85,7 @@ download a file, pass an optional callback, or let log the download state by def
                 // 'https://images.unsplash.com/photo-1533144188434-eb0442504392?auto=format&fit=crop&q=80&w=3948&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 // 'a_picture_in_bird_perspective.png'
                 'https://www.w3schools.com/html/pic_trulli.jpg', 
-                './lol/test.jpg'//if denojs  we can pass a path
+                './.gitignored/lol/test.jpg'//if denojs  we can pass a path
             )
 
 ```
@@ -61,44 +114,41 @@ one can also print the download percentage
             f_assert_equals(a_n_u8.length, 15944874)
             
 ```
-## f_monkey_patch_fetch__easy
-replace the original fetch function, with a custom fetch function, for example to change
+## Overwrite / 'Monkey-Patch' the fetch function
+replace the original fetch function, with a custom fetch function, for example to change some headers
+this can be used in combination with `f_o_resp__fetch_cached`, `f_download_file__from_s_url`
 ```javascript
-            var o_data = await (await fetch('https://httpbin.org/headers')).json();
-            f_assert_equals(
-                o_data.headers['User-Agent'].includes('Deno/'),
-                true
-            )
-
-            f_monkey_patch_fetch__easy(
-                function(
-                    a_v_arg
-                ){
-                    // this callback will be called before each fetch function , 
-                    // we get the arguments and can overwrite the arguments
-                    let s_url = a_v_arg?.[0];
-                    if(s_url?.includes('httbin_non_existing_lol.org')){
-                        a_v_arg[0] = s_url.replace('httbin_non_existing_lol.org', 'httpbin.org')
-                    }
-                    // we could ignore the patching on some fetch calls
-                    if(s_url.includes('#dont_monkey_patch')){
-                        return a_v_arg
-                    }
-                    return [
-                        a_v_arg[0], 
-                        {
-                            headers: {
-                                'User-Agent': [
-                                    `Gozilla/${(Math.random()*5+1).toFixed(1)}`, 
-                                    `(Dingos TN 2.1; Din64; x128; rv:27.0)`, 
-                                    `Lizzard/20100101 Waterwhale/42.0`
-                                ].join(' ')
-                            }
-                        }
-                    ] 
+            let f_fetch_original = window.fetch
+            window.fetch = async function(){
+                let a_v_arg = Array.from(arguments);
+                let s_url = a_v_arg?.[0];
+                if(s_url?.includes('httbin_non_existing_lol.org')){
+                    a_v_arg[0] = s_url.replace('httbin_non_existing_lol.org', 'httpbin.org')
                 }
-            );
-
+                // we can cache some sites
+                if(s_url == 'https://httpbin.org/status/418'){
+                    return f_o_resp__fetch_cached(
+                        f_fetch_original, 
+                        a_v_arg
+                    );
+                }
+                // we could ignore the patching on some fetch calls
+                if(s_url.includes('#dont_monkey_patch')){
+                    return f_fetch_original(...a_v_arg)
+                }
+                return f_fetch_original(
+                    a_v_arg[0], 
+                    {
+                        headers: {
+                            'User-Agent': [
+                                `Gozilla/${(Math.random()*5+1).toFixed(1)}`, 
+                                `(Dingos TN 2.1; Din64; x128; rv:27.0)`, 
+                                `Lizzard/20100101 Waterwhale/42.0`
+                            ].join(' ')
+                        }
+                    }
+                )
+            }
             var o_data = await (await fetch('https://httpbin.org/headers')).json();
             f_assert_equals(o_data.headers['User-Agent'].includes('Gozilla/'),true)
 
@@ -108,11 +158,13 @@ replace the original fetch function, with a custom fetch function, for example t
             var o_data = await (await fetch('https://httpbin.org/headers#dont_monkey_patch')).json();
             f_assert_equals(o_data.headers['User-Agent'].includes('Deno/'),true)
 
-            // restore the default fetch function
-            f_monkey_patch_fetch(
-                null, 
-                true// restore original fetch
-            )
+            var o_data = await fetch('https://httpbin.org/status/418');
+            var o_data = await fetch('https://httpbin.org/status/418');
+            f_assert_equals(o_data.b_from_disk, true)
+
+            // restore the original function 
+            window.fetch = f_fetch_original
+
             // test the restored function
             var o_data = await (await fetch('https://httpbin.org/headers')).json();
             f_assert_equals(
@@ -121,31 +173,16 @@ replace the original fetch function, with a custom fetch function, for example t
             )
             
 ```
-## f_promise_all_numloop_with_callback
-a handy function to iterate over things and download stuff for example
+## f_o_html__from_s_url
+a handy function to directly get a js object html document from a url, works in deno and browser
 ```javascript
-            let a_o_result = await f_promise_all_numloop_with_callback(
-                3, 
-                4, 
-                async function(n_num){
-                    let s_url_base = `https://www.tutti.ch`
-                    let o_doc = await f_o_html__from_s_url(
-                        `https://www.tutti.ch/de/q/suche/Ak6dnaXRhcnJlwJTAwMDA?sorting=newest&page=${n_num}&query=gitarre`
-                        );
-                    // console.log(Array.from(o_doc.querySelectorAll('[data-testid="link-to-image"]')))
-                    let a_s_url = Array.from(o_doc.querySelectorAll('[data-testid="link-to-image"]'))
-                        .map(o=>`${s_url_base}${o.getAttribute('href')}`)
-                    a_s_url = [a_s_url[0]]
-                    return Promise.all(
-                        a_s_url.map(async s=>{
-                            let o_doc2 = await f_o_html__from_s_url(s);
-                            await f_download_file__from_s_url(o_doc2.querySelector('img').getAttribute('src'))
-                            return true
-                        })
-                    )
-                }
+            let o_doc = (await f_o_html__from_s_url(
+                `https://deno.land`
+            ))
+            f_assert_equals(
+                typeof o_doc.body.querySelectorAll, 
+                'function'
             )
-            return true
             
 ```
 ## f_s_hashed
@@ -156,32 +193,5 @@ hash a string, using the window.crypto.subtle API, available functions at the mo
             f_assert_equals(
                 await f_s_hashed('lol this is a text', 'SHA-1'),
                 'd2a68e83cffd1f8dc53143c95006f862f199082b'
-            )
-            
-```
-## f_o_resp__fetch_cached
-makes a fetch but caches the response meta (status, statusText, headers) and data as a_n_u8
-```javascript
-
-            let o_resp = await f_o_resp__fetch_cached(
-                'http://www.worldslongestwebsite.com/', 
-                true//overwrite
-            );
-            // console.log(o_resp)
-            let s_text = await o_resp.text()
-
-            let o_resp_from_cache = await f_o_resp__fetch_cached(
-                'http://www.worldslongestwebsite.com/', 
-            );
-            // console.log(o_resp)
-            let s_text_from_cache = await o_resp_from_cache.text()
-
-            f_assert_equals(
-                s_text,
-                s_text_from_cache,
-            )
-            f_assert_equals(
-                JSON.stringify(f_o__from_o_fetch_response(o_resp)),
-                JSON.stringify(f_o__from_o_fetch_response(o_resp_from_cache)),
             )
 ```
