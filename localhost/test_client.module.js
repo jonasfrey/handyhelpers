@@ -20,7 +20,9 @@ import {
     f_sleep_ms, 
     f_s_name_file_cached__base64encoded, 
     f_s_name_file_cached__hashed, 
-    f_s_name_file_cached__readable_ignore_fragment_and_getparams
+    f_s_name_file_cached__readable_ignore_fragment_and_getparams,
+    f_move_v_in_array,
+    f_swap_v_in_array
 } from "./module.js"
 
 
@@ -32,6 +34,71 @@ import {
 
 await f_deno_test_all_and_print_summary(
     [
+
+        f_deno_test("f_move_v_in_array", async () => {
+            //readme.md:start
+            
+            //md: ## f_move_v_in_array
+            //md: moves a value in an array, it does not swap the elements!
+
+            let a_n = [2,0,1,0,0]
+            f_move_v_in_array(a_n, 2, 0)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[1,2,0,0,0]`
+            )
+            f_move_v_in_array(a_n, 1, a_n.length-1)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[1,0,0,0,2]`
+            )
+            f_move_v_in_array(a_n, 2, a_n.length-1)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[1,0,0,2,0]`
+            )
+            let o1 = {n:1}
+            let o2 = {n:2}
+            let o3 = {n:3}
+            let o4 = {n:4} 
+            let o5 = {n:5}
+            let a_o = [o1,o2,o3,o4,o5];
+            var n_idx_from = 0;
+            var n_idx_to = 2;
+            var o_from = a_o[n_idx_from];
+            var o_to = a_o[n_idx_to];
+            f_move_v_in_array(a_o, n_idx_from, n_idx_to)
+            f_assert_equals(
+                a_o[n_idx_to], 
+                o_from
+            )
+            //readme.md:end
+        }),
+
+        f_deno_test("f_swap_v_in_array", async () => {
+            //readme.md:start
+            
+            //md: ## f_swap_v_in_array
+            //md: swaps two values in an array
+
+            let a_n = [2,0,1,0,0]
+            f_swap_v_in_array(a_n, 2, 0)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[1,0,2,0,0]`
+            )
+            f_swap_v_in_array(a_n, 0, a_n.length-1)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[0,0,2,0,1]`
+            )
+            f_swap_v_in_array(a_n, 2, a_n.length-1)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[0,0,1,0,2]`
+            )
+            //readme.md:end
+        }),
 
         f_deno_test("f_sleep_ms", async () => {
             //readme.md:start

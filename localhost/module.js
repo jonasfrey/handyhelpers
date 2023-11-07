@@ -413,6 +413,20 @@ let f_o_resp__fetch_cached = async function(
     return o_resp
 
 }
+let f_move_v_in_array = function(a_v, n_idx_from, n_idx_to){
+    // Remove the element from the array
+    const v = a_v.splice(n_idx_from, 1)[0];
+    // Place the v at the new index
+    a_v.splice(n_idx_to, 0, v);
+    return a_v; // This is optional; the array is modified in place
+}
+let f_swap_v_in_array = function(a_v, n_idx_1, n_idx_2){
+    let v_1 = a_v[n_idx_1];
+    let v_2 = a_v[n_idx_2];
+    a_v[n_idx_1] = v_2;
+    a_v[n_idx_2] = v_1
+    return a_v;
+}
 
 export {
     f_b_denojs, 
@@ -427,6 +441,8 @@ export {
     f_s_name_file_cached__readable_ignore_fragment_and_getparams,
     f_s_name_file_cached__hashed,
     f_s_name_file_cached__base64encoded,
-    f_sleep_ms
+    f_sleep_ms, 
+    f_move_v_in_array, 
+    f_swap_v_in_array
 }
 
