@@ -1,8 +1,11 @@
-import {
-    exists as f_b_path_existing, 
-    ensureDir as f_ensure_path_folder,
-    ensureFile as f_ensure_path_file
-} from 'https://deno.land/std@0.205.0/fs/mod.ts'
+let f_b_denojs = function(){
+    return 'Deno' in window
+}
+
+let o_mod_fs = null;
+if(f_b_denojs()){
+    o_mod_fs = await import("https://deno.land/std@0.205.0/fs/mod.ts");
+}
 let f_sleep_ms = async function(n_ms){
     return new Promise(
         (f_res)=>{
@@ -13,9 +16,6 @@ let f_sleep_ms = async function(n_ms){
     )
 }
 
-let f_b_denojs = function(){
-    return 'Deno' in window
-}
 
 let f_o_html_element__from_s_tag = async function(s_tag){
     
@@ -112,7 +112,7 @@ let f_download_file__from_s_url = async function(
     
     if(b_denojs){
         // Write the video to the file
-        await f_ensure_path_file(s_name_orand_path_file);
+        await o_mod_fs.ensureFile(s_name_orand_path_file);
         return Deno.writeFile(s_name_orand_path_file, a_n_u8);
     }
     if(!b_denojs){
@@ -366,14 +366,14 @@ let f_o_resp__fetch_cached = async function(
     if(typeof f_fetch != 'function'){
         throw Error('please provide the (prefered) fetch function as first argument');
     }
-    await f_ensure_path_folder(s_path_folder_cache);
+    await o_mod_fs.ensureDir(s_path_folder_cache);
     let s_name_file = await f_s_name_file_cached(
         a_v_arg__for_f_fetch[0] 
     ) 
     let s_path_file = `${s_path_folder_cache}/${s_name_file}`
     let s_path_file_meta_json = `${s_path_folder_cache}/${s_name_file}.json`
     let a_n_u8 = null;
-    let b_path_existing = await f_b_path_existing(s_path_file);
+    let b_path_existing = await o_mod_fs.exists(s_path_file);
 
     let n_ts_ms__created = new Date().getTime();
     if(b_path_existing && !b_overwrite_cached_file){
