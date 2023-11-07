@@ -6,7 +6,6 @@ import {
     f_deno_test_all_and_print_summary 
 } from "https://deno.land/x/deno_test_server_and_client_side@0.4/mod.js"
 
-
 import {
     f_b_denojs, 
     f_o_html_element__from_s_tag, 
@@ -21,8 +20,9 @@ import {
     f_s_name_file_cached__base64encoded, 
     f_s_name_file_cached__hashed, 
     f_s_name_file_cached__readable_ignore_fragment_and_getparams,
-    f_move_v_in_array,
-    f_swap_v_in_array
+    f_move_in_array,
+    f_swap_in_array,
+    f_n_idx_ensured_inside_array
 } from "./module.js"
 
 
@@ -35,24 +35,56 @@ import {
 await f_deno_test_all_and_print_summary(
     [
 
-        f_deno_test("f_move_v_in_array", async () => {
+        f_deno_test("f_n_idx_ensured_inside_array", async () => {
+            //readme.md:start_disabled
+            // only internally used and tested
+            let n_len = 3; 
+            f_assert_equals(f_n_idx_ensured_inside_array(0, n_len), 0)
+            f_assert_equals(f_n_idx_ensured_inside_array(1, n_len), 1)
+            f_assert_equals(f_n_idx_ensured_inside_array(2, n_len), 2)
+            f_assert_equals(f_n_idx_ensured_inside_array(3, n_len), 0)
+            f_assert_equals(f_n_idx_ensured_inside_array(4, n_len), 1)
+            f_assert_equals(f_n_idx_ensured_inside_array(5, n_len), 2)
+            f_assert_equals(f_n_idx_ensured_inside_array(6, n_len), 0)
+            f_assert_equals(f_n_idx_ensured_inside_array(0, n_len), 0)
+            f_assert_equals(f_n_idx_ensured_inside_array(-1, n_len), 2)
+            f_assert_equals(f_n_idx_ensured_inside_array(-2, n_len), 1)
+            f_assert_equals(f_n_idx_ensured_inside_array(-3, n_len), 0)
+            f_assert_equals(f_n_idx_ensured_inside_array(-4, n_len), 2)
+            f_assert_equals(f_n_idx_ensured_inside_array(-5, n_len), 1)
+            f_assert_equals(f_n_idx_ensured_inside_array(-6, n_len), 0)
+
+            //readme.md:end_disabled
+        }),
+
+        f_deno_test("f_move_in_array", async () => {
             //readme.md:start
             
-            //md: ## f_move_v_in_array
+            //md: ## f_move_in_array
             //md: moves a value in an array, it does not swap the elements!
 
             let a_n = [2,0,1,0,0]
-            f_move_v_in_array(a_n, 2, 0)
+            f_move_in_array(a_n, 2, 0)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[1,2,0,0,0]`
             )
-            f_move_v_in_array(a_n, 1, a_n.length-1)
+            f_move_in_array(a_n, 1, a_n.length-1)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[1,0,0,0,2]`
             )
-            f_move_v_in_array(a_n, 2, a_n.length-1)
+            f_move_in_array(a_n, 2, a_n.length-1)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[1,0,0,2,0]`
+            )
+            f_move_in_array(a_n, 0, -1)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[0,0,2,0,1]`
+            )
+            f_move_in_array(a_n, -1, 0)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[1,0,0,2,0]`
@@ -67,7 +99,7 @@ await f_deno_test_all_and_print_summary(
             var n_idx_to = 2;
             var o_from = a_o[n_idx_from];
             var o_to = a_o[n_idx_to];
-            f_move_v_in_array(a_o, n_idx_from, n_idx_to)
+            f_move_in_array(a_o, n_idx_from, n_idx_to)
             f_assert_equals(
                 a_o[n_idx_to], 
                 o_from
@@ -75,31 +107,49 @@ await f_deno_test_all_and_print_summary(
             //readme.md:end
         }),
 
-        f_deno_test("f_swap_v_in_array", async () => {
+        f_deno_test("f_swap_in_array", async () => {
             //readme.md:start
             
-            //md: ## f_swap_v_in_array
+            //md: ## f_swap_in_array
             //md: swaps two values in an array
 
             let a_n = [2,0,1,0,0]
-            f_swap_v_in_array(a_n, 2, 0)
+            f_swap_in_array(a_n, 2, 0)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[1,0,2,0,0]`
             )
-            f_swap_v_in_array(a_n, 0, a_n.length-1)
+            f_swap_in_array(a_n, 0, a_n.length-1)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[0,0,2,0,1]`
             )
-            f_swap_v_in_array(a_n, 2, a_n.length-1)
+            f_swap_in_array(a_n, 2, a_n.length-1)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[0,0,1,0,2]`
+            )
+            f_swap_in_array(a_n, -1, 2)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[0,0,2,0,1]`
+            )
+            f_swap_in_array(a_n, 2, -1)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[0,0,1,0,2]`
             )
             //readme.md:end
         }),
+        f_deno_test("f_move_v_in_array", async () => {
+            //readme.md:start
+            
+            //md: ## f_move_v_in_array
+            //md: moves a value in an array by a index difference
 
+            let a_n = [2,0,1,0,0]
+            //readme.md:end
+        }),
         f_deno_test("f_sleep_ms", async () => {
             //readme.md:start
             //md: ## f_sleep_ms

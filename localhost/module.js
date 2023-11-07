@@ -413,19 +413,54 @@ let f_o_resp__fetch_cached = async function(
     return o_resp
 
 }
-let f_move_v_in_array = function(a_v, n_idx_from, n_idx_to){
+let f_n_idx_ensured_inside_array = function(
+    n_idx,
+    n_len, 
+){
+    if(n_idx<0){
+        n_idx = (n_len + (n_idx % n_len))
+    }
+    return n_idx % n_len
+}
+let f_move_in_array = function(a_v, n_idx_from, n_idx_to){
+
+    let n_len = a_v.length; 
+    n_idx_from = f_n_idx_ensured_inside_array(n_idx_from, n_len);
+    n_idx_to = f_n_idx_ensured_inside_array(n_idx_to, n_len);
+
     // Remove the element from the array
     const v = a_v.splice(n_idx_from, 1)[0];
     // Place the v at the new index
     a_v.splice(n_idx_to, 0, v);
     return a_v; // This is optional; the array is modified in place
 }
-let f_swap_v_in_array = function(a_v, n_idx_1, n_idx_2){
+let f_swap_in_array = function(a_v, n_idx_1, n_idx_2){
+    let n_len = a_v.length;
+    n_idx_1 = f_n_idx_ensured_inside_array(n_idx_1, n_len);
+    n_idx_2 = f_n_idx_ensured_inside_array(n_idx_2, n_len);
     let v_1 = a_v[n_idx_1];
     let v_2 = a_v[n_idx_2];
     a_v[n_idx_1] = v_2;
     a_v[n_idx_2] = v_1
     return a_v;
+}
+let f_move_v_in_array = function(
+    v, 
+    a_v, 
+    n_idx_diff
+){
+    let n_idx_from = a_v.indexOf(v);
+    let n_idx_to = n_idx_from + n_idx_diff;
+    return f_move_in_array(a_v, n_idx_from, n_idx_to); 
+}
+let f_swap_v_in_array = function(
+    v_1,
+    v_2,
+    a_v,
+){
+    let n_idx_1 = a_v.indexOf(v_1);
+    let n_idx_2 = a_v.indexOf(v_2);
+    return f_swap_in_array(a_v, n_idx_1, n_idx_2); 
 }
 
 export {
@@ -442,7 +477,10 @@ export {
     f_s_name_file_cached__hashed,
     f_s_name_file_cached__base64encoded,
     f_sleep_ms, 
+    f_move_in_array, 
+    f_swap_in_array,
+    f_n_idx_ensured_inside_array, 
     f_move_v_in_array, 
-    f_swap_v_in_array
+    f_swap_v_in_array, 
 }
 
