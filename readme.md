@@ -1,26 +1,36 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Tue Nov 07 2023 17:25:41 GMT+0100 (Central European Standard Time)","n_ts_created":1699374341327} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Tue Nov 07 2023 22:43:33 GMT+0100 (Central European Standard Time)","n_ts_created":1699393413768} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
 ```javascript
             
 ```
-## f_move_v_in_array
+## f_move_in_array
 moves a value in an array, it does not swap the elements!
 ```javascript
 
             let a_n = [2,0,1,0,0]
-            f_move_v_in_array(a_n, 2, 0)
+            f_move_in_array(a_n, 2, 0)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[1,2,0,0,0]`
             )
-            f_move_v_in_array(a_n, 1, a_n.length-1)
+            f_move_in_array(a_n, 1, a_n.length-1)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[1,0,0,0,2]`
             )
-            f_move_v_in_array(a_n, 2, a_n.length-1)
+            f_move_in_array(a_n, 2, a_n.length-1)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[1,0,0,2,0]`
+            )
+            f_move_in_array(a_n, 0, -1)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[0,0,2,0,1]`
+            )
+            f_move_in_array(a_n, -1, 0)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[1,0,0,2,0]`
@@ -35,32 +45,102 @@ moves a value in an array, it does not swap the elements!
             var n_idx_to = 2;
             var o_from = a_o[n_idx_from];
             var o_to = a_o[n_idx_to];
-            f_move_v_in_array(a_o, n_idx_from, n_idx_to)
+            f_move_in_array(a_o, n_idx_from, n_idx_to)
             f_assert_equals(
                 a_o[n_idx_to], 
                 o_from
             )
             
 ```
-## f_swap_v_in_array
+## f_swap_in_array
 swaps two values in an array
 ```javascript
 
             let a_n = [2,0,1,0,0]
-            f_swap_v_in_array(a_n, 2, 0)
+            f_swap_in_array(a_n, 2, 0)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[1,0,2,0,0]`
             )
-            f_swap_v_in_array(a_n, 0, a_n.length-1)
+            f_swap_in_array(a_n, 0, a_n.length-1)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[0,0,2,0,1]`
             )
-            f_swap_v_in_array(a_n, 2, a_n.length-1)
+            f_swap_in_array(a_n, 2, a_n.length-1)
             f_assert_equals(
                 JSON.stringify(a_n), 
                 `[0,0,1,0,2]`
+            )
+            f_swap_in_array(a_n, -1, 2)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[0,0,2,0,1]`
+            )
+            f_swap_in_array(a_n, 2, -1)
+            f_assert_equals(
+                JSON.stringify(a_n), 
+                `[0,0,1,0,2]`
+            )
+            
+```
+## f_move_v_in_array
+moves a value in an array by a index difference
+```javascript
+
+            let a_s = ["a","b","c","d"];
+            f_move_v_in_array(a_s, "a", 2)
+            f_assert_equals(
+                JSON.stringify(a_s),
+                '["b","c","a","d"]'
+            )
+            f_move_v_in_array(a_s, "d", -3)
+            f_assert_equals(
+                JSON.stringify(a_s),
+                '["d","b","c","a"]'
+            )
+            let o1 = {n:1}
+            let o2 = {n:2}
+            let o3 = {n:3}
+            let o4 = {n:4} 
+            let o5 = {n:5}
+            let a_o = [o1,o2,o3,o4,o5];
+            f_move_v_in_array(a_o, o1, -1)
+            f_assert_equals(
+                a_o.at(-1) == o1, 
+                true
+            )
+            
+```
+## f_swap_v_in_array
+moves a value in an array by a index difference
+```javascript
+
+            let a_s = ["a","b","c","d"];
+            f_swap_v_in_array(a_s, "a", "d")
+            f_assert_equals(
+                JSON.stringify(a_s),
+                '["d","b","c","a"]'
+            )
+            f_swap_v_in_array(a_s, "b", "c")
+            f_assert_equals(
+                JSON.stringify(a_s),
+                '["d","c","b","a"]'
+            )
+            let o1 = {n:1}
+            let o2 = {n:2}
+            let o3 = {n:3}
+            let o4 = {n:4} 
+            let o5 = {n:5}
+            let a_o = [o1,o2,o3,o4,o5];
+            f_swap_v_in_array(a_o, o1, o5)
+            f_assert_equals(
+                a_o.at(-1) == o1, 
+                true
+            )
+            f_assert_equals(
+                a_o.at(0) == o5, 
+                true
             )
 ```
 ## f_sleep_ms
@@ -108,7 +188,7 @@ makes a fetch but caches the response meta (status, statusText, headers) and dat
                     // f_s_name_file_cached__hashed -> 'd2a68e83cffd1f8dc53143c95006f862f199082b'
                     // f_s_name_file_cached__readable_ignore_fragment_and_getparams -> 'https______deno__com'
                     return `${s_url.split('?').shift().replaceAll('/', '--').replaceAll(':', '__')}}`
-                }, 
+                },
                 './.cache'//a custom path to a folder for the cache
             );
             f_assert_equals(

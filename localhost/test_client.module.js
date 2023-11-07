@@ -22,7 +22,9 @@ import {
     f_s_name_file_cached__readable_ignore_fragment_and_getparams,
     f_move_in_array,
     f_swap_in_array,
-    f_n_idx_ensured_inside_array
+    f_n_idx_ensured_inside_array,
+    f_move_v_in_array,
+    f_swap_v_in_array
 } from "./module.js"
 
 
@@ -147,7 +149,62 @@ await f_deno_test_all_and_print_summary(
             //md: ## f_move_v_in_array
             //md: moves a value in an array by a index difference
 
-            let a_n = [2,0,1,0,0]
+            let a_s = ["a","b","c","d"];
+            f_move_v_in_array(a_s, "a", 2)
+            f_assert_equals(
+                JSON.stringify(a_s),
+                '["b","c","a","d"]'
+            )
+            f_move_v_in_array(a_s, "d", -3)
+            f_assert_equals(
+                JSON.stringify(a_s),
+                '["d","b","c","a"]'
+            )
+            let o1 = {n:1}
+            let o2 = {n:2}
+            let o3 = {n:3}
+            let o4 = {n:4} 
+            let o5 = {n:5}
+            let a_o = [o1,o2,o3,o4,o5];
+            f_move_v_in_array(a_o, o1, -1)
+            f_assert_equals(
+                a_o.at(-1) == o1, 
+                true
+            )
+            //readme.md:end
+        }),
+        f_deno_test("f_swap_v_in_array", async () => {
+            //readme.md:start
+            
+            //md: ## f_swap_v_in_array
+            //md: moves a value in an array by a index difference
+
+            let a_s = ["a","b","c","d"];
+            f_swap_v_in_array(a_s, "a", "d")
+            f_assert_equals(
+                JSON.stringify(a_s),
+                '["d","b","c","a"]'
+            )
+            f_swap_v_in_array(a_s, "b", "c")
+            f_assert_equals(
+                JSON.stringify(a_s),
+                '["d","c","b","a"]'
+            )
+            let o1 = {n:1}
+            let o2 = {n:2}
+            let o3 = {n:3}
+            let o4 = {n:4} 
+            let o5 = {n:5}
+            let a_o = [o1,o2,o3,o4,o5];
+            f_swap_v_in_array(a_o, o1, o5)
+            f_assert_equals(
+                a_o.at(-1) == o1, 
+                true
+            )
+            f_assert_equals(
+                a_o.at(0) == o5, 
+                true
+            )
             //readme.md:end
         }),
         f_deno_test("f_sleep_ms", async () => {
@@ -200,7 +257,7 @@ await f_deno_test_all_and_print_summary(
                     // f_s_name_file_cached__hashed -> 'd2a68e83cffd1f8dc53143c95006f862f199082b'
                     // f_s_name_file_cached__readable_ignore_fragment_and_getparams -> 'https______deno__com'
                     return `${s_url.split('?').shift().replaceAll('/', '--').replaceAll(':', '__')}}`
-                }, 
+                },
                 './.cache'//a custom path to a folder for the cache
             );
             f_assert_equals(

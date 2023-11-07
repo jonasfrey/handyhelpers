@@ -445,8 +445,8 @@ let f_swap_in_array = function(a_v, n_idx_1, n_idx_2){
     return a_v;
 }
 let f_move_v_in_array = function(
-    v, 
     a_v, 
+    v,
     n_idx_diff
 ){
     let n_idx_from = a_v.indexOf(v);
@@ -454,9 +454,9 @@ let f_move_v_in_array = function(
     return f_move_in_array(a_v, n_idx_from, n_idx_to); 
 }
 let f_swap_v_in_array = function(
+    a_v,
     v_1,
     v_2,
-    a_v,
 ){
     let n_idx_1 = a_v.indexOf(v_1);
     let n_idx_2 = a_v.indexOf(v_2);
