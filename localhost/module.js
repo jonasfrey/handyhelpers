@@ -463,7 +463,21 @@ let f_swap_v_in_array = function(
     return f_swap_in_array(a_v, n_idx_1, n_idx_2); 
 }
 
+let f_a_v__recursive = function(
+    n_y,
+    n_x, 
+    f_v, 
+    n_idx_y
+){
+    if(n_y == 1){
+        return new Array(n_x).fill(0).map((v,n_idx)=>f_v(n_idx,n_idx_y))
+    }else{
+        return new Array(n_x).fill(0).map((v,n_idx)=>f_a_v__recursive(n_y-1,n_x,f_v,n_idx))
+    }
+}
+
 export {
+    f_a_v__recursive, 
     f_b_denojs, 
     f_o_html_element__from_s_tag, 
     f_o_html__from_s_html,

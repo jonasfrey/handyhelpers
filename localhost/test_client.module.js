@@ -24,7 +24,8 @@ import {
     f_swap_in_array,
     f_n_idx_ensured_inside_array,
     f_move_v_in_array,
-    f_swap_v_in_array
+    f_swap_v_in_array,
+    f_a_v__recursive
 } from "./module.js"
 
 
@@ -37,6 +38,15 @@ import {
 await f_deno_test_all_and_print_summary(
     [
 
+        
+        f_deno_test("f_a_v__recursive", async () => {
+            //readme.md:start
+            
+            //md: ## f_a_v__recursive
+            //md: get a n-dimensional array with a value of choice
+            let a = f_a_v__recursive(3,3,function(n_x, n_y){return `${[n_x, n_y].join(',')}`})
+            console.log(a);
+        }),
         f_deno_test("f_n_idx_ensured_inside_array", async () => {
             //readme.md:start_disabled
             // only internally used and tested
