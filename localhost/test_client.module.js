@@ -25,7 +25,8 @@ import {
     f_n_idx_ensured_inside_array,
     f_move_v_in_array,
     f_swap_v_in_array,
-    f_a_v__recursive
+    f_a_v__recursive,
+    f_a_a_v__combinations
 } from "./module.js"
 
 
@@ -39,6 +40,36 @@ await f_deno_test_all_and_print_summary(
     [
 
         
+        
+        f_deno_test("f_a_a_v__combinations", async () => {
+            //readme.md:start
+            
+            //md: ## f_a_a_v__combinations
+            //md: get a n-dimensional array with a value of choice
+            let a = f_a_a_v__combinations(['a','b','c','d'])
+            f_assert_equals(
+                JSON.stringify(a),
+                JSON.stringify([
+                    ["a"],
+                    ["b"],
+                    ["a","b"],
+                    ["c"],
+                    ["a","c"],
+                    ["b","c"],
+                    ["a","b","c"],
+                    ["d"],
+                    ["a","d"],
+                    ["b","d"],
+                    ["a","b","d"],
+                    ["c","d"],
+                    ["a","c","d"],
+                    ["b","c","d"],
+                    ["a","b","c","d"]
+                ])
+            )
+
+            console.log(a);
+        }),
         f_deno_test("f_a_v__recursive", async () => {
             //readme.md:start
             

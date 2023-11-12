@@ -476,6 +476,23 @@ let f_a_v__recursive = function(
     }
 }
 
+let f_a_a_v__combinations = function(
+    a_v
+){
+    let a_a_v = []
+    let n_possible_combos = Math.pow(2, a_v.length)-1;
+    for(let n= 1; n<= n_possible_combos; n+=1){
+        // console.log(n)
+        a_a_v.push(
+            a_v.filter((v, n_idx)=>{
+                return (n & (1 << n_idx))
+            })
+        )
+    }
+    return a_a_v
+}
+
+
 export {
     f_a_v__recursive, 
     f_b_denojs, 
@@ -496,5 +513,6 @@ export {
     f_n_idx_ensured_inside_array, 
     f_move_v_in_array, 
     f_swap_v_in_array, 
+    f_a_a_v__combinations
 }
 
