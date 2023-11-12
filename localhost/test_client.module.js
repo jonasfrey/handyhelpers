@@ -45,7 +45,7 @@ await f_deno_test_all_and_print_summary(
             //readme.md:start
             
             //md: ## f_a_a_v__combinations
-            //md: get a n-dimensional array with a value of choice
+            //md: get all possible combinations of all items without caring about the order 
             let a = f_a_a_v__combinations(['a','b','c','d'])
             f_assert_equals(
                 JSON.stringify(a),
