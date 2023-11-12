@@ -67,8 +67,8 @@ await f_deno_test_all_and_print_summary(
                     ["a","b","c","d"]
                 ])
             )
+            //readme.md:end
 
-            console.log(a);
         }),
         f_deno_test("f_a_v__recursive", async () => {
             //readme.md:start
@@ -77,6 +77,8 @@ await f_deno_test_all_and_print_summary(
             //md: get a n-dimensional array with a value of choice
             let a = f_a_v__recursive(3,3,function(n_x, n_y){return `${[n_x, n_y].join(',')}`})
             console.log(a);
+            //readme.md:end
+
         }),
         f_deno_test("f_n_idx_ensured_inside_array", async () => {
             //readme.md:start_disabled
