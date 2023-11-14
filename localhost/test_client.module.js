@@ -26,7 +26,8 @@ import {
     f_move_v_in_array,
     f_swap_v_in_array,
     f_a_v__recursive,
-    f_a_a_v__combinations
+    f_a_a_v__combinations, 
+    f_s_n_beautified
 } from "./module.js"
 
 
@@ -39,7 +40,29 @@ import {
 await f_deno_test_all_and_print_summary(
     [
 
-        
+        f_deno_test("f_s_n_beautified", async () => {
+            //readme.md:start
+            
+            //md: ## f_s_n_beautified
+            //md: beautify/format a number, 
+            //md: 12341234 
+            //md: becomes
+            //md: 12'341'234
+            f_assert_equals(
+                f_s_n_beautified(12341234), 
+                "12'341'234"
+            )
+            f_assert_equals(
+                f_s_n_beautified(12345, '_'), 
+                "12_345"
+            )
+            f_assert_equals(
+                f_s_n_beautified(111333222555, ' '), 
+                "111 333 222 555"
+            )
+            //readme.md:end
+
+        }),
         
         f_deno_test("f_a_a_v__combinations", async () => {
             //readme.md:start

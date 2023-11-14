@@ -2,6 +2,24 @@ let f_b_denojs = function(){
     return 'Deno' in window
 }
 
+let f_s_n_beautified = function(
+    v, 
+    s_separator = "'"
+){
+    let s = v.toString();
+    return new Array(s.length)
+        .fill(0)
+        .map((s_char, n_idx)=>{
+ 
+            return [
+                s[s.length-1-n_idx],
+                ((n_idx+1) % 3 == 0 && n_idx<s.length-1) ? s_separator : false
+            ].filter(v=>v)
+        })
+        .flat(2)
+        .reverse()
+        .join('');
+}
 let o_mod_fs = null;
 if(f_b_denojs()){
     o_mod_fs = await import("https://deno.land/std@0.205.0/fs/mod.ts");
@@ -494,6 +512,7 @@ let f_a_a_v__combinations = function(
 
 
 export {
+    f_s_n_beautified,
     f_a_v__recursive, 
     f_b_denojs, 
     f_o_html_element__from_s_tag, 

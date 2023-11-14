@@ -1,11 +1,30 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sun Nov 12 2023 11:06:30 GMT+0100 (Central European Standard Time)","n_ts_created":1699783590686} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Tue Nov 14 2023 17:59:22 GMT+0100 (Central European Standard Time)","n_ts_created":1699981162910} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
 ```javascript
             
 ```
-
+## f_s_n_beautified
+beautify/format a number,
+12341234
+becomes
+12'341'234
+```javascript
+            f_assert_equals(
+                f_s_n_beautified(12341234), 
+                "12'341'234"
+            )
+            f_assert_equals(
+                f_s_n_beautified(12345, '_'), 
+                "12_345"
+            )
+            f_assert_equals(
+                f_s_n_beautified(111333222555, ' '), 
+                "111 333 222 555"
+            )
+            
+```
 ## f_a_a_v__combinations
 get all possible combinations of all items without caring about the order
 ```javascript
