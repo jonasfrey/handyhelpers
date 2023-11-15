@@ -1,14 +1,182 @@
+import { O_cpu_core_stats, O_cpu_stats } from "./classes.module.js";
+
 let f_b_denojs = function(){
     return 'Deno' in window
 }
+let f_o_cpu_stats__from_s_proc_stat = function(
+    s_proc_stat
+){
+    
+    // console.log(s_proc_stat.split('\n'));
+    let a_s = s_proc_stat.split('\n');
+    let a_s_cpu = a_s.filter(s=>s.startsWith('cpu'));
+    let o_cpu_core_stats__total = null;
+    let a_o_cpu_core_stats = a_s_cpu.map(
+        s=>{
+
+            let a_s = s.split(' ').filter(v=>v.trim()!='');
+            // console.log(a_s.slice(1).map(s=>parseInt(s)))
+            let o = new O_cpu_core_stats(s,...a_s.slice(1).map(s=>parseInt(s)))
+            if(! /\d/.test(a_s[0])){
+                o_cpu_core_stats__total = o;
+                return false
+            }
+            return o
+        }
+    ).filter(v=>v)
+
+    // console.log(a_s_cpu)
+    let o = new O_cpu_stats(
+        s_proc_stat, 
+        (n_time_unit_user_hz) ? n_time_unit_user_hz : 100,//assuming 100
+        a_s.filter(s=>s.startsWith('ctxt')).map(s=>parseInt(s.split(' ').pop())),
+        a_s.filter(s=>s.startsWith('btime')).map(s=>parseInt(s.split(' ').pop())),
+        a_s.filter(s=>s.startsWith('processes')).map(s=>parseInt(s.split(' ').pop())),
+        a_s.filter(s=>s.startsWith('procs_running')).map(s=>parseInt(s.split(' ').pop())),
+        a_s.filter(s=>s.startsWith('procs_blocked')).map(s=>parseInt(s.split(' ').pop())),
+        a_s.filter(s=>s.startsWith('softirq')).map(s=>parseInt(s.split(' ').pop())),
+        (()=>{
+            return new Promise(
+                async (f_res, f_rej)=>{
+                    let s_command = 'lscpu'
+                    let a_s_arg = s_command.split(' ');
+                    const o_command = new Deno.Command(
+                        a_s_arg.shift(),
+                        {args: a_s_arg}
+                    );
+                    const { code, stdout, stderr } = await o_command.output();
+                    if(code === 0){
+                        return f_res(new TextDecoder().decode(stdout))
+                    }
+    
+                    // console.assert(code === 0);
+                    // console.assert("hello\n" === new TextDecoder().decode(stdout));
+                    // console.assert("world\n" === new TextDecoder().decode(stderr));
+                    return f_rej(`could not run ${s_command}`)
+                }
+
+            )
+        })(),
+        a_o_cpu_core_stats,
+        o_cpu_core_stats__total
+    )
+    let f_n_usage_nor = function(
+        n_ms = 100
+    ){
+
+        this.n_total = this.n_niced_processes_executing_in_user_mode 
+            + this.n_niced_processes_executing_in_user_mode
+            + this.n_processes_executing_in_kernel_mode
+            + this.n_io_wait
+            + this.n_servicing_softirqs
+            this.n_usage_nor = this.n_idle / this.n_total 
+    }
+
+    console.log(o);
+    return o
+}
 let f_o_cpu_stats = async function(){
     let s_path = '/proc/stat'
+    let s_proc_stat = '';
+    let n = window.performance.now();
     try {
-        let s = await Deno.readTextFile(s_path);
+        s_proc_stat = await Deno.readTextFile(s_path);
     } catch (error) {
         throw Error(`could not read text file '${s_path}'`)
     }
-    console.log(s)
+    // console.log(window.performance.now()-n)
+    console.log(s_proc_stat.split('\n'));
+    let a_s = s_proc_stat.split('\n');
+    let a_s_cpu = a_s.filter(s=>s.startsWith('cpu'));
+    let o_cpu_core_stats__total = null;
+    let a_o_cpu_core_stats = a_s_cpu.map(
+        s=>{
+
+            let a_s = s.split(' ').filter(v=>v.trim()!='');
+            // console.log(a_s.slice(1).map(s=>parseInt(s)))
+            let o = new O_cpu_core_stats(s,...a_s.slice(1).map(s=>parseInt(s)))
+            if(! /\d/.test(a_s[0])){
+                o_cpu_core_stats__total = o;
+                return false
+            }
+            return o
+        }
+    ).filter(v=>v)
+    let n_time_unit_user_hz = await (()=>{
+        return new Promise(
+            async (f_res, f_rej)=>{
+                let s_command = 'getconf CLK_TCK'
+                let a_s_arg = s_command.split(' ');
+                const o_command = new Deno.Command(
+                    a_s_arg.shift(),
+                    {args: a_s_arg}
+                );
+                const { code, stdout, stderr } = await o_command.output();
+                let s_stdout = new TextDecoder().decode(stdout)
+                let s_stderr = new TextDecoder().decode(stderr)
+                let n_code= code;
+                if(n_code === 0){
+                    return f_res(parseInt(s_stdout))
+                }
+
+                // console.assert(code === 0);
+                // console.assert("hello\n" === new TextDecoder().decode(stdout));
+                // console.assert("world\n" === new TextDecoder().decode(stderr));
+                return f_rej(`could not run ${s_command}, stdout: ${s_stdout}, stderr:${s_stderr}, code:${n_code}`)
+            }
+
+        )
+    })()
+    // console.log(a_s_cpu)
+    let o = new O_cpu_stats(
+        s_proc_stat, 
+        (n_time_unit_user_hz) ? n_time_unit_user_hz : 100,//assuming 100
+        a_s.filter(s=>s.startsWith('ctxt')).map(s=>parseInt(s.split(' ').pop())),
+        a_s.filter(s=>s.startsWith('btime')).map(s=>parseInt(s.split(' ').pop())),
+        a_s.filter(s=>s.startsWith('processes')).map(s=>parseInt(s.split(' ').pop())),
+        a_s.filter(s=>s.startsWith('procs_running')).map(s=>parseInt(s.split(' ').pop())),
+        a_s.filter(s=>s.startsWith('procs_blocked')).map(s=>parseInt(s.split(' ').pop())),
+        a_s.filter(s=>s.startsWith('softirq')).map(s=>parseInt(s.split(' ').pop())),
+        (()=>{
+            return new Promise(
+                async (f_res, f_rej)=>{
+                    let s_command = 'lscpu'
+                    let a_s_arg = s_command.split(' ');
+                    const o_command = new Deno.Command(
+                        a_s_arg.shift(),
+                        {args: a_s_arg}
+                    );
+                    const { code, stdout, stderr } = await o_command.output();
+                    if(code === 0){
+                        return f_res(new TextDecoder().decode(stdout))
+                    }
+    
+                    // console.assert(code === 0);
+                    // console.assert("hello\n" === new TextDecoder().decode(stdout));
+                    // console.assert("world\n" === new TextDecoder().decode(stderr));
+                    return f_rej(`could not run ${s_command}`)
+                }
+
+            )
+        })(),
+        a_o_cpu_core_stats,
+        o_cpu_core_stats__total
+    )
+    let f_n_usage_nor = function(
+        n_ms = 100
+    ){
+
+        this.n_total = this.n_niced_processes_executing_in_user_mode 
+            + this.n_niced_processes_executing_in_user_mode
+            + this.n_processes_executing_in_kernel_mode
+            + this.n_io_wait
+            + this.n_servicing_softirqs
+            this.n_usage_nor = this.n_idle / this.n_total 
+    }
+
+    console.log(o);
+    return o
+
 }
 let f_s_n_beautified = function(
     v, 

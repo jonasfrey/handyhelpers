@@ -43,9 +43,22 @@ let f_o_test = function(){
 let a_o_test = 
     [
         f_o_test("f_o_cpu_stats", async ()=>{
+            //readme.md:start
+            
+            //md: ## f_o_cpu_stats
+            //md: get information about the cpu
+            //md: this will parse /proc/stat so we have to await it
             let o_cpu_stats = await f_o_cpu_stats();
-            console.log(o_cpu_stats)
+            //md: the number of cpus is in fact the length of the cpu core stats
+            console.log(o_cpu_stats.n_cpus == o_cpu_stats.a_o_cpu_core_stats.length);
+            //md: more infos about the cpu cores can be found here 
+            console.log(o_cpu_stats.a_o_cpu_core_stats)
+            //md: to get the cpu usage we can access 
+            console.log(o_cpu_stats.f_update_usage());
+            console.log(await o_cpu_stats.n_time_unit_user_hz)
+            console.log(await o_cpu_stats.s_lscpu)
             f_assert_equals(o_cpu_stats.a_o_cpu_core_stats.length, 8)
+            
         }),
         f_o_test("f_s_n_beautified", async () => {
             //readme.md:start
