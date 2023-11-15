@@ -27,7 +27,8 @@ import {
     f_swap_v_in_array,
     f_a_v__recursive,
     f_a_a_v__combinations, 
-    f_s_n_beautified
+    f_s_n_beautified,
+    f_o_cpu_stats
 } from "./module.js"
 
 
@@ -36,11 +37,17 @@ import {
 //md: # Handy Helpers
 //md: this is a collection of useful functions
 //readme.md:end
-
-await f_deno_test_all_and_print_summary(
+let f_o_test = function(){
+    return {a_v_arg: arguments}
+}
+let a_o_test = 
     [
-
-        f_deno_test("f_s_n_beautified", async () => {
+        f_o_test("f_o_cpu_stats", async ()=>{
+            let o_cpu_stats = await f_o_cpu_stats();
+            console.log(o_cpu_stats)
+            f_assert_equals(o_cpu_stats.a_o_cpu_core_stats.length, 8)
+        }),
+        f_o_test("f_s_n_beautified", async () => {
             //readme.md:start
             
             //md: ## f_s_n_beautified
@@ -64,7 +71,7 @@ await f_deno_test_all_and_print_summary(
 
         }),
         
-        f_deno_test("f_a_a_v__combinations", async () => {
+        f_o_test("f_a_a_v__combinations", async () => {
             //readme.md:start
             
             //md: ## f_a_a_v__combinations
@@ -93,7 +100,7 @@ await f_deno_test_all_and_print_summary(
             //readme.md:end
 
         }),
-        f_deno_test("f_a_v__recursive", async () => {
+        f_o_test("f_a_v__recursive", async () => {
             //readme.md:start
             
             //md: ## f_a_v__recursive
@@ -103,7 +110,7 @@ await f_deno_test_all_and_print_summary(
             //readme.md:end
 
         }),
-        f_deno_test("f_n_idx_ensured_inside_array", async () => {
+        f_o_test("f_n_idx_ensured_inside_array", async () => {
             //readme.md:start_disabled
             // only internally used and tested
             let n_len = 3; 
@@ -125,7 +132,7 @@ await f_deno_test_all_and_print_summary(
             //readme.md:end_disabled
         }),
 
-        f_deno_test("f_move_in_array", async () => {
+        f_o_test("f_move_in_array", async () => {
             //readme.md:start
             
             //md: ## f_move_in_array
@@ -175,7 +182,7 @@ await f_deno_test_all_and_print_summary(
             //readme.md:end
         }),
 
-        f_deno_test("f_swap_in_array", async () => {
+        f_o_test("f_swap_in_array", async () => {
             //readme.md:start
             
             //md: ## f_swap_in_array
@@ -209,7 +216,7 @@ await f_deno_test_all_and_print_summary(
             )
             //readme.md:end
         }),
-        f_deno_test("f_move_v_in_array", async () => {
+        f_o_test("f_move_v_in_array", async () => {
             //readme.md:start
             
             //md: ## f_move_v_in_array
@@ -239,7 +246,7 @@ await f_deno_test_all_and_print_summary(
             )
             //readme.md:end
         }),
-        f_deno_test("f_swap_v_in_array", async () => {
+        f_o_test("f_swap_v_in_array", async () => {
             //readme.md:start
             
             //md: ## f_swap_v_in_array
@@ -273,7 +280,7 @@ await f_deno_test_all_and_print_summary(
             )
             //readme.md:end
         }),
-        f_deno_test("f_sleep_ms", async () => {
+        f_o_test("f_sleep_ms", async () => {
             //readme.md:start
             //md: ## f_sleep_ms
             let n_ms = window.performance.now();
@@ -284,7 +291,7 @@ await f_deno_test_all_and_print_summary(
             )
             //readme.md:end
         }),
-        f_deno_test("Handy snippets", () => {
+        f_o_test("Handy snippets", () => {
             //readme.md:start
             //md: ## Handy snippets
             //md: extend a file name by '_thumb' 
@@ -301,7 +308,7 @@ await f_deno_test_all_and_print_summary(
 
             //readme.md:end
         }),
-        f_deno_test("f_o_resp__fetch_cached", async () => {
+        f_o_test("f_o_resp__fetch_cached", async () => {
             //readme.md:start
             
             //md: ## f_o_resp__fetch_cached
@@ -366,14 +373,14 @@ await f_deno_test_all_and_print_summary(
 
         }),
 
-        f_deno_test("f_b_deno", () => {
+        f_o_test("f_b_deno", () => {
             //readme.md:start
             //md: ## f_b_deno
             //md: check if script is running with https://deno.com/
             f_assert_equals(f_b_denojs(), ("Deno" in window))
             //readme.md:end
         }),
-        f_deno_test("f_o_html_element__from_s_tag", async () => {
+        f_o_test("f_o_html_element__from_s_tag", async () => {
             //readme.md:start
             //md: ## f_o_html_element__from_s_tag
             //md: returns a html element
@@ -382,7 +389,7 @@ await f_deno_test_all_and_print_summary(
             f_assert_equals((await f_o_html_element__from_s_tag('h1')).tagName, 'H1');
             //readme.md:end
         }),
-        f_deno_test("f_o_html__from_s_html", async () => {
+        f_o_test("f_o_html__from_s_html", async () => {
             //readme.md:start
             //md: ## f_o_html__from_s_html
             //md: returns a html element
@@ -395,7 +402,7 @@ await f_deno_test_all_and_print_summary(
             //readme.md:end
         }),
 
-        f_deno_test("f_download_file__from_s_url", async () => {
+        f_o_test("f_download_file__from_s_url", async () => {
             //readme.md:start
             //md: ## f_download_file__from_s_url
             //md: download a file, pass an optional callback, or let log the download state by default
@@ -409,7 +416,7 @@ await f_deno_test_all_and_print_summary(
 
             //readme.md:end
         }),
-        f_deno_test("f_a_n_u8__from_s_url_with_download_speed_easy", async () => {
+        f_o_test("f_a_n_u8__from_s_url_with_download_speed_easy", async () => {
             //readme.md:start
             //md: ## f_a_n_u8__from_s_url_with_download_speed_easy
             //md: get the response body as Uint8array (a_n_u8) from an url, while the download is pending a callback will be executed every nth millisecond
@@ -438,7 +445,7 @@ await f_deno_test_all_and_print_summary(
 
 
 
-        f_deno_test("Overwrite / 'Monkey-Patch' the fetch function", async () => {
+        f_o_test("Overwrite / 'Monkey-Patch' the fetch function", async () => {
             //readme.md:start
             
             //md: ## Overwrite / 'Monkey-Patch' the fetch function
@@ -501,7 +508,7 @@ await f_deno_test_all_and_print_summary(
         }),
 
 
-        f_deno_test("f_o_html__from_s_url", async () => {
+        f_o_test("f_o_html__from_s_url", async () => {
             //readme.md:start
             
             //md: ## f_o_html__from_s_url
@@ -516,7 +523,7 @@ await f_deno_test_all_and_print_summary(
             //readme.md:end
         }),
 
-        f_deno_test("f_s_hashed", async () => {
+        f_o_test("f_s_hashed", async () => {
             //readme.md:start
             
             //md: ## f_s_hashed
@@ -534,6 +541,20 @@ await f_deno_test_all_and_print_summary(
 
 
     ]
-)
 
+if(Deno.arg?.[0] != 'all'){
+    console.log('run with "all" to run all tests')
+    console.log('running last test'); 
 
+    await f_deno_test_all_and_print_summary(
+        a_o_test.slice(0,1).map(o=>{
+            f_deno_test(...o.a_v_arg)
+        })
+    )
+}else{
+    await f_deno_test_all_and_print_summary(
+        a_o_test.map(o=>{
+            f_deno_test(...o.a_v_arg)
+        })
+    )
+}

@@ -1,7 +1,15 @@
 let f_b_denojs = function(){
     return 'Deno' in window
 }
-
+let f_o_cpu_stats = async function(){
+    let s_path = '/proc/stat'
+    try {
+        let s = await Deno.readTextFile(s_path);
+    } catch (error) {
+        throw Error(`could not read text file '${s_path}'`)
+    }
+    console.log(s)
+}
 let f_s_n_beautified = function(
     v, 
     s_separator = "'"
@@ -512,6 +520,7 @@ let f_a_a_v__combinations = function(
 
 
 export {
+    f_o_cpu_stats,
     f_s_n_beautified,
     f_a_v__recursive, 
     f_b_denojs, 
