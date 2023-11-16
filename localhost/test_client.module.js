@@ -28,7 +28,8 @@ import {
     f_a_v__recursive,
     f_a_a_v__combinations, 
     f_s_n_beautified,
-    f_o_cpu_stats
+    f_o_cpu_stats,
+    f_o_cpu_stats__diff
 } from "./module.js"
 
 
@@ -40,26 +41,10 @@ import {
 let f_o_test = function(){
     return {a_v_arg: arguments}
 }
+
 let a_o_test = 
     [
-        f_o_test("f_o_cpu_stats", async ()=>{
-            //readme.md:start
-            
-            //md: ## f_o_cpu_stats
-            //md: get information about the cpu
-            //md: this will parse /proc/stat so we have to await it
-            let o_cpu_stats = await f_o_cpu_stats();
-            //md: the number of cpus is in fact the length of the cpu core stats
-            console.log(o_cpu_stats.n_cpus == o_cpu_stats.a_o_cpu_core_stats.length);
-            //md: more infos about the cpu cores can be found here 
-            console.log(o_cpu_stats.a_o_cpu_core_stats)
-            //md: to get the cpu usage we can access 
-            console.log(o_cpu_stats.f_update_usage());
-            console.log(await o_cpu_stats.n_time_unit_user_hz)
-            console.log(await o_cpu_stats.s_lscpu)
-            f_assert_equals(o_cpu_stats.a_o_cpu_core_stats.length, 8)
-            
-        }),
+
         f_o_test("f_s_n_beautified", async () => {
             //readme.md:start
             
@@ -550,17 +535,75 @@ let a_o_test =
             //readme.md:end
         }),
 
+        f_o_test("f_o_cpu_stats", async ()=>{
+            //readme.md:start
+            
+            //md: ## f_o_cpu_stats
+            //md: get information about the cpu
+            //md: this will parse /proc/stat so we have to await it
+            let o_cpu_stats = await f_o_cpu_stats();
+            //md: the number of cpus is in fact the length of the cpu core stats
+            console.log(o_cpu_stats.n_cpus == o_cpu_stats.a_o_cpu_core_stats.length);
+            //md: more infos about the cpu cores can be found here 
+            console.log(o_cpu_stats.a_o_cpu_core_stats)
+            
+        }),
+        f_o_test("f_o_cpu_stats__diff", async ()=>{
+            //readme.md:start
+            
+            //md: ## f_o_cpu_stats__diff
+            //md: this will returna difference to the last call of f_o_cpu_stats__diff
+            //md: the important and usefull value here is `o_cpu_stats__diff.a_o_cpu_core_stats__diff[0].n_usage_nor`
+            //md: which is the normalized usage 0.0-1.0 of the cpu core
+            //md: this will parse /proc/stat so we have to await it
+            var o_cpu_stats__diff = await f_o_cpu_stats__diff();
+            await f_sleep_ms(100);
+            var o_cpu_stats__diff = await f_o_cpu_stats__diff();
+            console.log(
+                [
+                    `cpu usage (in the last ${parseInt(o_cpu_stats__diff.n_diff_n_ms_window_performance_now)} milliseconds)`,
+                    ...o_cpu_stats__diff.a_o_cpu_core_stats__diff.map(
+                        (o_cpu_core_stats__diff,n_idx)=>{
+                            return [
+                                `CPU ${(n_idx+1).toString().padStart(3,' ')}`,
+                                `${(o_cpu_core_stats__diff.n_usage_nor.toFixed(2)*100).toString().padStart(4, ' ')}%`
+                            ].join(':')
+                            
+                        }
+                    )
+                ].join('\n')
+            )
 
+        }),
 
 
     ]
 
+if(Deno.args[0] == 'cpu_monitor'){
+    let f_print = async function(){
+        let o_cpu_stats__diff = await f_o_cpu_stats__diff();
+        
+        let s_sep = '.';
+        let s_cpu = '|'
+        let s = o_cpu_stats__diff.a_o_cpu_core_stats__diff.map(
+            o_cpu_core_stats__diff=>{
+                // console.log(o_cpu_core_stats__diff)
+                // return `${o_cpu_core_stats__diff.n_usage_nor}|`
+                return `${s_sep}${s_cpu.repeat(parseInt(o_cpu_core_stats__diff.n_usage_nor*5)).padEnd(5,' ')}`
+            }
+        ).join('')
+        console.log(s)
+        await f_sleep_ms(100);
+        f_print();
+    }
+    f_print()
+}
 if(Deno.arg?.[0] != 'all'){
     console.log('run with "all" to run all tests')
     console.log('running last test'); 
 
     await f_deno_test_all_and_print_summary(
-        a_o_test.slice(0,1).map(o=>{
+        a_o_test.slice(-1).map(o=>{
             f_deno_test(...o.a_v_arg)
         })
     )
