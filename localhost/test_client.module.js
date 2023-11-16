@@ -557,7 +557,7 @@ let a_o_test =
             //md: which is the normalized usage 0.0-1.0 of the cpu core
             //md: this will parse /proc/stat so we have to await it
             var o_cpu_stats__diff = await f_o_cpu_stats__diff();
-            await f_sleep_ms(100);
+            await f_sleep_ms(1000/60);
             var o_cpu_stats__diff = await f_o_cpu_stats__diff();
             console.log(
                 [
@@ -581,19 +581,26 @@ let a_o_test =
 
 if(Deno.args[0] == 'cpu_monitor'){
     let f_print = async function(){
-        let o_cpu_stats__diff = await f_o_cpu_stats__diff();
+
+        let n = window.performance.now();
+        var o_cpu_stats__diff = await f_o_cpu_stats__diff();
+        // console.log(`ms:${window.performance.now()-n}`)
+        // console.log()
         
         let s_sep = '.';
         let s_cpu = '|'
         let s = o_cpu_stats__diff.a_o_cpu_core_stats__diff.map(
             o_cpu_core_stats__diff=>{
                 // console.log(o_cpu_core_stats__diff)
-                // return `${o_cpu_core_stats__diff.n_usage_nor}|`
-                return `${s_sep}${s_cpu.repeat(parseInt(o_cpu_core_stats__diff.n_usage_nor*5)).padEnd(5,' ')}`
+                return [
+                    `${o_cpu_core_stats__diff.n_usage_nor.toFixed(1)}|`, 
+                    `${s_sep}${s_cpu.repeat(parseInt(o_cpu_core_stats__diff.n_usage_nor*5)).padEnd(5,' ')}`
+                ] .join(' ')
+                
             }
         ).join('')
         console.log(s)
-        await f_sleep_ms(100);
+        await f_sleep_ms(1000/60);
         f_print();
     }
     f_print()

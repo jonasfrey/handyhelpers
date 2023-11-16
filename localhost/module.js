@@ -50,26 +50,47 @@ let f_s_lscpu = async function(){
 
     )
 }
-let a_o_cpu_stats = [];
+let a_o_cpu_stats = null;
+let n_len_max_a_o_cpu_stats = null;
 let f_o_cpu_stats__diff = async function(
-    
+    n_len_max_a_o_cpu_stats
 ){
-    let o_cpu_stats__old = a_o_cpu_stats.at(-1)
-    if(!o_cpu_stats__old){
-        o_cpu_stats__old = await f_o_cpu_stats()
-        a_o_cpu_stats.push(
-            o_cpu_stats__old
-        )
-    }
-    let o_cpu_stats__new = await f_o_cpu_stats()
-    a_o_cpu_stats.push(
-        o_cpu_stats__new
-    )
-    return new O_cpu_stats__diff(
-        o_cpu_stats__old, 
-        o_cpu_stats__new
-    )
+    let o_cpu_stats__old = null;
+    if(a_o_cpu_stats == null){
 
+        if(!n_len_max_a_o_cpu_stats){
+            // 30 seconds history of cpu percentage every frame if 60 fps
+            n_len_max_a_o_cpu_stats = parseInt((30*1000)/(1000/60))
+        }
+        a_o_cpu_stats = new Array(
+            n_len_max_a_o_cpu_stats
+        ).fill(0).map(v=>null)
+        o_cpu_stats__old = await f_o_cpu_stats()
+        a_o_cpu_stats[0] = o_cpu_stats__old
+        // we have to wait a small amount of time to get a usefull cpu measurement
+        await f_sleep_ms(1000/60)
+    }
+
+    let o_cpu_stats__new = await f_o_cpu_stats()
+    // shift every element one to the end
+    for(let n_idx in a_o_cpu_stats){
+        let n_idx_reverse = a_o_cpu_stats.length-n_idx;
+        // console.log(n_idx_reverse)
+        if(n_idx_reverse == 0){
+            break
+        }
+        let v = a_o_cpu_stats[n_idx_reverse];
+        let v_before = a_o_cpu_stats[n_idx_reverse-1];
+        if(v_before == null){
+            continue
+        }
+        a_o_cpu_stats[n_idx_reverse] = v_before
+    }
+    a_o_cpu_stats[0] = o_cpu_stats__new
+    return new O_cpu_stats__diff(
+        a_o_cpu_stats[1], 
+        o_cpu_stats__new
+    )
 }
 let n_conf_clk_tck_cached = null;
 let f_o_cpu_stats__from_s_proc_stat = async function(
