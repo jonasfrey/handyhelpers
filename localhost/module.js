@@ -74,7 +74,7 @@ let f_o_cpu_stats__diff = async function(
     let o_cpu_stats__new = await f_o_cpu_stats()
     // shift every element one to the end
     for(let n_idx in a_o_cpu_stats){
-        let n_idx_reverse = a_o_cpu_stats.length-n_idx;
+        let n_idx_reverse = (a_o_cpu_stats.length-1)-n_idx;
         // console.log(n_idx_reverse)
         if(n_idx_reverse == 0){
             break
