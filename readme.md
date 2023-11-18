@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Nov 16 2023 15:12:38 GMT+0100 (Central European Standard Time)","n_ts_created":1700143958743} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sat Nov 18 2023 10:51:18 GMT+0100 (Central European Standard Time)","n_ts_created":1700301078578} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -404,152 +404,127 @@ more infos about the cpu cores can be found here
 ```javascript
             console.log(o_cpu_stats.a_o_cpu_core_stats)
             
-        }),
-        f_o_test("f_o_cpu_stats__diff", async ()=>{
-            
-            
 ```
 ## f_o_cpu_stats__diff
-## f_o_cpu_stats__diff
-this will returna difference to the last call of f_o_cpu_stats__diff
 this will returna difference to the last call of f_o_cpu_stats__diff
 the important and usefull value here is `o_cpu_stats__diff.a_o_cpu_core_stats__diff[0].n_usage_nor`
-the important and usefull value here is `o_cpu_stats__diff.a_o_cpu_core_stats__diff[0].n_usage_nor`
 which is the normalized usage 0.0-1.0 of the cpu core
-which is the normalized usage 0.0-1.0 of the cpu core
-this will parse /proc/stat so we have to await it
 this will parse /proc/stat so we have to await it
 ```javascript
             var o_cpu_stats__diff = await f_o_cpu_stats__diff();
-            var o_cpu_stats__diff = await f_o_cpu_stats__diff();
-            await f_sleep_ms(1000/60);
             await f_sleep_ms(1000/60);
             var o_cpu_stats__diff = await f_o_cpu_stats__diff();
-            var o_cpu_stats__diff = await f_o_cpu_stats__diff();
-            console.log(
             console.log(
                 [
-                [
-                    `cpu usage (in the last ${parseInt(o_cpu_stats__diff.n_diff_n_ms_window_performance_now)} milliseconds)`,
                     `cpu usage (in the last ${parseInt(o_cpu_stats__diff.n_diff_n_ms_window_performance_now)} milliseconds)`,
                     ...o_cpu_stats__diff.a_o_cpu_core_stats__diff.map(
-                    ...o_cpu_stats__diff.a_o_cpu_core_stats__diff.map(
-                        (o_cpu_core_stats__diff,n_idx)=>{
                         (o_cpu_core_stats__diff,n_idx)=>{
                             return [
-                            return [
-                                `CPU ${(n_idx+1).toString().padStart(3,' ')}`,
                                 `CPU ${(n_idx+1).toString().padStart(3,' ')}`,
                                 `${(o_cpu_core_stats__diff.n_usage_nor.toFixed(2)*100).toString().padStart(4, ' ')}%`
-                                `${(o_cpu_core_stats__diff.n_usage_nor.toFixed(2)*100).toString().padStart(4, ' ')}%`
-                            ].join(':')
                             ].join(':')
                             
-                            
-                        }
                         }
                     )
-                    )
-                ].join('\n')
                 ].join('\n')
             )
+            let n_ms_duration = 1000;
+            let n_ms_window_performance_now = window.performance.now();
+            let f_print = async function(){
+        
+                let n = window.performance.now();
+                var o_cpu_stats__diff = await f_o_cpu_stats__diff();
+                // console.log(`ms:${window.performance.now()-n}`)
+                // console.log()
+                
+                let s_sep = '.';
+                let s_cpu = '|'
+                let s = o_cpu_stats__diff.a_o_cpu_core_stats__diff.map(
+                    o_cpu_core_stats__diff=>{
+                        // console.log(o_cpu_core_stats__diff)
+                        return [
+                            `${o_cpu_core_stats__diff.n_usage_nor.toFixed(1)}|`, 
+                            `${s_sep}${s_cpu.repeat(parseInt(o_cpu_core_stats__diff.n_usage_nor*5)).padEnd(5,' ')}`
+                        ] .join(' ')
+                        
+                    }
+                ).join('')
+                console.log(s)
+                await f_sleep_ms(1000/60);
+                if(Math.abs(window.performance.now() - n_ms_window_performance_now) < n_ms_duration){
+                    f_print();
+                }
+            }
+            f_print()
+            
+```
+## f_s_type__from_typed_array
+get a string matching the typed array type
+the default string is how a type in rust looks like
+so Uint8Array ->'u8', Float32Array -> 'f32 ...
+```javascript
+
+            f_assert_equals(
+                f_s_type__from_typed_array(Uint16Array), 
+                'u16'
+            );
+
+            f_assert_equals(
+                f_s_type__from_typed_array(Array), 
+                'unknown'
+            );
+            let o_error = null;
+            try {
+                f_s_type__from_typed_array(
+                    Array, 
+                    true // b_throw_error
+                )
+            } catch (o_e) {
+                o_error = o_e 
+            }
+            f_assert_equals(
+                typeof o_error,
+                'object'
+            );
+
+            f_assert_equals(
+                f_s_type__from_typed_array(
+                    BigUint64Array,
+                    false,//b_throw_error 
+                    {u64:'uint64'}
+                ), 
+                'uint64'
+            );
+                        
+```
+## f_download_text_file
+download a text file
+```javascript
+            await f_download_text_file
+                ('A'.repeat(1_000_000_000), 
+                'my_hello_file.txt'
             )
-
-
-        }),
-        }),
-
-
-
-
-    ]
-    ]
-
-
-if(Deno.args[0] == 'cpu_monitor'){
-if(Deno.args[0] == 'cpu_monitor'){
-    let f_print = async function(){
-    let f_print = async function(){
-
-
-        let n = window.performance.now();
-        let n = window.performance.now();
-        var o_cpu_stats__diff = await f_o_cpu_stats__diff();
-        var o_cpu_stats__diff = await f_o_cpu_stats__diff();
-        // console.log(`ms:${window.performance.now()-n}`)
-        // console.log(`ms:${window.performance.now()-n}`)
-        // console.log()
-        // console.log()
-        
-        
-        let s_sep = '.';
-        let s_sep = '.';
-        let s_cpu = '|'
-        let s_cpu = '|'
-        let s = o_cpu_stats__diff.a_o_cpu_core_stats__diff.map(
-        let s = o_cpu_stats__diff.a_o_cpu_core_stats__diff.map(
-            o_cpu_core_stats__diff=>{
-            o_cpu_core_stats__diff=>{
-                // console.log(o_cpu_core_stats__diff)
-                // console.log(o_cpu_core_stats__diff)
-                return [
-                return [
-                    `${o_cpu_core_stats__diff.n_usage_nor.toFixed(1)}|`, 
-                    `${o_cpu_core_stats__diff.n_usage_nor.toFixed(1)}|`, 
-                    `${s_sep}${s_cpu.repeat(parseInt(o_cpu_core_stats__diff.n_usage_nor*5)).padEnd(5,' ')}`
-                    `${s_sep}${s_cpu.repeat(parseInt(o_cpu_core_stats__diff.n_usage_nor*5)).padEnd(5,' ')}`
-                ] .join(' ')
-                ] .join(' ')
-                
-                
-            }
-            }
-        ).join('')
-        ).join('')
-        console.log(s)
-        console.log(s)
-        await f_sleep_ms(1000/60);
-        await f_sleep_ms(1000/60);
-        f_print();
-        f_print();
-    }
-    }
-    f_print()
-    f_print()
-}
-}
-if(Deno.arg?.[0] != 'all'){
-if(Deno.arg?.[0] != 'all'){
-    console.log('run with "all" to run all tests')
-    console.log('run with "all" to run all tests')
-    console.log('running last test'); 
-    console.log('running last test'); 
-
-
-    await f_deno_test_all_and_print_summary(
-    await f_deno_test_all_and_print_summary(
-        a_o_test.slice(-1).map(o=>{
-        a_o_test.slice(-1).map(o=>{
-            f_deno_test(...o.a_v_arg)
-            f_deno_test(...o.a_v_arg)
-        })
-        })
-    )
-    )
-}else{
-}else{
-    await f_deno_test_all_and_print_summary(
-    await f_deno_test_all_and_print_summary(
-        a_o_test.map(o=>{
-        a_o_test.map(o=>{
-            f_deno_test(...o.a_v_arg)
-            f_deno_test(...o.a_v_arg)
-        })
-        })
-    )
-    )
-}
-}
-
-
+                        
+```
+## f_s_type_mime__from_s_extension
+get a mime type from an extension
+```javascript
+            f_assert_equals(
+                f_s_type_mime__from_s_extension('webm'),
+                'video/webm'
+            )
+            f_assert_equals(
+                f_s_type_mime__from_s_extension('.ogg'),
+                'audio/ogg'
+            )
+            f_assert_equals(
+                f_s_type_mime__from_s_extension('.ogg'),
+                'audio/ogg'
+            )
+            f_assert_equals(
+                f_s_type_mime__from_s_extension('compiled.wasm'),
+                'application/wasm'
+            )
+            return true
+            
 ```

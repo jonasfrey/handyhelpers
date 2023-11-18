@@ -29,7 +29,10 @@ import {
     f_a_a_v__combinations, 
     f_s_n_beautified,
     f_o_cpu_stats,
-    f_o_cpu_stats__diff
+    f_o_cpu_stats__diff,
+    f_s_type__from_typed_array,
+    f_download_text_file,
+    f_s_type_mime__from_s_extension
 } from "./module.js"
 
 
@@ -546,6 +549,8 @@ let a_o_test =
             console.log(o_cpu_stats.n_cpus == o_cpu_stats.a_o_cpu_core_stats.length);
             //md: more infos about the cpu cores can be found here 
             console.log(o_cpu_stats.a_o_cpu_core_stats)
+            //readme.md:end
+            
             
         }),
         f_o_test("f_o_cpu_stats__diff", async ()=>{
@@ -573,40 +578,131 @@ let a_o_test =
                     )
                 ].join('\n')
             )
+            let n_ms_duration = 1000;
+            let n_ms_window_performance_now = window.performance.now();
+            let f_print = async function(){
+        
+                let n = window.performance.now();
+                var o_cpu_stats__diff = await f_o_cpu_stats__diff();
+                // console.log(`ms:${window.performance.now()-n}`)
+                // console.log()
+                
+                let s_sep = '.';
+                let s_cpu = '|'
+                let s = o_cpu_stats__diff.a_o_cpu_core_stats__diff.map(
+                    o_cpu_core_stats__diff=>{
+                        // console.log(o_cpu_core_stats__diff)
+                        return [
+                            `${o_cpu_core_stats__diff.n_usage_nor.toFixed(1)}|`, 
+                            `${s_sep}${s_cpu.repeat(parseInt(o_cpu_core_stats__diff.n_usage_nor*5)).padEnd(5,' ')}`
+                        ] .join(' ')
+                        
+                    }
+                ).join('')
+                console.log(s)
+                await f_sleep_ms(1000/60);
+                if(Math.abs(window.performance.now() - n_ms_window_performance_now) < n_ms_duration){
+                    f_print();
+                }
+            }
+            f_print()
+            //readme.md:end
 
         }),
+        f_o_test("f_s_type__from_typed_array", async ()=>{
+            //readme.md:start
+            
+            //md: ## f_s_type__from_typed_array
+            //md: get a string matching the typed array type
+            //md: the default string is how a type in rust looks like
+            //md: so Uint8Array ->'u8', Float32Array -> 'f32 ...
+
+            f_assert_equals(
+                f_s_type__from_typed_array(Uint16Array), 
+                'u16'
+            );
+
+            f_assert_equals(
+                f_s_type__from_typed_array(Array), 
+                'unknown'
+            );
+            let o_error = null;
+            try {
+                f_s_type__from_typed_array(
+                    Array, 
+                    true // b_throw_error
+                )
+            } catch (o_e) {
+                o_error = o_e 
+            }
+            f_assert_equals(
+                typeof o_error,
+                'object'
+            );
+
+            f_assert_equals(
+                f_s_type__from_typed_array(
+                    BigUint64Array,
+                    false,//b_throw_error 
+                    {u64:'uint64'}
+                ), 
+                'uint64'
+            );
+            //readme.md:end
 
 
+        }),
+        f_o_test("f_download_text_file", async ()=>{
+            //readme.md:start
+                        
+            //md: ## f_download_text_file
+            //md: download a text file 
+            await f_download_text_file
+                ('A'.repeat(1_000_000_000), 
+                'my_hello_file.txt'
+            )
+            //readme.md:end
+
+        }),
+        f_o_test("f_s_type_mime__from_s_extension", async ()=>{
+            //readme.md:start
+                        
+            //md: ## f_s_type_mime__from_s_extension
+            //md: get a mime type from an extension
+            f_assert_equals(
+                f_s_type_mime__from_s_extension('webm'),
+                'video/webm'
+            )
+            f_assert_equals(
+                f_s_type_mime__from_s_extension('.ogg'),
+                'audio/ogg'
+            )
+            f_assert_equals(
+                f_s_type_mime__from_s_extension('.ogg'),
+                'audio/ogg'
+            )
+            f_assert_equals(
+                f_s_type_mime__from_s_extension('compiled.wasm'),
+                'application/wasm'
+            )
+            return true
+            
+            //readme.md:end
+
+        })
+
+        
     ]
 
-if(Deno.args[0] == 'cpu_monitor'){
-    let f_print = async function(){
 
-        let n = window.performance.now();
-        var o_cpu_stats__diff = await f_o_cpu_stats__diff();
-        // console.log(`ms:${window.performance.now()-n}`)
-        // console.log()
-        
-        let s_sep = '.';
-        let s_cpu = '|'
-        let s = o_cpu_stats__diff.a_o_cpu_core_stats__diff.map(
-            o_cpu_core_stats__diff=>{
-                // console.log(o_cpu_core_stats__diff)
-                return [
-                    `${o_cpu_core_stats__diff.n_usage_nor.toFixed(1)}|`, 
-                    `${s_sep}${s_cpu.repeat(parseInt(o_cpu_core_stats__diff.n_usage_nor*5)).padEnd(5,' ')}`
-                ] .join(' ')
-                
-            }
-        ).join('')
-        console.log(s)
-        await f_sleep_ms(1000/60);
-        f_print();
-    }
-    f_print()
+let b_run_all = false;
+if(f_b_denojs()){
+    b_run_all = Deno.arg?.[0] == 'all'
+}else{
+    b_run_all = window.location.hash == 'all'
 }
-if(Deno.arg?.[0] != 'all'){
-    console.log('run with "all" to run all tests')
+if(!b_run_all){
+    console.log('run with "all"/"url#all" to run all tests')
     console.log('running last test'); 
 
     await f_deno_test_all_and_print_summary(

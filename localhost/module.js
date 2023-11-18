@@ -3,6 +3,93 @@ import { O_cpu_core_stats, O_cpu_stats, O_cpu_stats__diff } from "./classes.modu
 let f_b_denojs = function(){
     return 'Deno' in window
 }
+
+let f_s_type_mime__from_s_extension = function(
+    s_extension
+){
+    const o_s_extension_s_mime_type = {
+        'txt': 'text/plain',
+        'html': 'text/html',
+        'js': 'text/javascript',
+        'css': 'text/css',
+        'json': 'application/json',
+        'jpg': 'image/jpeg',
+        'mp3': 'audio/mpeg',
+        'mp4': 'video/mp4',
+        'pdf': 'application/pdf',
+        'zip': 'application/zip',
+        'xml': 'application/xml',
+        'webm': 'video/webm',
+        'ogg': 'audio/ogg',
+        'apng': 'image/apng',//: Animated Portable Network Graphics (APNG)
+        'avif': 'image/avif',//: AV1 Image File Format (AVIF)
+        'gif': 'image/gif',//: Graphics Interchange Format (GIF)
+        'jpeg': 'image/jpeg',//: Joint Photographic Expert Group image (JPEG)
+        'png': 'image/png',//: Portable Network Graphics (PNG)
+        'svg': 'image/svg+xml',//: Scalable Vector Graphics (SVG)
+        'webp': 'image/webp',//: Web Picture format (WEBP), 
+        'wasm': 'application/wasm'
+        // Add more mappings as needed
+    };
+    s_extension = s_extension.split('.').pop()
+    return o_s_extension_s_mime_type[s_extension] || 'application/octet-stream'; 
+}
+let f_download_text_file = async function(
+    s_text, 
+    s_name_file = 'file_from_f_download_text_file.txt'
+){
+    // Create a new Blob containing the text data
+    const blob = new Blob([s_text], { type: 'text/plain' });
+
+    // Create a URL for the Blob
+    const blobUrl = URL.createObjectURL(blob);
+
+    return f_download_file__from_s_url(
+        blobUrl, 
+        s_name_file
+    )
+}
+let f_s_type__from_typed_array = function(
+    v, 
+    b_throw_error = false, 
+    o_s_type_rust_s_type_custom = {
+         'u8':'u8',
+         'u16':'u16',
+         'u32':'u32',
+         'u64':'u64',
+         'i8':'i8',
+         'i16':'i16',
+         'i32':'i32',
+         'i64':'i64',
+         'f32':'f32',
+         'f64':'f64',
+    }
+) {
+    let s_name = v.constructor.name;
+    if(s_name == 'Function'){
+        s_name = v.name;
+    }
+    let o_s_name_typed_array_s_short = {
+
+        [Uint8Array.prototype.constructor.name] : o_s_type_rust_s_type_custom.u8,
+        [Uint8ClampedArray.prototype.constructor.name] : o_s_type_rust_s_type_custom.u8,
+        [Uint16Array.prototype.constructor.name] : o_s_type_rust_s_type_custom.u16,
+        [Uint32Array.prototype.constructor.name] : o_s_type_rust_s_type_custom.u32,
+        [BigUint64Array.prototype.constructor.name] : o_s_type_rust_s_type_custom.u64,
+        [Int8Array.prototype.constructor.name] : o_s_type_rust_s_type_custom.i8,
+        [Int16Array.prototype.constructor.name] : o_s_type_rust_s_type_custom.i16,
+        [Int32Array.prototype.constructor.name] : o_s_type_rust_s_type_custom.i32,
+        [BigInt64Array.prototype.constructor.name] : o_s_type_rust_s_type_custom.i64,
+        [Float32Array.prototype.constructor.name] : o_s_type_rust_s_type_custom.f32,
+        [Float64Array.prototype.constructor.name]: o_s_type_rust_s_type_custom.f64,
+    }
+    let s_short = o_s_name_typed_array_s_short[s_name];
+    if(!s_short && b_throw_error){
+        throw Error(`value is not a typed array or a function for a typed array, it must be one of ${Object.keys(o_s_name_typed_array_s_short).join(',')}`)
+    }
+    s_short = (s_short) ?s_short: 'unknown';
+    return s_short
+}
 let f_n_conf_clk_tck = async function(){
     return new Promise(
         async (f_res, f_rej)=>{
@@ -694,6 +781,9 @@ export {
     f_swap_v_in_array, 
     f_a_a_v__combinations, 
     a_o_cpu_stats, 
-    f_o_cpu_stats__diff
+    f_o_cpu_stats__diff, 
+    f_s_type__from_typed_array, 
+    f_download_text_file, 
+    f_s_type_mime__from_s_extension
 }
 
