@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sat Nov 18 2023 10:51:18 GMT+0100 (Central European Standard Time)","n_ts_created":1700301078578} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sat Nov 18 2023 23:49:49 GMT+0100 (Central European Standard Time)","n_ts_created":1700347789348} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -526,5 +526,53 @@ get a mime type from an extension
                 'application/wasm'
             )
             return true
+            
+                        
+```
+## f_o_meminfo
+linux only , get info about the RAM usage
+```javascript
+            let o = await f_o_meminfo()
+            console.log(o)
+            console.log(o.o_meminfo_property_MemTotal.n_gigabytes); // 31GB on my ssytem
+            // the normalized number of currently used memory 1.0 = all ram is in use, no free memory :()
+            console.log(o.o_meminfo_property_memory_used_calculated.n_nor_by_mem_total);//0.3, currently on my system
+            
+
+            let n_ms_duration = 4000;
+            let n_ms_window_performance_now = window.performance.now();
+            let a_a_n_u8 = []
+            let f_print = async function(){
+                let n_ms_diff_abs_nor = Math.abs(window.performance.now() - n_ms_window_performance_now) / n_ms_duration;
+                if(n_ms_diff_abs_nor > 0.5){
+                    a_a_n_u8 = [] // de-allocate ? 
+                }else{
+                    a_a_n_u8.push(new Float64Array(1024*1024*4).fill(0))          
+                }
+                
+                // allocate some memory to see usage
+                let n = window.performance.now();
+                let o = await f_o_meminfo()
+                // console.log(o.o_meminfo_property_MemFree)
+
+                let n_max = 80;
+                let s_used_gb = `${o.o_meminfo_property_memory_used_calculated.n_gigabytes.toFixed(0).padStart(2, ' ')}GB/`
+                let s_total_gb = `${o.o_meminfo_property_MemTotal.n_gigabytes.toFixed(0).padStart(2, ' ')}GB`
+
+                let s = [
+                    `RAM Memory usage: `,
+                    `${'|'.repeat(o.o_meminfo_property_memory_used_calculated.n_nor_by_mem_total*n_max-5)}`,
+                    `${s_used_gb}`,
+                    `${' '.repeat(o.o_meminfo_property_MemFree.n_nor_by_mem_total*n_max)}${s_total_gb}`
+                ].join('')
+                console.log(s)
+
+                await f_sleep_ms(1000/60);
+                if(n_ms_diff_abs_nor< 1.){
+                    await f_print();
+                }
+            }
+            await f_print()
+            return true;
             
 ```

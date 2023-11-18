@@ -1,7 +1,84 @@
-import { O_cpu_core_stats, O_cpu_stats, O_cpu_stats__diff } from "./classes.module.js";
+import { O_cpu_core_stats, O_cpu_stats, O_cpu_stats__diff, O_meminfo, O_meminfo_property } from "./classes.module.js";
 
 let f_b_denojs = function(){
     return 'Deno' in window
+}
+let f_o_meminfo__from_s_proc_meminfo = function(
+    s_proc_meminfo 
+){
+    let o_meminfo = new O_meminfo();
+    let a_s = s_proc_meminfo.split('\n').filter(v=>v.trim()!='')
+    // console.log(a_s)
+    let n_bytes_mem_total = null;
+    let o_s_unit_n_factor = {
+        'b': 1, 
+        'kb': 1024, 
+        'mb': 1024*1024,
+        'gb': 1024*1024*1024,
+        'tb': 1024*1024*1024*1024,
+    };
+    for(let s of a_s){
+        let a_s_part = s.split(':');
+        let s_prop = a_s_part.shift().replaceAll('(', "_").replaceAll(")", '_');
+        let s_num_and_unit = a_s_part.join(':').trim();
+        a_s_part = s_num_and_unit.split(' ');
+        let n_num = parseFloat(a_s_part.shift());
+        let s_unit = a_s_part.join(' ').trim();
+
+
+        let n_factor = o_s_unit_n_factor[s_unit.toLowerCase()];
+
+        // if(!n_factor){
+        //     // throw Error(`could not read unit in meminfo  line ${s}`);
+        // }
+        
+        
+        let o_meminfo_property = o_meminfo[`o_meminfo_property_${s_prop}`]; 
+        
+        if(!o_meminfo_property){
+            o_meminfo_property = new O_meminfo_property(
+                ''
+                )
+                o_meminfo[`o_meminfo_property_${s_prop}`] = o_meminfo_property
+            }
+        o_meminfo_property.n = n_num
+        if(n_factor){ 
+                       
+            o_meminfo_property.n_bytes = parseInt(n_num * n_factor);
+            if(s_prop == 'MemTotal'){
+                n_bytes_mem_total = o_meminfo_property.n_bytes
+            }
+            if(n_bytes_mem_total){
+                o_meminfo_property.n_nor_by_mem_total = o_meminfo_property.n_bytes / n_bytes_mem_total
+            }
+            o_meminfo_property.n_kilobytes = o_meminfo_property.n_bytes / o_s_unit_n_factor.kb
+            o_meminfo_property.n_megabytes = o_meminfo_property.n_bytes / o_s_unit_n_factor.mb
+            o_meminfo_property.n_gigabytes = o_meminfo_property.n_bytes / o_s_unit_n_factor.gb
+            o_meminfo_property.n_terrabytes = o_meminfo_property.n_bytes / o_s_unit_n_factor.tb
+        }
+
+    }
+    o_meminfo.o_meminfo_property_memory_used_calculated.n_bytes = o_meminfo.o_meminfo_property_MemTotal.n_bytes - o_meminfo.o_meminfo_property_MemFree.n_bytes;
+    o_meminfo.o_meminfo_property_memory_used_calculated.n_nor_by_mem_total = o_meminfo.o_meminfo_property_memory_used_calculated.n_bytes / n_bytes_mem_total
+    o_meminfo.o_meminfo_property_memory_used_calculated.n_kilobytes = o_meminfo.o_meminfo_property_memory_used_calculated.n_bytes / o_s_unit_n_factor.kb
+    o_meminfo.o_meminfo_property_memory_used_calculated.n_megabytes = o_meminfo.o_meminfo_property_memory_used_calculated.n_bytes / o_s_unit_n_factor.mb
+    o_meminfo.o_meminfo_property_memory_used_calculated.n_gigabytes = o_meminfo.o_meminfo_property_memory_used_calculated.n_bytes / o_s_unit_n_factor.gb
+    o_meminfo.o_meminfo_property_memory_used_calculated.n_terrabytes = o_meminfo.o_meminfo_property_memory_used_calculated.n_bytes / o_s_unit_n_factor.tb
+
+    return o_meminfo
+}
+let f_o_meminfo = async function(){
+    let s_path = '/proc/meminfo'
+    let s = '';
+    let n = window.performance.now();
+    try {
+        s = await Deno.readTextFile(s_path);
+    } catch (error) {
+        throw Error(`could not read text file '${s_path}'`)
+    }
+    return f_o_meminfo__from_s_proc_meminfo(
+        s
+    )
 }
 
 let f_s_type_mime__from_s_extension = function(
@@ -784,6 +861,7 @@ export {
     f_o_cpu_stats__diff, 
     f_s_type__from_typed_array, 
     f_download_text_file, 
-    f_s_type_mime__from_s_extension
+    f_s_type_mime__from_s_extension, 
+    f_o_meminfo
 }
 
