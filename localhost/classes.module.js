@@ -493,62 +493,15 @@ class O_meminfo{
             'DirectMap1G',
             'Memory mapped with 1GB pages.'
         )
-        this.a_o_meminfo_property = [
-            this.o_meminfo_property_MemTotal,
-            this.o_meminfo_property_MemFree,
-            this.o_meminfo_property_MemAvailable,
-            this.o_meminfo_property_Buffers,
-            this.o_meminfo_property_Cached,
-            this.o_meminfo_property_SwapCached,
-            this.o_meminfo_property_Active,
-            this.o_meminfo_property_Inactive,
-            this.o_meminfo_property_Active,
-            this.o_meminfo_property_Inactive,
-            this.o_meminfo_property_Active,
-            this.o_meminfo_property_Inactive,
-            this.o_meminfo_property_Unevictable,
-            this.o_meminfo_property_Mlocked,
-            this.o_meminfo_property_SwapTotal,
-            this.o_meminfo_property_SwapFree,
-            this.o_meminfo_property_Zswap,
-            this.o_meminfo_property_Zswapped,
-            this.o_meminfo_property_Dirty,
-            this.o_meminfo_property_Writeback,
-            this.o_meminfo_property_AnonPages,
-            this.o_meminfo_property_Mapped,
-            this.o_meminfo_property_Shmem,
-            this.o_meminfo_property_KReclaimable,
-            this.o_meminfo_property_Slab,
-            this.o_meminfo_property_SReclaimable,
-            this.o_meminfo_property_SUnreclaim,
-            this.o_meminfo_property_KernelStack,
-            this.o_meminfo_property_PageTables,
-            this.o_meminfo_property_SecPageTables,
-            this.o_meminfo_property_NFS_Unstable,
-            this.o_meminfo_property_Bounce,
-            this.o_meminfo_property_WritebackTmp,
-            this.o_meminfo_property_CommitLimit,
-            this.o_meminfo_property_Committed_AS,
-            this.o_meminfo_property_VmallocTotal,
-            this.o_meminfo_property_VmallocUsed,
-            this.o_meminfo_property_VmallocChunk,
-            this.o_meminfo_property_Percpu,
-            this.o_meminfo_property_HardwareCorrupted,
-            this.o_meminfo_property_AnonHugePages,
-            this.o_meminfo_property_ShmemHugePages,
-            this.o_meminfo_property_ShmemPmdMapped,
-            this.o_meminfo_property_FileHugePages,
-            this.o_meminfo_property_FilePmdMapped,
-            this.o_meminfo_property_HugePages_Total,
-            this.o_meminfo_property_HugePages_Free,
-            this.o_meminfo_property_HugePages_Rsvd,
-            this.o_meminfo_property_HugePages_Surp,
-            this.o_meminfo_property_Hugepagesize,
-            this.o_meminfo_property_Hugetlb,
-            this.o_meminfo_property_DirectMap4k,
-            this.o_meminfo_property_DirectMap2M,
-            this.o_meminfo_property_DirectMap1G
-        ]
+        this.a_o_meminfo_property = Object.keys(this).map(
+            s_prop => 
+            {
+                if(s_prop.startsWith('o_meminfo_property')){
+                 return this[s_prop]
+                }
+                return false
+            }
+        ).filter(v=>v)
     }
 }
 
