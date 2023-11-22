@@ -33,7 +33,8 @@ import {
     f_s_type__from_typed_array,
     f_download_text_file,
     f_s_type_mime__from_s_extension,
-    f_o_meminfo
+    f_o_meminfo,
+    f_v_s__between
 } from "./module.js"
 
 
@@ -48,6 +49,8 @@ let f_o_test = function(){
 
 let a_o_test = 
     [
+
+
 
         f_o_test("f_s_n_beautified", async () => {
             //readme.md:start
@@ -740,8 +743,38 @@ let a_o_test =
             return true;
             
             //readme.md:end
-        })
-
+        }),
+        f_o_test("f_v_s__between", async () => {
+            //readme.md:start
+            
+            //md: ## f_v_s__between
+            //md: get a string between strings
+            f_assert_equals(
+                f_v_s__between(
+                    'hello world ! yes', 
+                    'world', 
+                    'yes'
+                ), 
+                " ! "
+            )
+            f_assert_equals(
+                f_v_s__between(
+                    'hello not found 404', 
+                    'not', 
+                    '500'
+                ), 
+                null
+            )
+            f_assert_equals(
+                f_v_s__between(
+                    'hello not found 404', 
+                    ':)', 
+                    '404'
+                ), 
+                null
+            )
+            //readme.md:end
+        }),
         
     ]
 

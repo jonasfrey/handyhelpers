@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sat Nov 18 2023 23:49:49 GMT+0100 (Central European Standard Time)","n_ts_created":1700347789348} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Nov 22 2023 17:37:18 GMT+0100 (Central European Standard Time)","n_ts_created":1700671038856} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -575,4 +575,33 @@ linux only , get info about the RAM usage
             await f_print()
             return true;
             
+            
+```
+## f_v_s__between
+get a string between strings
+```javascript
+            f_assert_equals(
+                f_v_s__between(
+                    'hello world ! yes', 
+                    'world', 
+                    'yes'
+                ), 
+                " ! "
+            )
+            f_assert_equals(
+                f_v_s__between(
+                    'hello not found 404', 
+                    'not', 
+                    '500'
+                ), 
+                null
+            )
+            f_assert_equals(
+                f_v_s__between(
+                    'hello not found 404', 
+                    ':)', 
+                    '404'
+                ), 
+                null
+            )
 ```

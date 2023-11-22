@@ -834,7 +834,24 @@ let f_a_a_v__combinations = function(
 }
 
 
+let f_v_s__between = function(
+    s,
+    s_start,
+    s_end
+) {
+    let n_idx_start = s.indexOf(s_start);
+    let n_idx_end = s.indexOf(s_end, n_idx_start + s_start.length);
+
+    if (n_idx_start === -1 || n_idx_end === -1) {
+        return null; // One or both of the strings were not found
+    }
+    // Extract the substring, adding the length of the start string to the start index
+    return s.substring(n_idx_start + s_start.length, n_idx_end);
+}
+
+
 export {
+    f_v_s__between,
     f_o_cpu_stats,
     f_s_n_beautified,
     f_a_v__recursive, 
