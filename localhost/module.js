@@ -1,8 +1,219 @@
-import { O_cpu_core_stats, O_cpu_stats, O_cpu_stats__diff, O_meminfo, O_meminfo_property } from "./classes.module.js";
+import { O_cpu_core_stats,
+     O_cpu_stats,
+     O_cpu_stats__diff,
+     O_meminfo,
+     O_meminfo_property,
+    O_number_value,
+    O_nvidia_smi_help_info, 
+    O_nvidia_smi_metric, 
+    O_nvidia_smi_section
+} from "./classes.module.js";
 
+let f_s_number__from_s_input = function(
+    s_input
+){
+    // Regular expression to find all sequences of digits, including decimals
+    const regex = /(\d+(\.\d+)?)/g;
+
+    // Extract matches using the regular expression
+    const matches = s_input.match(regex);
+
+    // If matches are found, convert them to numbers, otherwise return an empty array
+    return matches ? matches.map(Number) : [];
+}
+let f_o_number_value__from_s_input = function(
+    s_input
+){
+    let a_a_n_factor_a_s_name_unit = [
+        [1, ['B', 'Bytes', 'bytes', /*'bytes' this would match all following kilo'bytes', mega'bytes', etc...*/]],
+        [Math.pow(1000, 1), ['KB', 'Kb', 'Kilobytes', 'kilobytes']],
+        [Math.pow(1024, 1), ['KiB', 'Kib', 'Kibibytes', 'kibibytes']],
+        [Math.pow(1000, 2), ['MB', 'Mb', 'Megabytes', 'megabytes']],
+        [Math.pow(1024, 2), ['MiB', 'Mib', 'Mebibytes', 'mebibytes']],
+        [Math.pow(1000, 3), ['GB', 'Gb', 'Gigabytes', 'gigabytes']],
+        [Math.pow(1024, 3), ['GiB', 'Gib', 'Gibibytes', 'gibibytes']],
+        [Math.pow(1000, 4), ['TB', 'Tb', 'Terabytes', 'terabytes']],
+        [Math.pow(1024, 4), ['TiB', 'Tib', 'Tebibytes', 'tebibytes']],
+        [Math.pow(1000, 5), ['PB', 'Pb', 'Petabytes', 'petabytes']],
+        [Math.pow(1024, 5), ['PiB', 'Pib', 'Pebibytes', 'pebibytes']],
+        [Math.pow(1000, 6), ['EB', 'Eb', 'Exabytes', 'exabytes']],
+        [Math.pow(1024, 6), ['EiB', 'Eib', 'Exbibytes', 'exbibytes']],
+        [Math.pow(1000, 7), ['ZB', 'Zb', 'Zettabytes', 'zettabytes']],
+        [Math.pow(1024, 7), ['ZiB', 'Zib', 'Zebibytes', 'zebibytes']],
+        [Math.pow(1000, 8), ['YB', 'Yb', 'Yottabytes', 'yottabytes']],
+        [Math.pow(1024, 8), ['YiB', 'Yib', 'Yobibytes', 'yobibytes']]
+    ]
+    let n_bytes = 0;
+    let n_num = parseFloat(f_s_number__from_s_input(s_input));
+
+    for(let a_n_a_s of a_a_n_factor_a_s_name_unit){
+        if(a_n_a_s[1].find(s=>{
+            return s_input.includes(`${(a_n_a_s[0] == 1) ? ' ': ""}${s}`)
+        })){
+            // a_s_name_unit = a_n_a_s
+            // console.log('asdf')
+            // console.log(n_num)
+            // console.log(a_n_a_s[0])
+            n_bytes = parseInt(n_num*a_n_a_s[0]);
+            break
+        }
+    }
+    // console.log(n_bytes)
+    if(!n_bytes){
+        throw Error(`could not detect unit in input string ${s_input}, available units are ${a_a_n_factor_a_s_name_unit}`)
+    }
+    let o_number_value = new O_number_value(s_input);
+    for(let a_n_a_s of a_a_n_factor_a_s_name_unit){
+        let n_val = n_bytes / a_n_a_s[0];
+        for(let s of a_n_a_s[1]){
+            o_number_value[`n_${s}`] = n_val
+        }
+    }
+    // console.log(o_number_value)
+    return o_number_value
+    // O_number_value
+}
+let f_a_a_v__from_a_v__f_b = function(
+    a_v, 
+    f_b
+){
+    let a_a_v = [[]];
+    let a_v__last = a_a_v.at(-1)
+    for(let v of a_v){
+        let b = f_b(v);
+        if(
+            b
+        ){
+            a_v__last = []
+            a_a_v.push(a_v__last)
+        }
+        a_v__last.push(v)
+        
+    }
+    return a_a_v
+}
 let f_b_denojs = function(){
     return 'Deno' in window
 }
+
+let f_o_nvidia_smi_help_info = async function(){
+    let s_command = 'nvidia-smi --help-query-gpu'
+    let a_s_arg = s_command.split(' ');
+    const o_command = new Deno.Command(
+        a_s_arg.shift(),
+        {args: a_s_arg}
+    );
+    const { code, stdout, stderr } = await o_command.output();
+    let a_o_nvidia_smi_metric = []
+    let a_o_nvidia_smi_section = []
+    if(code === 0){
+        let s_stdout = new TextDecoder().decode(stdout);
+        let a_s_line = s_stdout.split('\n');
+
+
+        let s_tag_section_start = 'Section about'
+
+        let a_a_s_line = f_a_a_v__from_a_v__f_b(
+            a_s_line, 
+            (s) =>{return s.startsWith(s_tag_section_start)}
+        );
+        // console.log(a_a_s_line)
+
+        for(let a_s_line of a_a_s_line){
+            let s_text = a_s_line.join('\n');
+            let a_s = s_text.split('\n\n');
+            console.log(a_s);
+
+            let o_nvidia_smi_section = new O_nvidia_smi_section(
+                '', 
+                '', 
+                []
+            );
+            for(let s_n_idx in a_s){
+                let s = a_s[s_n_idx];
+                if(s.trim()==''){
+                    continue
+                }
+                let a_s_part = s.split('\n');
+                let s_first = a_s_part?.[0];
+                let s_second = a_s_part?.slice(1).join('\n')
+                if(parseInt(s_n_idx) == 0){
+                    
+                    o_nvidia_smi_section.s_title = s_first 
+                    o_nvidia_smi_section.s_description  = s_second
+                    a_o_nvidia_smi_section.push(o_nvidia_smi_section)
+                    continue 
+                }
+                let o_metric = new O_nvidia_smi_metric(
+                    s_first?.replaceAll('"', ' ').trim().split(' or ').map(s=>s.trim()), 
+                    s_second
+                )
+                a_o_nvidia_smi_metric.push(
+                    o_metric
+                )
+                o_nvidia_smi_section.a_o_nvidia_smi_metric.push(o_metric)
+            }
+        }
+        // console.log(a_s_metric[10])
+        // return f_res() 
+    }
+
+    // console.assert(code === 0);
+    // console.assert("hello\n" === new TextDecoder().decode(stdout));
+    // console.assert("world\n" === new TextDecoder().decode(stderr));
+    // return f_rej(`could not run ${s_command}`)
+
+    return new O_nvidia_smi_help_info(
+        a_o_nvidia_smi_metric, 
+        a_o_nvidia_smi_section
+    )
+}
+let f_o_nvidia_smi_info = async function(
+    a_o_nvidia_smi_metric
+){
+    if(a_o_nvidia_smi_metric.length == 0){
+        throw Error(`a_o_nvidia_smi_metric.length has to be bigger than 0`)
+    }
+    // show metrics 
+    // nvidia-smi --help-query-gpu
+    let s_command = `nvidia-smi --format=csv --query-gpu=${a_o_nvidia_smi_metric.map(
+        o=>{
+            return o.a_s_name[0]
+        }
+    ).join(',')}`
+
+    // nvidia-smi --format=csv --query-gpu=name,temperature.gpu,memory.used
+    // console.log(s_command)
+    let a_s_arg = s_command.split(' ');
+    const o_command = new Deno.Command(
+        a_s_arg.shift(),
+        {args: a_s_arg}
+    );
+    const { code, stdout, stderr } = await o_command.output();
+    if(code === 0){
+        let s_stdout = new TextDecoder().decode(stdout);
+        // console.log(s_stdout)
+        let a_s_line = s_stdout.split('\n');
+        let s_separator = ','
+        let a_s_prop = a_s_line[0].split(s_separator);
+        return Object.assign(
+            {}, 
+            ...a_s_line?.[1].split(s_separator).map((v,n_idx)=>{
+                // console.log(a_s_prop)
+                return {
+                    // [`o_${a_o_nvidia_smi_metric[n_idx].a_s_name[0]}`]: {
+                    [a_o_nvidia_smi_metric[n_idx].a_s_name[0]]: {
+                        s_value : v, 
+                        s_name: a_s_prop[n_idx], 
+                        ...f_o_number_value__from_s_input(v)
+                    }, 
+                }
+            })
+        )
+    }
+
+}
+
 let f_o_meminfo__from_s_proc_meminfo = function(
     s_proc_meminfo 
 ){
@@ -879,6 +1090,9 @@ export {
     f_s_type__from_typed_array, 
     f_download_text_file, 
     f_s_type_mime__from_s_extension, 
-    f_o_meminfo
+    f_o_meminfo, 
+    f_o_nvidia_smi_help_info, 
+    f_o_nvidia_smi_info, 
+    f_o_number_value__from_s_input
 }
 

@@ -1,3 +1,124 @@
+class O_nvidia_smi_section{
+    constructor(
+        s_title, 
+        s_description, 
+        a_o_nvidia_smi_metric
+    ){
+        this.s_title = s_title, 
+        this.s_description = s_description
+        this.a_o_nvidia_smi_metric = a_o_nvidia_smi_metric
+    }
+}
+class O_nvidia_smi_metric{
+    constructor(
+        a_s_name, 
+        s_description
+    ){
+        this.a_s_name = a_s_name, 
+        this.s_description = s_description
+    }
+}
+class O_nvidia_smi_help_info{
+    constructor(
+        a_o_nvidia_smi_metric, 
+        a_o_nvidia_smi_section
+    ){
+        this.a_o_nvidia_smi_metric = a_o_nvidia_smi_metric
+        this.a_o_nvidia_smi_section = a_o_nvidia_smi_section
+    }
+}
+class O_number_value{
+    constructor(
+        s_input, 
+        n_B,
+        n_Bytes,
+        n_KB,
+        n_Kilobytes,
+        n_KiB,
+        n_Kibibytes,
+        n_MB,
+        n_Megabytes,
+        n_MiB,
+        n_Mebibytes,
+        n_GB,
+        n_Gigabytes,
+        n_GiB,
+        n_Gibibytes,
+        n_TB,
+        n_Terabytes,
+        n_TiB,
+        n_Tebibytes,
+        n_PB,
+        n_Petabytes,
+        n_PiB,
+        n_Pebibytes,
+        n_EB,
+        n_Exabytes,
+        n_EiB,
+        n_Exbibytes,
+        n_ZB,
+        n_Zettabytes,
+        n_ZiB,
+        n_Zebibytes,
+        n_YB,
+        n_Yottabytes,
+        n_YiB,
+        n_Yobibytes,
+    ){
+        this.s_input = s_input
+        //B: Bytes
+        this.n_B = n_B;
+        this.n_Bytes = n_Bytes; 
+        //KB: Kilobytes (1 KB = 1,000 Bytes)
+        this.n_KB = n_KB;
+        this.n_Kilobytes = n_Kilobytes; 
+        //KiB: Kibibytes (1 KiB = 1,024 Bytes)
+        this.n_KiB = n_KiB;
+        this.n_Kibibytes = n_Kibibytes; 
+        //MB: Megabytes (1 MB = 1,000 KB)
+        this.n_MB = n_MB;
+        this.n_Megabytes = n_Megabytes; 
+        //MiB: Mebibytes (1 MiB = 1,024 KiB)
+        this.n_MiB = n_MiB;
+        this.n_Mebibytes = n_Mebibytes; 
+        //GB: Gigabytes (1 GB = 1,000 MB)
+        this.n_GB = n_GB;
+        this.n_Gigabytes = n_Gigabytes; 
+        //GiB: Gibibytes (1 GiB = 1,024 MiB)
+        this.n_GiB = n_GiB;
+        this.n_Gibibytes = n_Gibibytes; 
+        //TB: Terabytes (1 TB = 1,000 GB)
+        this.n_TB = n_TB;
+        this.n_Terabytes = n_Terabytes; 
+        //TiB: Tebibytes (1 TiB = 1,024 GiB)
+        this.n_TiB = n_TiB;
+        this.n_Tebibytes = n_Tebibytes; 
+        //PB: Petabytes (1 PB = 1,000 TB)
+        this.n_PB = n_PB;
+        this.n_Petabytes = n_Petabytes; 
+        //PiB: Pebibytes (1 PiB = 1,024 TiB)
+        this.n_PiB = n_PiB;
+        this.n_Pebibytes = n_Pebibytes; 
+        //EB: Exabytes (1 EB = 1,000 PB)
+        this.n_EB = n_EB;
+        this.n_Exabytes = n_Exabytes; 
+        //EiB: Exbibytes (1 EiB = 1,024 PiB)
+        this.n_EiB = n_EiB;
+        this.n_Exbibytes = n_Exbibytes; 
+        //ZB: Zettabytes (1 ZB = 1,000 EB)
+        this.n_ZB = n_ZB;
+        this.n_Zettabytes = n_Zettabytes; 
+        //ZiB: Zebibytes (1 ZiB = 1,024 EiB)
+        this.n_ZiB = n_ZiB;
+        this.n_Zebibytes = n_Zebibytes; 
+        //YB: Yottabytes (1 YB = 1,000 ZB)
+        this.n_YB = n_YB;
+        this.n_Yottabytes = n_Yottabytes; 
+        //YiB: Yobibytes (1 YiB = 1,024 ZiB)
+        this.n_YiB = n_YiB;
+        this.n_Yobibytes = n_Yobibytes; 
+    }
+}
 class O_cpu_stats__diff{
     constructor(
         o_cpu_stats_1, 
@@ -511,5 +632,9 @@ export{
     O_cpu_stats__diff, 
     O_cpu_core_stats__diff, 
     O_meminfo, 
-    O_meminfo_property
+    O_meminfo_property, 
+    O_nvidia_smi_section,
+    O_nvidia_smi_metric,
+    O_nvidia_smi_help_info, 
+    O_number_value
 }

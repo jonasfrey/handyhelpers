@@ -34,7 +34,10 @@ import {
     f_download_text_file,
     f_s_type_mime__from_s_extension,
     f_o_meminfo,
-    f_v_s__between
+    f_v_s__between,
+    f_o_nvidia_smi_help_info,
+    f_o_nvidia_smi_info,
+    f_o_number_value__from_s_input
 } from "./module.js"
 
 
@@ -775,6 +778,85 @@ let a_o_test =
             )
             //readme.md:end
         }),
+        f_o_test("gpu info ", async () => {
+            //readme.md:start
+            //md: to get info about the gpu you first have 
+            //md: to get all available properties 
+            let o_nvidia_smi_help_info = await f_o_nvidia_smi_help_info();
+            console.log(o_nvidia_smi_help_info.a_o_nvidia_smi_metric)
+            let a_o_metric = o_nvidia_smi_help_info.a_o_nvidia_smi_metric.filter(
+                o=>{
+                    return o.a_s_name.includes('memory.used') || 
+                    o.a_s_name.includes('memory.total')
+                }
+            );
+
+            // if the metric is available we can not get information 
+            let o_nvidia_smi_info = await f_o_nvidia_smi_info(
+                a_o_metric
+            );
+            o_nvidia_smi_info['memory.used']
+
+            let n_ms_duration = 200000;
+            let n_ms_window_performance_now = window.performance.now();
+            let a_a_n_u8 = []
+            let f_print = async function(){
+                let n_ms_diff_abs_nor = Math.abs(window.performance.now() - n_ms_window_performance_now) / n_ms_duration;
+                if(n_ms_diff_abs_nor > 0.5){
+                    a_a_n_u8 = [] // de-allocate ? 
+                }else{
+                    a_a_n_u8.push(new Float64Array(1024*1024*4).fill(0))          
+                }
+                
+                // allocate some memory to see usage
+                let n = window.performance.now();
+                let n_max = 80;
+                let o_nvidia_smi_info = await f_o_nvidia_smi_info(
+                    a_o_metric
+                );
+                let s_used_gb = `${o_nvidia_smi_info['memory.used'].n_gigabytes.toFixed(0).padStart(2, ' ')}GB/`
+                let s_total_gb = `${o_nvidia_smi_info['memory.total'].n_gigabytes.toFixed(0).padStart(2, ' ')}GB`
+                let n_used_nor = o_nvidia_smi_info['memory.used'].n_gigabytes / o_nvidia_smi_info['memory.total'].n_gigabytes
+                let n_free_nor = 1.-n_used_nor
+                let s = [
+                    `GPU Memory usage: `,
+                    `${'|'.repeat(n_used_nor*n_max-5)}`,
+                    `${s_used_gb}`,
+                    `${' '.repeat(n_free_nor*n_max)}${s_total_gb}`
+                ].join('')
+                console.log(s)
+
+                await f_sleep_ms(1000/60);
+                if(n_ms_diff_abs_nor< 1.){
+                    await f_print();
+                }
+            }
+            await f_print()
+
+            // we can also parse the value 
+            // console.log(o_nvidia_smi_info['o_memory.used'])
+            //readme.md:end
+        }),
+        // f_o_test("f_o_number_value__from_s_input ", async () => {
+        //     //readme.md:start
+        //     //md: #f_o_number_value__from_s_input
+        //     let o = f_o_number_value__from_s_input(
+        //         "123.443 [Mb]"
+        //     );
+        //     f_assert_equals(
+        //         o.n_bytes, 
+        //         123443000
+        //     )
+        //     o = f_o_number_value__from_s_input(
+        //         " 908 MiB "
+        //     );
+        //     f_assert_equals(
+        //         o.n_Mebibytes, 
+        //         908
+        //     )
+        //     //readme.md:end
+        // }),
+        
         
     ]
 
