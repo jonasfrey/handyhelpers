@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Nov 29 2023 23:11:33 GMT+0100 (Central European Standard Time)","n_ts_created":1701295893497} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Dec 06 2023 16:39:52 GMT+0100 (Central European Standard Time)","n_ts_created":1701877192021} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -661,4 +661,45 @@ to get all available properties
 
             // we can also parse the value 
             // console.log(o_nvidia_smi_info['o_memory.used'])
+            
+```
+## create a small canvas with a shader
+oh how i hate it to write 100+ lines of code 'just' to get a small shader running
+this function is a shortcut
+```javascript
+
+            if(f_b_denojs()){
+                console.log('f_o_canvas_from_vertex_shader is not supported yet on denojs just in the browser')
+            }else{
+                let o_canvas = f_o_canvas_from_vertex_shader(
+                    `
+                    precision mediump float;
+                    varying vec2 o_trn_pixel_nor;
+                    uniform float n_t;
+            
+                    void main() {
+                        float n_dist = length(o_trn_pixel_nor-0.5);
+                        float n1 = sin(n_dist*3.*3.+n_t*0.003)*.5+.5;
+                        float n2 = sin(n_dist*6.*3.+n_t*0.003)*.5+.5;
+                        float n3 = sin(n_dist*9.*3.+n_t*0.003)*.5+.5;
+                        gl_FragColor = vec4(
+                            n1,
+                            n2, 
+                            n3,
+                            1.
+                        );
+                    }
+                    `, 
+                    500, 
+                    500
+                )   
+                document.body.appendChild(o_canvas);
+                window.setInterval(
+                    function(){
+                        o_canvas.f_render(window.performance.now())
+                    }, 
+                    1000/60
+                )
+            }
+
 ```
