@@ -910,7 +910,7 @@ let b_run_all = false;
 if(f_b_denojs()){
     b_run_all = Deno.arg?.[0] == 'all'
 }else{
-    b_run_all = window.location.hash == 'all'
+    b_run_all = window.location.hash == '#all'
 }
 if(!b_run_all){
     console.log('run with "all"/"url#all" to run all tests')
