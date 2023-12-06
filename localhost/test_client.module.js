@@ -37,7 +37,8 @@ import {
     f_v_s__between,
     f_o_nvidia_smi_help_info,
     f_o_nvidia_smi_info,
-    f_o_number_value__from_s_input
+    f_o_number_value__from_s_input, 
+    f_o_canvas_from_vertex_shader
 } from "./module.js"
 
 
@@ -856,9 +857,53 @@ let a_o_test =
         //     )
         //     //readme.md:end
         // }),
-        
+        f_o_test("f_o_canvas_from_vertex_shader", async () => {
+            //readme.md:start
+            
+            //md: ## create a small canvas with a shader
+            //md: oh how i hate it to write 100+ lines of code 'just' to get a small shader running
+            //md: this function is a shortcut
+
+            if(f_b_denojs()){
+                console.log('f_o_canvas_from_vertex_shader is not supported yet on denojs just in the browser')
+            }else{
+                let o_canvas = f_o_canvas_from_vertex_shader(
+                    `
+                    precision mediump float;
+                    varying vec2 o_trn_pixel_nor;
+                    uniform float n_t;
+            
+                    void main() {
+                        float n_dist = length(o_trn_pixel_nor-0.5);
+                        float n1 = sin(n_dist*3.*3.+n_t*0.003)*.5+.5;
+                        float n2 = sin(n_dist*6.*3.+n_t*0.003)*.5+.5;
+                        float n3 = sin(n_dist*9.*3.+n_t*0.003)*.5+.5;
+                        gl_FragColor = vec4(
+                            n1,
+                            n2, 
+                            n3,
+                            1.
+                        );
+                    }
+                    `, 
+                    500, 
+                    500
+                )   
+                document.body.appendChild(o_canvas);
+                window.setInterval(
+                    function(){
+                        o_canvas.f_render(window.performance.now())
+                    }, 
+                    1000/60
+                )
+            }
+
+            //readme.md:end
+        }),
         
     ]
+
+
 
 
 let b_run_all = false;
@@ -873,13 +918,13 @@ if(!b_run_all){
 
     await f_deno_test_all_and_print_summary(
         a_o_test.slice(-1).map(o=>{
-            f_deno_test(...o.a_v_arg)
+            return f_deno_test(...o.a_v_arg)
         })
     )
 }else{
     await f_deno_test_all_and_print_summary(
         a_o_test.map(o=>{
-            f_deno_test(...o.a_v_arg)
+            return f_deno_test(...o.a_v_arg)
         })
     )
 }

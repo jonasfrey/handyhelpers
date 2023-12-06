@@ -1061,7 +1061,105 @@ let f_v_s__between = function(
 }
 
 
+function f_o_canvas_from_vertex_shader(
+    s_code_shader = '', 
+    n_scl_x = 100,
+    n_scl_y = 100,
+) {
+    // Create the canvas element
+    var canvas = document.createElement('canvas');
+    canvas.width = n_scl_x;
+    canvas.height = n_scl_y;
+    document.body.appendChild(canvas);
+
+    // Initialize the WebGL context
+    var gl = canvas.getContext('webgl');
+    if (!gl) {
+        console.error("WebGL is not supported or disabled in this browser.");
+        return;
+    }
+
+    // Vertex Shader (basic setup for drawing)
+// Vertex Shader Code
+var vShaderCode = `
+attribute vec4 a_position;
+varying vec2 o_trn_pixel_nor;
+
+void main() {
+    gl_Position = a_position;
+    o_trn_pixel_nor = (a_position.xy + 1.0) / 2.0; // Convert from clip space to texture coordinates
+}`;
+    var vShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vShader, vShaderCode);
+    gl.compileShader(vShader);
+    if (!gl.getShaderParameter(vShader, gl.COMPILE_STATUS)) {
+        console.error('ERROR compiling vertex shader!', gl.getShaderInfoLog(vShader));
+        gl.deleteShader(vShader);
+        return;
+    }
+
+    // Fragment Shader
+    var fShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fShader, s_code_shader);
+    gl.compileShader(fShader);
+    if (!gl.getShaderParameter(fShader, gl.COMPILE_STATUS)) {
+        console.error('ERROR compiling fragment shader!', gl.getShaderInfoLog(fShader));
+        gl.deleteShader(fShader);
+        return;
+    }
+
+    // Create and use the program
+    var program = gl.createProgram();
+    gl.attachShader(program, vShader);
+    gl.attachShader(program, fShader);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        console.error('ERROR linking program!', gl.getProgramInfoLog(program));
+        gl.deleteProgram(program);
+        return;
+    }
+    gl.useProgram(program);
+
+    // Set up uniforms
+    gl.uniform1f(gl.getUniformLocation(program, 'n_t'), 0);
+    gl.uniform1f(gl.getUniformLocation(program, 'n_scl_x'), n_scl_x);
+    gl.uniform1f(gl.getUniformLocation(program, 'n_scl_y'), n_scl_y);
+
+    // Additional setup for drawing (e.g., buffers, attributes)
+
+    canvas.f_render = function(n_t){
+
+        gl.uniform1f(gl.getUniformLocation(program, 'n_t'), n_t);
+        // gl.uniform1f(gl.getUniformLocation(program, 'n_scl_x'), n_scl_x);
+        // gl.uniform1f(gl.getUniformLocation(program, 'n_scl_y'), n_scl_y);
+
+        var positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+        // Set the positions for a square.
+        var positions = [
+            -1.0, -1.0,
+            1.0, -1.0,
+            -1.0,  1.0,
+            1.0,  1.0,
+        ];
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+        // Tell WebGL how to pull out the positions from the position buffer into the vertexPosition attribute
+        var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+        gl.enableVertexAttribArray(positionAttributeLocation);
+        gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
+        // Draw the square
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+
+    }
+    return canvas;
+}
+
 export {
+    f_o_canvas_from_vertex_shader,
     f_v_s__between,
     f_o_cpu_stats,
     f_s_n_beautified,
