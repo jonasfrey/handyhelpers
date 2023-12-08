@@ -1,3 +1,5 @@
 .cache/
 .cache_for_f_a_n_u8__fetch_cached/
 .gitgnored/
+self_signed_cert.crt
+self_signed_key.key
