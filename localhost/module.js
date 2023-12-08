@@ -1158,7 +1158,29 @@ void main() {
     return canvas;
 }
 
+let f_s_uuidv4 = function() {
+    if(!('crypto' in window)){
+        console.warn('the crypto global property is not available in this JS runtime, https://developer.mozilla.org/en-US/docs/Web/API/crypto_property')
+
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+        .replace(/[xy]/g, function (c) {
+            const r = Math.random() * 16 | 0, 
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    return crypto.randomUUID()
+}
+let f_b_uuid = function(s){
+    // let o_regexp = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+    let o_regexp = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+    return o_regexp.test(s)
+}
+
 export {
+    f_b_uuid,
+    f_s_uuidv4,
     f_o_canvas_from_vertex_shader,
     f_v_s__between,
     f_o_cpu_stats,

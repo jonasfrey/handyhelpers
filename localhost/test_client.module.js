@@ -38,7 +38,9 @@ import {
     f_o_nvidia_smi_help_info,
     f_o_nvidia_smi_info,
     f_o_number_value__from_s_input, 
-    f_o_canvas_from_vertex_shader
+    f_o_canvas_from_vertex_shader,
+    f_s_uuidv4,
+    f_b_uuid
 } from "./module.js"
 
 
@@ -120,7 +122,6 @@ let a_o_test =
 
         }),
         f_o_test("f_n_idx_ensured_inside_array", async () => {
-            //readme.md:start_disabled
             // only internally used and tested
             let n_len = 3; 
             f_assert_equals(f_n_idx_ensured_inside_array(0, n_len), 0)
@@ -138,7 +139,6 @@ let a_o_test =
             f_assert_equals(f_n_idx_ensured_inside_array(-5, n_len), 1)
             f_assert_equals(f_n_idx_ensured_inside_array(-6, n_len), 0)
 
-            //readme.md:end_disabled
         }),
 
         f_o_test("f_move_in_array", async () => {
@@ -900,15 +900,58 @@ let a_o_test =
 
             //readme.md:end
         }),
-        
+
+        f_o_test("f_b_uuid", async () => {
+            //readme.md:start
+
+            f_assert_equals(
+                (
+                    true == f_b_uuid('c6fa6520-2dd0-4860-932d-4ccd52ab97b5')
+                    &&
+                    false == f_b_uuid('sdf-2-4860-932d-4ccd52ab97b5') // changed some chars
+                    &&
+                    false == f_b_uuid('c!fa6520-2dd0-4860-932d-4ccd52ab97b5') // replaced second char with !
+                    &&
+                    true == f_b_uuid('4c104dd0-4821-30d5-9ce3-0e7a1f8b7c0d') // uuidv3
+                    && 
+                    true == f_b_uuid('000003e8-95cc-21ee-ac00-325096b39f47') //uuidv2
+                    && 
+                    true == f_b_uuid('7ee4525c-95cc-11ee-9b9c-325096b39f47') //uuidv1
+                    &&
+                    false == f_b_uuid('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx')
+                )
+                ,
+                true
+            );
+
+            //readme.md:end
+        }),
+
+        f_o_test("f_s_uuidv4", async () => {
+            //readme.md:start
+
+            let s_uuidv4 = f_s_uuidv4();
+            console.log({s_uuidv4});
+            f_assert_equals(
+                (
+                    s_uuidv4.length == 36
+                    &&
+                    Array.from(s_uuidv4).filter(s=>s=='-').length == 4
+                    &&
+                    true == f_b_uuid(s_uuidv4)
+                ),
+                true, 
+            )
+
+
+            //readme.md:end
+        }),
     ]
-
-
 
 
 let b_run_all = false;
 if(f_b_denojs()){
-    b_run_all = Deno.arg?.[0] == 'all'
+    b_run_all = Deno.args?.[0] == 'all'
 }else{
     b_run_all = window.location.hash == '#all'
 }

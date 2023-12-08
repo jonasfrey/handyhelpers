@@ -1,10 +1,7 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Dec 06 2023 16:39:52 GMT+0100 (Central European Standard Time)","n_ts_created":1701877192021} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Fri Dec 08 2023 15:52:22 GMT+0100 (Central European Standard Time)","n_ts_created":1702047142799} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
-```javascript
-            
-```
 ## f_s_n_beautified
 beautify/format a number,
 12341234
@@ -61,7 +58,6 @@ get a n-dimensional array with a value of choice
 ## f_move_in_array
 moves a value in an array, it does not swap the elements!
 ```javascript
-
             let a_n = [2,0,1,0,0]
             f_move_in_array(a_n, 2, 0)
             f_assert_equals(
@@ -108,7 +104,6 @@ moves a value in an array, it does not swap the elements!
 ## f_swap_in_array
 swaps two values in an array
 ```javascript
-
             let a_n = [2,0,1,0,0]
             f_swap_in_array(a_n, 2, 0)
             f_assert_equals(
@@ -140,7 +135,6 @@ swaps two values in an array
 ## f_move_v_in_array
 moves a value in an array by a index difference
 ```javascript
-
             let a_s = ["a","b","c","d"];
             f_move_v_in_array(a_s, "a", 2)
             f_assert_equals(
@@ -168,7 +162,6 @@ moves a value in an array by a index difference
 ## f_swap_v_in_array
 moves a value in an array by a index difference
 ```javascript
-
             let a_s = ["a","b","c","d"];
             f_swap_v_in_array(a_s, "a", "d")
             f_assert_equals(
@@ -224,7 +217,6 @@ extend a file name by '_thumb'
 ## f_o_resp__fetch_cached
 makes a fetch but caches the response meta (status, statusText, headers) and data as a_n_u8
 ```javascript
-
             var o_resp = await f_o_resp__fetch_cached(
                 fetch, // f_fetch 
                 [ // a_v_arg__for_f_fetch
@@ -288,7 +280,6 @@ get the response body as Uint8array (a_n_u8) from an url, while the download is 
 in this callback one can print download speed, if the response header 'content-length' is present and its value is legit
 one can also print the download percentage
 ```javascript
-
             let a_n_u8 = await f_a_n_u8__from_s_url_with_download_speed_easy(
                 'https://www.dwsamplefiles.com/?dl_id=406', 
                 function(
@@ -383,7 +374,6 @@ a handy function to directly get a js object html document from a url, works in 
 hash a string, using the window.crypto.subtle API, available functions at the moment are
 'sha-1', 'sha-256', 'sha-384', 'sha-512'
 ```javascript
-
             f_assert_equals(
                 await f_s_hashed('lol this is a text', 'SHA-1'),
                 'd2a68e83cffd1f8dc53143c95006f862f199082b'
@@ -463,7 +453,6 @@ get a string matching the typed array type
 the default string is how a type in rust looks like
 so Uint8Array ->'u8', Float32Array -> 'f32 ...
 ```javascript
-
             f_assert_equals(
                 f_s_type__from_typed_array(Uint16Array), 
                 'u16'
@@ -661,13 +650,27 @@ to get all available properties
 
             // we can also parse the value 
             // console.log(o_nvidia_smi_info['o_memory.used'])
+        //     //md: #f_o_number_value__from_s_input
+        //     let o = f_o_number_value__from_s_input(
+        //         "123.443 [Mb]"
+        //     );
+        //     f_assert_equals(
+        //         o.n_bytes, 
+        //         123443000
+        //     )
+        //     o = f_o_number_value__from_s_input(
+        //         " 908 MiB "
+        //     );
+        //     f_assert_equals(
+        //         o.n_Mebibytes, 
+        //         908
+        //     )
             
 ```
 ## create a small canvas with a shader
 oh how i hate it to write 100+ lines of code 'just' to get a small shader running
 this function is a shortcut
 ```javascript
-
             if(f_b_denojs()){
                 console.log('f_o_canvas_from_vertex_shader is not supported yet on denojs just in the browser')
             }else{
@@ -701,5 +704,41 @@ this function is a shortcut
                     1000/60
                 )
             }
+
+
+            f_assert_equals(
+                (
+                    true == f_b_uuid('c6fa6520-2dd0-4860-932d-4ccd52ab97b5')
+                    &&
+                    false == f_b_uuid('sdf-2-4860-932d-4ccd52ab97b5') // changed some chars
+                    &&
+                    false == f_b_uuid('c!fa6520-2dd0-4860-932d-4ccd52ab97b5') // replaced second char with !
+                    &&
+                    true == f_b_uuid('4c104dd0-4821-30d5-9ce3-0e7a1f8b7c0d') // uuidv3
+                    && 
+                    true == f_b_uuid('000003e8-95cc-21ee-ac00-325096b39f47') //uuidv2
+                    && 
+                    true == f_b_uuid('7ee4525c-95cc-11ee-9b9c-325096b39f47') //uuidv1
+                    &&
+                    false == f_b_uuid('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx')
+                )
+                ,
+                true
+            );
+
+
+            let s_uuidv4 = f_s_uuidv4();
+            console.log({s_uuidv4});
+            f_assert_equals(
+                (
+                    s_uuidv4.length == 36
+                    &&
+                    Array.from(s_uuidv4).filter(s=>s=='-').length == 4
+                    &&
+                    true == f_b_uuid(s_uuidv4)
+                ),
+                true, 
+            )
+
 
 ```

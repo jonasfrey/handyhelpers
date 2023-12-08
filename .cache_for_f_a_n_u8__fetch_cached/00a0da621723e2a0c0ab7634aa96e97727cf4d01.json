@@ -1,1 +1,0 @@
-{"status":418,"statusText":"I'm a teapot","headers":{"access-control-allow-credentials":"true","access-control-allow-origin":"*","content-length":"135","date":"Fri, 10 Nov 2023 16:38:09 GMT","server":"gunicorn/19.9.0","x-more-info":"http://tools.ietf.org/html/rfc2324"}}
