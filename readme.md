@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sat Dec 09 2023 22:16:00 GMT+0100 (Central European Standard Time)","n_ts_created":1702156560444} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sat Dec 09 2023 23:34:06 GMT+0100 (Central European Standard Time)","n_ts_created":1702161246650} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -787,5 +787,56 @@ this function is a shortcut
             //     f_a_n_nor__hsl__from_rgb(a_n_nor__rgb), 
             //     a_n_rand
             // )
+
+```
+#creates a 'empty' object recursivly
+```javascript
+            let o_empty = f_o_empty_recursive(
+                {
+                    n: 2, 
+                    b: false, 
+                    b2: true,
+                    s: 'ab',
+                    a_n: [1,2], 
+                    a_v: [{}, 2, false, 'a'], 
+                    o1: {
+                        n: 2, 
+                        o2: {
+                            n:3, 
+                            o4: {
+                                a: [1,2,3], 
+                                b: false
+                            }
+                        }
+                    } 
+
+                }, 
+                (v, s_prop)=>{
+                    if(Array.isArray(v)){
+                        return []
+                    }
+                    if(typeof v == 'number'){
+                        return 0
+                    }
+                    if(typeof v == 'string'){
+                        return ''
+                    }
+                    if(typeof v == 'boolean'){
+                        return (v) ? 1 : 0
+                    }
+                }
+            )
+            f_assert_equals(
+                o_empty, 
+                {
+                    n: 0,
+                    b: 0,
+                    b2: 1,
+                    s: "",
+                    a_n: [],
+                    a_v: [],
+                    o1: { n: null, o2: { n: null, o4: { a: [], b: null } } }
+                  }
+            )
 
 ```

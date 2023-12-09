@@ -43,6 +43,7 @@ import {
     f_b_uuid,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
     f_a_n_nor__hsl__from_a_n_nor__rgb,
+    f_o_empty_recursive,
 } from "./module.js"
 
 
@@ -1004,6 +1005,59 @@ let a_o_test =
             //     f_a_n_nor__hsl__from_rgb(a_n_nor__rgb), 
             //     a_n_rand
             // )
+
+            //readme.md:end
+        }),
+        f_o_test("f_o_empty", async () => {
+            //readme.md:start
+            //md: #creates a 'empty' object recursivly
+            let o_empty = f_o_empty_recursive(
+                {
+                    n: 2, 
+                    b: false, 
+                    b2: true,
+                    s: 'ab',
+                    a_n: [1,2], 
+                    a_v: [{}, 2, false, 'a'], 
+                    o1: {
+                        n: 2, 
+                        o2: {
+                            n:3, 
+                            o4: {
+                                a: [1,2,3], 
+                                b: false
+                            }
+                        }
+                    } 
+
+                }, 
+                (v, s_prop)=>{
+                    if(Array.isArray(v)){
+                        return []
+                    }
+                    if(typeof v == 'number'){
+                        return 0
+                    }
+                    if(typeof v == 'string'){
+                        return ''
+                    }
+                    if(typeof v == 'boolean'){
+                        return (v) ? 1 : 0
+                    }
+                }
+            )
+            f_assert_equals(
+                o_empty, 
+                {
+                    n: 0,
+                    b: 0,
+                    b2: 1,
+                    s: "",
+                    a_n: [],
+                    a_v: [],
+                    o1: { n: null, o2: { n: null, o4: { a: [], b: null } } }
+                  }
+            )
 
             //readme.md:end
         }),

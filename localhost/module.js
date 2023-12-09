@@ -1233,7 +1233,43 @@ let f_a_n_nor__hsl__from_a_n_nor__rgb = function(r, g, b) {
   return [h, s, l];
 }
 
+let f_b_js_object =function(v){
+    return typeof v === 'object' &&
+        !Array.isArray(v) &&
+        v !== null
+}
+
+
+
+let f_o_empty_recursive = function(
+    o,
+    f_v_empty = function(
+        v, s_prop
+    ){
+        if(Array.isArray(v)){
+            return []
+        }
+
+        return null
+    }
+){
+    let o_new = {}
+    for(let s_prop in o){
+        let v = o[s_prop]
+        if(f_b_js_object(v)){
+            console.log(v)
+            o_new[s_prop] = f_o_empty_recursive(v);
+        }else{
+            o_new[s_prop] = f_v_empty(v, s_prop) 
+        }
+    }
+    return o_new
+}
+
+
+
 export {
+    f_o_empty_recursive,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
     f_a_n_nor__hsl__from_a_n_nor__rgb,
     f_b_uuid,
