@@ -40,7 +40,9 @@ import {
     f_o_number_value__from_s_input, 
     f_o_canvas_from_vertex_shader,
     f_s_uuidv4,
-    f_b_uuid
+    f_b_uuid,
+    f_a_n_nor__rgb__from_a_n_nor__hsl,
+    f_a_n_nor__hsl__from_a_n_nor__rgb,
 } from "./module.js"
 
 
@@ -946,6 +948,69 @@ let a_o_test =
 
             //readme.md:end
         }),
+
+
+        f_o_test("f_a_n_nor__rgb__from_a_n_nor__hsl", async () => {
+            //readme.md:start
+
+            f_assert_equals(
+                f_a_n_nor__rgb__from_a_n_nor__hsl(
+                    0,
+                     1.0,
+                      0.5
+                ), 
+                [1, 0 ,0]
+            );
+
+            //readme.md:end
+        }),
+
+
+        f_o_test("f_a_n_nor__hsl__from_a_n_nor__rgb", async () => {
+            //readme.md:start
+
+            f_assert_equals(
+                f_a_n_nor__hsl__from_a_n_nor__rgb(
+                    1, 
+                    0, 
+                    0
+                ), 
+                [0, 1,0.5]
+            );
+
+            for(let n = 0; n < 10; n+=1){
+                // let a_n_static = [0.2, 0.3, 0.4]
+                let a_n_rand = new Array(3).fill(0).map(n=>Math.random());
+                let a_n = a_n_rand
+                let a_n_nor__rgb = f_a_n_nor__rgb__from_a_n_nor__hsl(...a_n) 
+                let a_n_nor__hsl = f_a_n_nor__hsl__from_a_n_nor__rgb(...a_n_nor__rgb)
+                let n_delta_allowed = 0.001;
+                console.log(`---`)
+                console.log(`hsl original: ${a_n}`)
+                console.log(`rgb converted: ${a_n_nor__rgb}`)
+                console.log(`hsl converted: ${a_n_nor__hsl}`)
+                f_assert_equals(
+                    Math.abs(a_n_nor__hsl[0] - a_n[0]) < n_delta_allowed
+                    && Math.abs(a_n_nor__hsl[1] - a_n[1]) < n_delta_allowed
+                    && Math.abs(a_n_nor__hsl[2] - a_n[2]) < n_delta_allowed, 
+                    true
+                )
+            }
+
+            // let a_n_rand = new Array(3).fill(0).map(n=>Math.random());
+            // let a_n_nor__rgb = f_a_n_nor__rgb__from_hsl(...a_n_rand) 
+            // console.log(a_n_nor__rgb)
+            // f_assert_equals(
+            //     f_a_n_nor__hsl__from_rgb(a_n_nor__rgb), 
+            //     a_n_rand
+            // )
+
+            //readme.md:end
+        }),
+
+        // f_a_n_nor__rgb__from_hsl
+            // f_a_n_nor__hsl__from_rgb
+
     ]
 
 

@@ -1178,7 +1178,64 @@ let f_b_uuid = function(s){
     return o_regexp.test(s)
 }
 
+let f_a_n_nor__rgb__from_a_n_nor__hsl = (
+    n_hue_nor, 
+    n_saturation_nor, 
+    n_lightness_nor
+) => {
+    let n_hue_deg = n_hue_nor*360;
+    const k = n => (n +  n_hue_deg / 30) % 12;
+    const a = n_saturation_nor * Math.min(n_lightness_nor, 1 - n_lightness_nor);
+    const f = n =>
+    n_lightness_nor - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return [f(0), f(8), f(4)];
+};
+
+
+
+// const f_a_n_nor__hsl__from_a_n_nor__rgb = (
+//     n_r_nor,
+//     n_g_nor,
+//     n_b_nor
+//     ) => {
+
+//     const l = Math.max(n_r_nor, n_g_nor, n_b_nor);
+//     const s = l - Math.min(n_r_nor, n_g_nor, n_b_nor);
+//     const h = s
+//       ? l === n_r_nor
+//         ? (n_g_nor - n_b_nor) / s
+//         : l === n_g_nor
+//         ? 2 + (n_b_nor - n_r_nor) / s
+//         : 4 + (n_r_nor - n_g_nor) / s
+//       : 0;
+//     return [
+//        (60 * h < 0 ? 60 * h + 360 : 60 * h)/360,
+//        (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0),
+//        ((2 * l - s)) / 2,
+//     ];
+//   };
+
+let f_a_n_nor__hsl__from_a_n_nor__rgb = function(r, g, b) {
+  const vmax = Math.max(r, g, b), vmin = Math.min(r, g, b);
+  let h, s, l = (vmax + vmin) / 2;
+
+  if (vmax === vmin) {
+    return [0, 0, l]; // achromatic
+  }
+
+  const d = vmax - vmin;
+  s = l > 0.5 ? d / (2 - vmax - vmin) : d / (vmax + vmin);
+  if (vmax === r) h = (g - b) / d + (g < b ? 6 : 0);
+  if (vmax === g) h = (b - r) / d + 2;
+  if (vmax === b) h = (r - g) / d + 4;
+  h /= 6;
+
+  return [h, s, l];
+}
+
 export {
+    f_a_n_nor__rgb__from_a_n_nor__hsl,
+    f_a_n_nor__hsl__from_a_n_nor__rgb,
     f_b_uuid,
     f_s_uuidv4,
     f_o_canvas_from_vertex_shader,

@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Fri Dec 08 2023 15:53:44 GMT+0100 (Central European Standard Time)","n_ts_created":1702047224406} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sat Dec 09 2023 22:16:00 GMT+0100 (Central European Standard Time)","n_ts_created":1702156560444} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -740,5 +740,52 @@ this function is a shortcut
                 true, 
             )
 
+
+
+            f_assert_equals(
+                f_a_n_nor__rgb__from_a_n_nor__hsl(
+                    0,
+                     1.0,
+                      0.5
+                ), 
+                [1, 0 ,0]
+            );
+
+
+            f_assert_equals(
+                f_a_n_nor__hsl__from_a_n_nor__rgb(
+                    1, 
+                    0, 
+                    0
+                ), 
+                [0, 1,0.5]
+            );
+
+            for(let n = 0; n < 10; n+=1){
+                // let a_n_static = [0.2, 0.3, 0.4]
+                let a_n_rand = new Array(3).fill(0).map(n=>Math.random());
+                let a_n = a_n_rand
+                let a_n_nor__rgb = f_a_n_nor__rgb__from_a_n_nor__hsl(...a_n) 
+                let a_n_nor__hsl = f_a_n_nor__hsl__from_a_n_nor__rgb(...a_n_nor__rgb)
+                let n_delta_allowed = 0.001;
+                console.log(`---`)
+                console.log(`hsl original: ${a_n}`)
+                console.log(`rgb converted: ${a_n_nor__rgb}`)
+                console.log(`hsl converted: ${a_n_nor__hsl}`)
+                f_assert_equals(
+                    Math.abs(a_n_nor__hsl[0] - a_n[0]) < n_delta_allowed
+                    && Math.abs(a_n_nor__hsl[1] - a_n[1]) < n_delta_allowed
+                    && Math.abs(a_n_nor__hsl[2] - a_n[2]) < n_delta_allowed, 
+                    true
+                )
+            }
+
+            // let a_n_rand = new Array(3).fill(0).map(n=>Math.random());
+            // let a_n_nor__rgb = f_a_n_nor__rgb__from_hsl(...a_n_rand) 
+            // console.log(a_n_nor__rgb)
+            // f_assert_equals(
+            //     f_a_n_nor__hsl__from_rgb(a_n_nor__rgb), 
+            //     a_n_rand
+            // )
 
 ```
