@@ -974,6 +974,22 @@ let f_n_idx_ensured_inside_array = function(
     }
     return n_idx % n_len
 }
+let f_v_at_n_idx_relative = function(
+    a_v, 
+    v, 
+    n_idx_offset
+){
+    let n_idx = a_v.indexOf(v);
+    if(n_idx == -1){
+        throw Error(`index is -1, item v${v} is not in array a_v${a_v}`)
+    }
+    return a_v[
+        f_n_idx_ensured_inside_array(
+            Math.trunc(n_idx+n_idx_offset),
+            a_v.length
+        )
+    ]
+}
 let f_move_in_array = function(a_v, n_idx_from, n_idx_to){
 
     let n_len = a_v.length; 
@@ -1306,6 +1322,7 @@ export {
     f_o_meminfo, 
     f_o_nvidia_smi_help_info, 
     f_o_nvidia_smi_info, 
-    f_o_number_value__from_s_input
+    f_o_number_value__from_s_input,
+    f_v_at_n_idx_relative
 }
 

@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sat Dec 09 2023 23:34:06 GMT+0100 (Central European Standard Time)","n_ts_created":1702161246650} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sun Dec 10 2023 01:11:02 GMT+0100 (Central European Standard Time)","n_ts_created":1702167062088} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions

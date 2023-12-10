@@ -44,6 +44,7 @@ import {
     f_a_n_nor__rgb__from_a_n_nor__hsl,
     f_a_n_nor__hsl__from_a_n_nor__rgb,
     f_o_empty_recursive,
+    f_v_at_n_idx_relative,
 } from "./module.js"
 
 
@@ -141,6 +142,34 @@ let a_o_test =
             f_assert_equals(f_n_idx_ensured_inside_array(-4, n_len), 2)
             f_assert_equals(f_n_idx_ensured_inside_array(-5, n_len), 1)
             f_assert_equals(f_n_idx_ensured_inside_array(-6, n_len), 0)
+
+        }),
+        f_o_test("f_v_at_n_idx_relative", async () => {
+            // only internally used and tested
+            let a_v = [
+                false, 
+                1, 
+                {n:2}, 
+                'three', 
+                [1,2,3], 
+                1
+            ]
+            f_assert_equals(
+                f_v_at_n_idx_relative(a_v,false, +1), 
+                1
+            )
+            f_assert_equals(
+                f_v_at_n_idx_relative(a_v,false, +2), 
+                {n:2}
+            ),
+            f_assert_equals(
+                f_v_at_n_idx_relative(a_v,false, -3), 
+                'three'
+            ), 
+            f_assert_equals(
+                f_v_at_n_idx_relative(a_v,1, -3), 
+                [1,2,3]
+            )
 
         }),
 
@@ -1069,24 +1098,28 @@ let a_o_test =
 
 
 let b_run_all = false;
+let a_s_arg = [];
 if(f_b_denojs()){
-    b_run_all = Deno.args?.[0] == 'all'
+    a_s_arg = Deno.args; 
 }else{
-    b_run_all = window.location.hash == '#all'
+    a_s_arg = window.location.hash.substring(1).split(':')
 }
-if(!b_run_all){
-    console.log('run with "all"/"url#all" to run all tests')
-    console.log('running last test'); 
 
-    await f_deno_test_all_and_print_summary(
-        a_o_test.slice(-1).map(o=>{
-            return f_deno_test(...o.a_v_arg)
-        })
-    )
-}else{
-    await f_deno_test_all_and_print_summary(
-        a_o_test.map(o=>{
-            return f_deno_test(...o.a_v_arg)
-        })
-    )
+
+let a_o_test__to_run = a_o_test.filter(o=>a_s_arg.includes(o.a_v_arg[0]));
+console.log('run with "all"/"url#all" to run all tests')
+console.log('run with "s_name_test s_name_test2"/"url#s_name_test:s_name_test2" to run specific tests')
+if(a_s_arg.length == 0){
+    console.log('running last test'); 
+    a_o_test__to_run = a_o_test.at(-1);
 }
+if(a_s_arg.includes('all')){
+    console.log('running all tests')
+    a_o_test__to_run = a_o_test
+}
+await f_deno_test_all_and_print_summary(
+    a_o_test__to_run.map(o=>{
+        return f_deno_test(...o.a_v_arg)
+    })
+)
+
