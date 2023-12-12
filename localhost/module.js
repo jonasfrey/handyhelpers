@@ -1150,8 +1150,9 @@ let f_v_s_type_from_array = function(a_v){
     return `a_${v_s_type_first}`
 }
 
-function f_o_canvas_from_vertex_shader(
-    s_code_shader = '', 
+function f_o_canvas_webgl(
+    s_code_shader__vertex = '', 
+    s_code_shader__fragment = '', 
     n_scl_x = 100,
     n_scl_y = 100,
 ) {
@@ -1163,26 +1164,16 @@ function f_o_canvas_from_vertex_shader(
 
     // Initialize the WebGL context
     var o_ctx = o_canvas.getContext(
-        'webgl',
+        'webgl2',
         {preserveDrawingBuffer: true} // o_canvas.getContext(...).readPixels(...) will return 0 without this
     ); 
     if (!o_ctx) {
-        console.error("WebGL is not supported or disabled in this browser.");
+        console.error("WebGL2 is not supported or disabled in this browser.");
         return;
     }
 
-    // Vertex Shader (basic setup for drawing)
-    // Vertex Shader Code
-    var s_code_vertex = `
-    attribute vec4 a_position;
-    varying vec2 o_trn_nor_pixel;
-
-    void main() {
-        gl_Position = a_position;
-        o_trn_nor_pixel = (a_position.xy + 1.0) / 2.0; // Convert from clip space to texture coordinates
-    }`;
     var o_shader__vertex = o_ctx.createShader(o_ctx.VERTEX_SHADER);
-    o_ctx.shaderSource(o_shader__vertex, s_code_vertex);
+    o_ctx.shaderSource(o_shader__vertex, s_code_shader__vertex);
     o_ctx.compileShader(o_shader__vertex);
     if (!o_ctx.getShaderParameter(o_shader__vertex, o_ctx.COMPILE_STATUS)) {
         console.error('ERROR compiling vertex shader!', o_ctx.getShaderInfoLog(o_shader__vertex));
@@ -1192,7 +1183,7 @@ function f_o_canvas_from_vertex_shader(
 
     // Fragment Shader
     var o_shader__fragment = o_ctx.createShader(o_ctx.FRAGMENT_SHADER);
-    o_ctx.shaderSource(o_shader__fragment, s_code_shader);
+    o_ctx.shaderSource(o_shader__fragment, s_code_shader__fragment);
     o_ctx.compileShader(o_shader__fragment);
     if (!o_ctx.getShaderParameter(o_shader__fragment, o_ctx.COMPILE_STATUS)) {
         console.error('ERROR compiling fragment shader!', o_ctx.getShaderInfoLog(o_shader__fragment));
@@ -1211,12 +1202,7 @@ function f_o_canvas_from_vertex_shader(
         return;
     }
     o_ctx.useProgram(o_program);
-
-    // Set up uniforms
-    // o_ctx.uniform1f(o_ctx.getUniformLocation(o_program, 'n_t'), 0);
-    // o_ctx.uniform1f(o_ctx.getUniformLocation(o_program, 'n_scl_x'), n_scl_x);
-    // o_ctx.uniform1f(o_ctx.getUniformLocation(o_program, 'n_scl_y'), n_scl_y);
-
+    
     // Additional setup for drawing (e.g., buffers, attributes)
 
     let a_s_type_array_vector_allowed = [
@@ -1233,6 +1219,14 @@ function f_o_canvas_from_vertex_shader(
         'a_n'
     ]
     o_canvas.f_render = function(o){
+
+
+        // const maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+        // const maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+        // const maxVertexArrays = Math.floor(maxVertexUniformVectors / 25);
+        // const maxFragmentArrays = Math.floor(maxFragmentUniformVectors / 25);
+        // console.log('Max Vertex Arrays:', maxVertexArrays);
+        // console.log('Max Fragment Arrays:', maxFragmentArrays);
 
         for(let s_prop in o){
             let v = o[s_prop];
@@ -1257,31 +1251,91 @@ function f_o_canvas_from_vertex_shader(
                     throw Error(`cannot pass a non typed array with more values than 4 (4dvector) to the shader`)
     
                 }
-                // //here a typed array is expected!
-                // let v_s_name_typedarray = f_v_s_name_typedarray_from_s_type(v_s_type_array);
-                //         // Assuming data is your Uint8Array of non-image data
-                // var n_len_with_padding_for_rgba = Math.ceil(v.length / 4) * 4; // Padding for RGBA
-                // var a_n__typed_padded = new window[v_s_name_typedarray](n_len_with_padding_for_rgba);
-                // a_n__typed_padded.set(v);
+                //here a typed array is expected!
 
-                // // Choose suitable width and height for your texture
-                // var n_scl_x = n_len_with_padding_for_rgba; // Some calculation based on data length
-                // var n_scl_y = 1; // Some calculation based on data length
+                if(!v_s_type_array){
+                    throw Error(`cannot pass variable of type ${v_s_type} and value ${v} to shader`)
+                }
 
-                // // Create and bind texture
-                // var texture = gl.createTexture();
-                // gl.bindTexture(gl.TEXTURE_2D, texture);
-                // // ... Set texture parameters ...
+                // Assume 'gl' is your WebGL context
+                const a_n__typed = v//new Float32Array([/* your data here */]);
+                const n_components = 1; // example for vec3
+                let o_map = {
+                    'a_n_i8': o_ctx.BYTE, //  //: 'Int8Array',
+                    'a_n_u8': o_ctx.UNSIGNED_BYTE, //  //: 'Uint8Array',
+                    'a_n_i16': o_ctx.SHORT, //  //: 'Int16Array',
+                    'a_n_u16': o_ctx.UNSIGNED_SHORT, //  //: 'Uint16Array',
+                    'a_n_i32': o_ctx.INT, //  //: 'Int32Array',
+                    'a_n_u32': o_ctx.UNSIGNED_INT, //  //: 'Uint32Array',
+                    'a_n_f32': o_ctx.FLOAT, //  //: 'Float32Array',
+                    // WebGL does not support the following types
+                    'a_n_f64': null, // Float64Array is not supported
+                    'a_n_i64': null, // BigInt64Array is not supported
+                    'a_n_u64': null, // BigUint64Array is not supported
+                } 
+                const n_type_array_value_gl = o_map[v_s_type_array];
+                if(!n_type_array_value_gl){
+                    throw Error(`sorry , wegbl 2.0 does not support the type: ${v_s_type_array} of this typed array ${v}`)
+                }
+                // debugger
+                
+                // const b_normalize = false; // don't normalize the data
+                // const n_stride = 0;        // 0 = move forward size * sizeof(n_type_array_value) each iteration to get the next position
+                // const n_offset = 0;        // start at the beginning of the buffer
+                // // Create a buffer
+                // const v_buffer = o_ctx.createBuffer();
+                // // Bind it to the ARRAY_BUFFER target
+                // o_ctx.bindBuffer(o_ctx.ARRAY_BUFFER, v_buffer);
+                // // Copy the data to the buffer
+                // o_ctx.bufferData(o_ctx.ARRAY_BUFFER, a_n__typed, o_ctx.STATIC_DRAW);
+                // const o_attribute_location = o_ctx.getAttribLocation(o_program, s_prop);
+                // // Assume 'location' is the location of the attribute in your shader
+                // o_ctx.enableVertexAttribArray(o_attribute_location);
+                // // Describe the attribute data layout in the buffer
+                // o_ctx.vertexAttribPointer(o_attribute_location, n_components, n_type_array_value_gl, b_normalize, n_stride, n_offset);
 
-                // // Set texture parameters
-                // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                // const maxVertexUniformVectors = o_ctx.getParameter(o_ctx.MAX_VERTEX_UNIFORM_VECTORS);
+                // const maxFragmentUniformVectors = o_ctx.getParameter(o_ctx.MAX_FRAGMENT_UNIFORM_VECTORS);
+                // debugger
 
-                // // Upload the data to the texture
-                // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, n_scl_x, n_scl_y, 0, gl.RGBA, gl.UNSIGNED_BYTE, a_n__typed_padded);
+                // Create and bind the buffer for your array
+                const buffer = o_ctx.createBuffer();
+                o_ctx.bindBuffer(o_ctx.ARRAY_BUFFER, buffer);
+                o_ctx.bufferData(o_ctx.ARRAY_BUFFER, v, o_ctx.STATIC_DRAW);
+                // Get the location of the uniform in the fragment shader
+                const uniformLocation = o_ctx.getUniformLocation(o_program, s_prop);
+                // You may need to use a different method to pass the array depending on its size and type
+                o_ctx.uniform1fv(uniformLocation, v);
+
+
+                // let n_dimensions_per_texture = 2
+                // let n_bytes_max_texture_size_per_dimension = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+                // let n_textures = gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS
+                // let n_bytes_ram_computed = Math.pow(n_bytes_max_texture_size_per_dimension, n_dimensions_per_texture)*n_textures 
+                
+                // Create a texture
+                const texture = o_ctx.createTexture();
+                o_ctx.bindTexture(o_ctx.TEXTURE_2D, texture);
+
+                // Assume 'v' is your float data array
+                const textureData = new Float32Array(v.length * 4); // for RGBA
+                for (let i = 0; i < v.length; i++) {
+                    textureData[i * 4] = v[i]; // Store each float in the red channel, for example
+                }
+
+                // Load the texture data
+                o_ctx.texImage2D(o_ctx.TEXTURE_2D, 0, o_ctx.RGBA32F, v.length, 1, 0, o_ctx.RGBA, o_ctx.FLOAT, textureData);
+
+                // Set texture parameters
+                o_ctx.texParameteri(o_ctx.TEXTURE_2D, o_ctx.TEXTURE_WRAP_S, o_ctx.CLAMP_TO_EDGE);
+                o_ctx.texParameteri(o_ctx.TEXTURE_2D, o_ctx.TEXTURE_WRAP_T, o_ctx.CLAMP_TO_EDGE);
+                o_ctx.texParameteri(o_ctx.TEXTURE_2D, o_ctx.TEXTURE_MIN_FILTER, o_ctx.NEAREST);
+                o_ctx.texParameteri(o_ctx.TEXTURE_2D, o_ctx.TEXTURE_MAG_FILTER, o_ctx.NEAREST);
+
+
+
             }
-            throw Error(`cannot pass variable of type ${v_s_type} and value ${v} to shader`)
+
         }
 
         var o_buffer_position = o_ctx.createBuffer();
@@ -1424,7 +1478,7 @@ export {
     f_a_n_nor__hsl__from_a_n_nor__rgb,
     f_b_uuid,
     f_s_uuidv4,
-    f_o_canvas_from_vertex_shader,
+    f_o_canvas_webgl,
     f_v_s__between,
     f_o_cpu_stats,
     f_s_n_beautified,

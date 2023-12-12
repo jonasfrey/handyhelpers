@@ -38,7 +38,7 @@ import {
     f_o_nvidia_smi_help_info,
     f_o_nvidia_smi_info,
     f_o_number_value__from_s_input, 
-    f_o_canvas_from_vertex_shader,
+    f_o_canvas_webgl,
     f_s_uuidv4,
     f_b_uuid,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
@@ -891,40 +891,59 @@ let a_o_test =
         //     )
         //     //readme.md:end
         // }),
-        f_o_test("f_o_canvas_from_vertex_shader", async () => {
+        f_o_test("f_o_canvas_webgl", async () => {
             //readme.md:start
             
             //md: ## create a small canvas with a shader
             //md: oh how i hate it to write 100+ lines of code 'just' to get a small shader running
-            //md: this function is a shortcut
+            //md: this function is a shortcut, well it became kind of a big shader but this is an example containing all possibilities so...
             //md: we can also pass an object which values get passed to the shader
             if(f_b_denojs()){
-                console.log('f_o_canvas_from_vertex_shader is not supported yet on denojs just in the browser')
+                console.log('f_o_canvas_webgl is not supported yet on denojs just in the browser')
             }else{
-                // this looks wrong since this is an array and not an object,
-                // but inside the shader o_scl will be a vector, so we name it o here already, 
-                // also if you use a vector library such as deno.land/x/vector , you will also have objects for the vectors, 
-                // you just need to make shure that the data passed to the render function are arrays 
 
-                document.body.style.margin = '0';
-                document.body.style.padding = '0';
-                document.body.style.overflow = 'hidden';
 
                 let o_trn_nor_mouse__last = [];// data that should not be passed to the shader can be out of scope 
                 let o_data_for_shader = {
+                    // a simple number value will be unifrom float n_t; in shader
                     n_t: window.performance.now(), 
+                    n_id_frame: 0,
+                    // normal arrays can only contain up to 4 values
+                    // will be uniform vec2 o_scl; in the shader
                     o_scl : [window.innerWidth, window.innerHeight],
                     o_trn_nor_mouse : [0,0],
+                    // 'n_i' variable starting with this prefix will be numbers integers to be specific
+                    // n_i_b the b here only indicates that it should be interpreted as a boolean 
                     n_i_b_pointer_down: 0, 
                     n_i_b_mouse_moved_since_last_frame: 0, 
+                    // we can also pass bigger arrays, but then they have to be typed arrays!
+                    // this will be used to show the frames per second statistics 
+                    a_n_f32_ms_diff_history: new Float32Array(window.innerWidth)
                 }
                 let a_n_u8__rgba_image_data = new Uint8Array(
                     o_data_for_shader.o_scl[0] * o_data_for_shader.o_scl[1] * 4,
                 );
-                let o_canvas = f_o_canvas_from_vertex_shader(
-                    `
+                let o_canvas = f_o_canvas_webgl(
+                    `#version 300 es
+                    // attribute vec4 a_position;
+                    in vec4 a_position;
+                    out vec2 o_trn_nor_pixel;
+                    float f_n_a_n_f32_ms_diff_history(20){
+                        
+                    }
+                    int f_n_idx_a_n_f32_ms_diff_history(20);
+                    void main() {
+                        gl_Position = a_position;
+                        o_trn_nor_pixel = (a_position.xy + 1.0) / 2.0; // Convert from clip space to texture coordinates
+                    }`,
+                    `#version 300 es
                     precision mediump float;
-                    varying vec2 o_trn_nor_pixel;
+                    // uniform float a_n_f32_ms_diff_history[100];
+                    uniform float a_n_f32_ms_diff_history[${o_data_for_shader.a_n_f32_ms_diff_history.length}]; // Array of floats
+                    // uniform sampler2D a_n_f32_ms_diff_history;
+                    in vec2 o_trn_nor_pixel;
+                    out vec4 fragColor;
+
                     uniform float n_t;
                     uniform vec2 o_trn_nor_mouse;
                     uniform vec2 o_scl;
@@ -932,7 +951,15 @@ let a_o_test =
                     uniform int n_i_b_mouse_moved_since_last_frame;
             
                     void main() {
-                        
+                        float n_f32_ms_diff_nor = a_n_f32_ms_diff_history[int(o_trn_nor_pixel.x*${o_data_for_shader.a_n_f32_ms_diff_history.length}.)]/60.;
+
+                        // vec4 o_n_f32_ms_diff_nor = texture(a_n_f32_ms_diff_history, vec2(o_trn_nor_pixel.x, 0.5));
+                        // float n_f32_ms_diff_nor = (o_n_f32_ms_diff_nor[0])/60.;
+
+                        float n_dist_y = pow(1.-abs((o_trn_nor_pixel.y-.5)-n_f32_ms_diff_nor),20.);
+                        n_dist_y*=2.;
+                        fragColor = vec4(vec3(n_dist_y), 1.);
+                        // return;
                         float n_ratio_x_to_y = o_scl.x / o_scl.y;
                         vec2 o_factor = vec2(n_ratio_x_to_y, 1.);
                         if(n_i_b_mouse_moved_since_last_frame == 0){
@@ -954,13 +981,14 @@ let a_o_test =
                         float n1 = sin(n_dist*3.*3.+n_t*0.009)*.5+.5;
                         float n2 = sin(n_dist*6.*3.+n_t*0.009)*.5+.5;
                         float n3 = sin(n_dist*9.*3.+n_t*0.009)*.5+.5;
-                        gl_FragColor = vec4(
+
+                        fragColor *= vec4(
                             pow(abs(n1-.5),1./(3.*o_tnm.x)),
                             pow(abs(n2-.5),1./(3.*o_tnm.y)), 
                             pow(abs(n3-.5),1./(3.*o_tnm.x*o_tnm.y)),
                             1.
                         );
-                        // gl_FragColor = vec4(vec3(n_dist), 1.);
+                        // fragColor = vec4(vec3(n_dist), 1.);
                     }
                     `, 
                     o_data_for_shader.o_scl[0], 
@@ -985,9 +1013,14 @@ let a_o_test =
 
                 document.body.appendChild(o_canvas);
 
+                let n_ms_last = 0;
+                let n_ms_diff = 0;
                 window.setInterval(
                     function(){
+                        o_data_for_shader.n_id_frame +=1;
                         o_data_for_shader.n_t = window.performance.now()
+                        n_ms_diff = Math.abs(n_ms_last - o_data_for_shader.n_t);
+                        n_ms_last = o_data_for_shader.n_t
                         // console.log(o_data_for_shader)
                         // const o_ctx = o_canvas.getContext("webgl");
                         // o_ctx.readPixels(
@@ -1001,18 +1034,28 @@ let a_o_test =
                         // );
                         // console.log('read out image data')
                         // console.log(a_n_u8__rgba_image_data); // Uint8Array
+                        console.log(n_ms_diff)
+                        o_data_for_shader.a_n_f32_ms_diff_history[(
+                            o_data_for_shader.n_id_frame % o_data_for_shader.a_n_f32_ms_diff_history.length
+                        )] = n_ms_diff
+
                         o_data_for_shader.n_i_b_mouse_moved_since_last_frame = (
                             o_data_for_shader.o_trn_nor_mouse[0] == o_trn_nor_mouse__last[0]
                             &&
                             o_data_for_shader.o_trn_nor_mouse[1] == o_trn_nor_mouse__last[1]
                         ) ? 0 : 1
+                        console.log(o_data_for_shader.a_n_f32_ms_diff_history)
+                        // o_canvas.f_render(
+                        //     o_data_for_shader
+                        // )
                         o_canvas.f_render(
+                            // we can also only pass some props of the object
                             o_data_for_shader
                         )
                         o_trn_nor_mouse__last = [...o_data_for_shader.o_trn_nor_mouse];
 
                     }, 
-                    1000/60
+                    1000/60//(60+(Math.random()*10)) // random fps for testing
                 )
             }
 
@@ -1209,10 +1252,40 @@ let a_o_test =
 
 let b_run_all = false;
 let a_s_arg = [];
+
 if(f_b_denojs()){
+
     a_s_arg = Deno.args; 
 }else{
-    a_s_arg = window.location.hash.substring(1).split(':')
+    let o_mod_ansiup = await import('https://cdn.jsdelivr.net/npm/ansi-up@1.0.0/dist/ansi-up.min.js')
+    // console.log(o_mod_ansiup)
+    var ansi_up = new o_mod_ansiup.AnsiUp();
+
+    // let f_console_log__original = console.log; 
+    // console.log = function(){
+    //     let o = document.createElement('div');
+    //     let s = Array.from(arguments).join(',')
+    //     o.innerHTML = ansi_up.ansi_to_html(s);
+
+    //     document.body.appendChild(
+    //         o
+    //     )
+    //     f_console_log__original(...arguments)
+    // }
+    
+    a_s_arg = window.location.hash.substring(1).split(':').filter(s=>s.trim()!='')
+    if(a_s_arg.length == 0){
+        let s = a_o_test.map(
+            o=>{
+                console.log(o.a_v_arg)
+                return `<a href='#${o.a_v_arg[0]}' onclick="window.location.href = window.location.href+'#${o.a_v_arg[0]}';window.location.reload()" >run test: '${o.a_v_arg[0]}'</a><br>`
+            }
+        ).join('\n')
+        document.body.innerHTML = `
+         <a href='#all' onclick="window.location.href = window.location.href+'#all';window.location.reload()" >run test: 'all'</a><br>
+            ${s}
+        `
+    }
 }
 
 
