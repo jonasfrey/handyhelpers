@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sun Dec 10 2023 01:11:02 GMT+0100 (Central European Standard Time)","n_ts_created":1702167062088} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Tue Dec 12 2023 22:35:12 GMT+0100 (Central European Standard Time)","n_ts_created":1702416912307} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -669,39 +669,167 @@ to get all available properties
 ```
 ## create a small canvas with a shader
 oh how i hate it to write 100+ lines of code 'just' to get a small shader running
-this function is a shortcut
+this function is a shortcut, well it became kind of a big shader but this is an example containing all possibilities so...
+we can also pass an object which values get passed to the shader
 ```javascript
             if(f_b_denojs()){
-                console.log('f_o_canvas_from_vertex_shader is not supported yet on denojs just in the browser')
+                console.log('f_o_canvas_webgl is not supported yet on denojs just in the browser')
             }else{
-                let o_canvas = f_o_canvas_from_vertex_shader(
-                    `
+
+
+                let o_trn_nor_mouse__last = [];// data that should not be passed to the shader can be out of scope 
+                let o_data_for_shader = {
+                    // a simple number value will be unifrom float n_t; in shader
+                    n_t: window.performance.now(), 
+                    n_id_frame: 0,
+                    // normal arrays can only contain up to 4 values
+                    // will be uniform vec2 o_scl; in the shader
+                    o_scl : [window.innerWidth, window.innerHeight],
+                    o_trn_nor_mouse : [0,0],
+                    // 'n_i' variable starting with this prefix will be numbers integers to be specific
+                    // n_i_b the b here only indicates that it should be interpreted as a boolean 
+                    n_i_b_pointer_down: 0, 
+                    n_i_b_mouse_moved_since_last_frame: 0, 
+                    // we can also pass bigger arrays, but then they have to be typed arrays!
+                    // this will be used to show the frames per second statistics 
+                    a_n_f32_ms_diff_history: new Float32Array(window.innerWidth)
+                }
+                let a_n_u8__rgba_image_data = new Uint8Array(
+                    o_data_for_shader.o_scl[0] * o_data_for_shader.o_scl[1] * 4,
+                );
+                let o_canvas = f_o_canvas_webgl(
+                    `#version 300 es
+                    // attribute vec4 a_position;
+                    in vec4 a_position;
+                    out vec2 o_trn_nor_pixel;
+                    float f_n_a_n_f32_ms_diff_history(20){
+                        
+                    }
+                    int f_n_idx_a_n_f32_ms_diff_history(20);
+                    void main() {
+                        gl_Position = a_position;
+                        o_trn_nor_pixel = (a_position.xy + 1.0) / 2.0; // Convert from clip space to texture coordinates
+                    }`,
+                    `#version 300 es
                     precision mediump float;
-                    varying vec2 o_trn_pixel_nor;
+                    // uniform float a_n_f32_ms_diff_history[100];
+                    uniform float a_n_f32_ms_diff_history[${o_data_for_shader.a_n_f32_ms_diff_history.length}]; // Array of floats
+                    // uniform sampler2D a_n_f32_ms_diff_history;
+                    in vec2 o_trn_nor_pixel;
+                    out vec4 fragColor;
+
                     uniform float n_t;
+                    uniform vec2 o_trn_nor_mouse;
+                    uniform vec2 o_scl;
+                    uniform int n_i_b_pointer_down;
+                    uniform int n_i_b_mouse_moved_since_last_frame;
             
                     void main() {
-                        float n_dist = length(o_trn_pixel_nor-0.5);
-                        float n1 = sin(n_dist*3.*3.+n_t*0.003)*.5+.5;
-                        float n2 = sin(n_dist*6.*3.+n_t*0.003)*.5+.5;
-                        float n3 = sin(n_dist*9.*3.+n_t*0.003)*.5+.5;
-                        gl_FragColor = vec4(
-                            n1,
-                            n2, 
-                            n3,
+                        float n_f32_ms_diff_nor = a_n_f32_ms_diff_history[int(o_trn_nor_pixel.x*${o_data_for_shader.a_n_f32_ms_diff_history.length}.)]/60.;
+
+                        // vec4 o_n_f32_ms_diff_nor = texture(a_n_f32_ms_diff_history, vec2(o_trn_nor_pixel.x, 0.5));
+                        // float n_f32_ms_diff_nor = (o_n_f32_ms_diff_nor[0])/60.;
+
+                        float n_dist_y = pow(1.-abs((o_trn_nor_pixel.y-.5)-n_f32_ms_diff_nor),20.);
+                        n_dist_y*=2.;
+                        fragColor = vec4(vec3(n_dist_y), 1.);
+                        // return;
+                        float n_ratio_x_to_y = o_scl.x / o_scl.y;
+                        vec2 o_factor = vec2(n_ratio_x_to_y, 1.);
+                        if(n_i_b_mouse_moved_since_last_frame == 0){
+                            o_factor*=(sin(n_t*0.001)*.5+.5)*3.+0.1;
+                        }
+                        vec2 o_tpn = (o_trn_nor_pixel);
+                        vec2 o_tnm = (o_trn_nor_mouse);
+                        if(n_i_b_pointer_down == 1){
+                            o_tnm = vec2(
+                                sin(n_t*0.003), 
+                                cos(n_t*0.003)
+                            )*0.2+.5;
+                        }
+                        o_tpn *= o_factor;
+                        o_tnm *= o_factor;
+
+                        float n_dist = length(o_tnm-o_tpn);
+
+                        float n1 = sin(n_dist*3.*3.+n_t*0.009)*.5+.5;
+                        float n2 = sin(n_dist*6.*3.+n_t*0.009)*.5+.5;
+                        float n3 = sin(n_dist*9.*3.+n_t*0.009)*.5+.5;
+
+                        fragColor *= vec4(
+                            pow(abs(n1-.5),1./(3.*o_tnm.x)),
+                            pow(abs(n2-.5),1./(3.*o_tnm.y)), 
+                            pow(abs(n3-.5),1./(3.*o_tnm.x*o_tnm.y)),
                             1.
                         );
+                        // fragColor = vec4(vec3(n_dist), 1.);
                     }
                     `, 
-                    500, 
-                    500
-                )   
+                    o_data_for_shader.o_scl[0], 
+                    o_data_for_shader.o_scl[1]
+                )
+                o_canvas?.addEventListener('mousemove', function(o_e){
+                    let o_bounding_rect = o_e.target.getBoundingClientRect();
+                    let n_nor__x = (o_e.clientX - o_bounding_rect.left)/o_bounding_rect.width;
+                    let n_nor__y = (o_e.clientY - o_bounding_rect.top)/o_bounding_rect.height;
+
+                    o_data_for_shader.o_trn_nor_mouse[0] = n_nor__x;
+                    o_data_for_shader.o_trn_nor_mouse[1] = 1.-n_nor__y;
+
+
+                });
+                o_canvas?.addEventListener('pointerdown', function(){
+                    o_data_for_shader.n_i_b_pointer_down = 1
+                })
+                o_canvas?.addEventListener('pointerup', function(){
+                    o_data_for_shader.n_i_b_pointer_down = 0
+                })
+
                 document.body.appendChild(o_canvas);
+
+                let n_ms_last = 0;
+                let n_ms_diff = 0;
                 window.setInterval(
                     function(){
-                        o_canvas.f_render(window.performance.now())
+                        o_data_for_shader.n_id_frame +=1;
+                        o_data_for_shader.n_t = window.performance.now()
+                        n_ms_diff = Math.abs(n_ms_last - o_data_for_shader.n_t);
+                        n_ms_last = o_data_for_shader.n_t
+                        // console.log(o_data_for_shader)
+                        // const o_ctx = o_canvas.getContext("webgl");
+                        // o_ctx.readPixels(
+                        //   0,
+                        //   0,
+                        //   o_ctx.drawingBufferWidth,
+                        //   o_ctx.drawingBufferHeight,
+                        //   o_ctx.RGBA,
+                        //   o_ctx.UNSIGNED_BYTE,
+                        //   a_n_u8__rgba_image_data,
+                        // );
+                        // console.log('read out image data')
+                        // console.log(a_n_u8__rgba_image_data); // Uint8Array
+                        console.log(n_ms_diff)
+                        o_data_for_shader.a_n_f32_ms_diff_history[(
+                            o_data_for_shader.n_id_frame % o_data_for_shader.a_n_f32_ms_diff_history.length
+                        )] = n_ms_diff
+
+                        o_data_for_shader.n_i_b_mouse_moved_since_last_frame = (
+                            o_data_for_shader.o_trn_nor_mouse[0] == o_trn_nor_mouse__last[0]
+                            &&
+                            o_data_for_shader.o_trn_nor_mouse[1] == o_trn_nor_mouse__last[1]
+                        ) ? 0 : 1
+                        console.log(o_data_for_shader.a_n_f32_ms_diff_history)
+                        // o_canvas.f_render(
+                        //     o_data_for_shader
+                        // )
+                        o_canvas.f_render(
+                            // we can also only pass some props of the object
+                            o_data_for_shader
+                        )
+                        o_trn_nor_mouse__last = [...o_data_for_shader.o_trn_nor_mouse];
+
                     }, 
-                    1000/60
+                    1000/60//(60+(Math.random()*10)) // random fps for testing
                 )
             }
 
@@ -839,4 +967,21 @@ this function is a shortcut
                   }
             )
 
+            f_assert_equals(f_v_s_type__from_value(false),null)
+            f_assert_equals(f_v_s_type__from_value(true),null)
+            f_assert_equals(f_v_s_type__from_value(0),'n_f64')
+            f_assert_equals(f_v_s_type__from_value(1),'n_f64')
+            f_assert_equals(f_v_s_type__from_value(-32.231),'n_f64')
+            f_assert_equals(f_v_s_type__from_value(255),'n_f64')
+            f_assert_equals(f_v_s_type__from_value('hello'),'s')
+            f_assert_equals(f_v_s_type__from_value(new Uint8Array([1,2,3])),'a_n_u8')
+            f_assert_equals(f_v_s_type__from_value(new Float32Array([1,2,3])),'a_n_f32')
+            f_assert_equals(f_v_s_type__from_value(new BigInt64Array([42n,420n])),'a_n_i64')
+            f_assert_equals(f_v_s_type__from_value([1,2,3,4,5,6]),null)
+            f_assert_equals(f_v_s_type__from_value({n:2,n2:3}),null)
+            f_assert_equals(f_v_s_type_from_array([1,2]),'a_n_f64')
+            f_assert_equals(f_v_s_type_from_array([false, false]),'a_v')
+            f_assert_equals(f_v_s_type_from_array([1,false, {}, [1]]),'a_v')
+            f_assert_equals(f_v_s_type_from_array(['h', 'e','l','l', 'o','!']),'a_s')
+            f_assert_equals(f_v_s_type_from_array(new Int32Array([1,2,3])),'a_n_i32')
 ```
