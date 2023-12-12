@@ -1075,7 +1075,80 @@ let f_v_s__between = function(
     // Extract the substring, adding the length of the start string to the start index
     return s.substring(n_idx_start + s_start.length, n_idx_end);
 }
+let f_o_s_type_s_name_typedarray = function(){
+    return {
+        'a_n_i8': 'Int8Array',
+        'a_n_u8': 'Uint8Array',
+        'a_n_i16': 'Int16Array',
+        'a_n_u16': 'Uint16Array',
+        'a_n_i32': 'Int32Array',
+        'a_n_u32': 'Uint32Array',
+        'a_n_f32': 'Float32Array',
+        'a_n_f64': 'Float64Array',
+        'a_n_i64': 'BigInt64Array',
+        'a_n_u64': 'BigUint64Array',
+    }
+}
+    
+let f_v_s_name_typedarray_from_s_type = function(s){
 
+    let o_s_type_s_name_typedarray = f_o_s_type_s_name_typedarray();
+    return o_s_type_s_name_typedarray[s]
+}
+let f_v_s_name_type_from_s_name_typedarray = function(s){
+    let o_s_type_s_name_typedarray = f_o_s_type_s_name_typedarray();
+    let n_idx = Object.values(o_s_type_s_name_typedarray).indexOf(s);
+    if(n_idx == -1){
+        return undefined
+    }
+    return Object.keys(o_s_type_s_name_typedarray)[n_idx]
+
+}
+let f_v_s_type__from_value = function(value){
+    if(value === undefined){
+        return undefined
+    }
+
+    let s_constructor_name = value?.constructor?.name;
+
+    if(!s_constructor_name){
+        return 'v'
+    }
+    let v_s_name_type = f_v_s_name_type_from_s_name_typedarray(s_constructor_name);
+    if(v_s_name_type){
+        return v_s_name_type
+    }
+    if(s_constructor_name == 'Number'){
+        return 'n_f64'
+    }
+    if(s_constructor_name == 'String'){
+        return 's'
+    }
+    
+    return 'v'
+}
+
+let f_v_s_type_from_array = function(a_v){
+
+    let s = f_v_s_type__from_value(a_v)
+    if(s?.startsWith('a')){
+        return s
+    }
+    const v_s_type_first = f_v_s_type__from_value(a_v[0]);
+    if(v_s_type_first === undefined){
+        return undefined;
+    }
+    if(v_s_type_first === 'v'){
+        return 'a_v'
+    }
+
+    for(let n_idx = 1; n_idx < a_v.length; n_idx+=1){
+        if(f_v_s_type__from_value(a_v[n_idx])!=v_s_type_first){
+            return 'a_v'
+        }
+    }
+    return `a_${v_s_type_first}`
+}
 
 function f_o_canvas_from_vertex_shader(
     s_code_shader = '', 
@@ -1083,95 +1156,156 @@ function f_o_canvas_from_vertex_shader(
     n_scl_y = 100,
 ) {
     // Create the canvas element
-    var canvas = document.createElement('canvas');
-    canvas.width = n_scl_x;
-    canvas.height = n_scl_y;
-    document.body.appendChild(canvas);
+    var o_canvas = document.createElement('canvas');
+    o_canvas.width = n_scl_x;
+    o_canvas.height = n_scl_y;
+    document.body.appendChild(o_canvas);
 
     // Initialize the WebGL context
-    var gl = canvas.getContext('webgl');
-    if (!gl) {
+    var o_ctx = o_canvas.getContext(
+        'webgl',
+        {preserveDrawingBuffer: true} // o_canvas.getContext(...).readPixels(...) will return 0 without this
+    ); 
+    if (!o_ctx) {
         console.error("WebGL is not supported or disabled in this browser.");
         return;
     }
 
     // Vertex Shader (basic setup for drawing)
-// Vertex Shader Code
-var vShaderCode = `
-attribute vec4 a_position;
-varying vec2 o_trn_pixel_nor;
+    // Vertex Shader Code
+    var s_code_vertex = `
+    attribute vec4 a_position;
+    varying vec2 o_trn_nor_pixel;
 
-void main() {
-    gl_Position = a_position;
-    o_trn_pixel_nor = (a_position.xy + 1.0) / 2.0; // Convert from clip space to texture coordinates
-}`;
-    var vShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vShader, vShaderCode);
-    gl.compileShader(vShader);
-    if (!gl.getShaderParameter(vShader, gl.COMPILE_STATUS)) {
-        console.error('ERROR compiling vertex shader!', gl.getShaderInfoLog(vShader));
-        gl.deleteShader(vShader);
+    void main() {
+        gl_Position = a_position;
+        o_trn_nor_pixel = (a_position.xy + 1.0) / 2.0; // Convert from clip space to texture coordinates
+    }`;
+    var o_shader__vertex = o_ctx.createShader(o_ctx.VERTEX_SHADER);
+    o_ctx.shaderSource(o_shader__vertex, s_code_vertex);
+    o_ctx.compileShader(o_shader__vertex);
+    if (!o_ctx.getShaderParameter(o_shader__vertex, o_ctx.COMPILE_STATUS)) {
+        console.error('ERROR compiling vertex shader!', o_ctx.getShaderInfoLog(o_shader__vertex));
+        o_ctx.deleteShader(o_shader__vertex);
         return;
     }
 
     // Fragment Shader
-    var fShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fShader, s_code_shader);
-    gl.compileShader(fShader);
-    if (!gl.getShaderParameter(fShader, gl.COMPILE_STATUS)) {
-        console.error('ERROR compiling fragment shader!', gl.getShaderInfoLog(fShader));
-        gl.deleteShader(fShader);
+    var o_shader__fragment = o_ctx.createShader(o_ctx.FRAGMENT_SHADER);
+    o_ctx.shaderSource(o_shader__fragment, s_code_shader);
+    o_ctx.compileShader(o_shader__fragment);
+    if (!o_ctx.getShaderParameter(o_shader__fragment, o_ctx.COMPILE_STATUS)) {
+        console.error('ERROR compiling fragment shader!', o_ctx.getShaderInfoLog(o_shader__fragment));
+        o_ctx.deleteShader(o_shader__fragment);
         return;
     }
 
     // Create and use the program
-    var program = gl.createProgram();
-    gl.attachShader(program, vShader);
-    gl.attachShader(program, fShader);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        console.error('ERROR linking program!', gl.getProgramInfoLog(program));
-        gl.deleteProgram(program);
+    var o_program = o_ctx.createProgram();
+    o_ctx.attachShader(o_program, o_shader__vertex);
+    o_ctx.attachShader(o_program, o_shader__fragment);
+    o_ctx.linkProgram(o_program);
+    if (!o_ctx.getProgramParameter(o_program, o_ctx.LINK_STATUS)) {
+        console.error('ERROR linking o_program!', o_ctx.getProgramInfoLog(o_program));
+        o_ctx.deleteProgram(o_program);
         return;
     }
-    gl.useProgram(program);
+    o_ctx.useProgram(o_program);
 
     // Set up uniforms
-    gl.uniform1f(gl.getUniformLocation(program, 'n_t'), 0);
-    gl.uniform1f(gl.getUniformLocation(program, 'n_scl_x'), n_scl_x);
-    gl.uniform1f(gl.getUniformLocation(program, 'n_scl_y'), n_scl_y);
+    // o_ctx.uniform1f(o_ctx.getUniformLocation(o_program, 'n_t'), 0);
+    // o_ctx.uniform1f(o_ctx.getUniformLocation(o_program, 'n_scl_x'), n_scl_x);
+    // o_ctx.uniform1f(o_ctx.getUniformLocation(o_program, 'n_scl_y'), n_scl_y);
 
     // Additional setup for drawing (e.g., buffers, attributes)
 
-    canvas.f_render = function(n_t){
+    let a_s_type_array_vector_allowed = [
+        'a_n_i8',
+        'a_n_u8',
+        'a_n_i16',
+        'a_n_u16',
+        'a_n_i32',
+        'a_n_u32',
+        'a_n_f32',
+        'a_n_f64',
+        // 'a_n_i64',
+        // 'a_n_u64',
+        'a_n'
+    ]
+    o_canvas.f_render = function(o){
 
-        gl.uniform1f(gl.getUniformLocation(program, 'n_t'), n_t);
-        // gl.uniform1f(gl.getUniformLocation(program, 'n_scl_x'), n_scl_x);
-        // gl.uniform1f(gl.getUniformLocation(program, 'n_scl_y'), n_scl_y);
+        for(let s_prop in o){
+            let v = o[s_prop];
+            let v_s_type = f_v_s_type__from_value(v);
+            if(typeof v == 'number'){
+                let s_name_function = `uniform1${(s_prop.startsWith('n_i')?'i':'f')}`
 
-        var positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+                o_ctx[s_name_function](o_ctx.getUniformLocation(o_program, s_prop), v);
+                continue
+            }
+            let v_s_type_array = f_v_s_type_from_array(v);
+            if(v_s_type_array){
+                if(!a_s_type_array_vector_allowed.includes(v_s_type_array)){
+                    throw Error(`cannot pass the array as a vector, array type of ${v_s_type_array} is not allowed, allowed types are ${a_s_type_array_vector_allowed}`)
+                }
+                if(Array.isArray(v)){
+                    if(v.length <= 4){
+                        let s_name_function = `uniform${v.length}${(v_s_type_array?.includes('f')?'f':'i')}v`
+                        o_ctx[s_name_function](o_ctx.getUniformLocation(o_program, s_prop), v);
+                        continue
+                    }
+                    throw Error(`cannot pass a non typed array with more values than 4 (4dvector) to the shader`)
+    
+                }
+                // //here a typed array is expected!
+                // let v_s_name_typedarray = f_v_s_name_typedarray_from_s_type(v_s_type_array);
+                //         // Assuming data is your Uint8Array of non-image data
+                // var n_len_with_padding_for_rgba = Math.ceil(v.length / 4) * 4; // Padding for RGBA
+                // var a_n__typed_padded = new window[v_s_name_typedarray](n_len_with_padding_for_rgba);
+                // a_n__typed_padded.set(v);
+
+                // // Choose suitable width and height for your texture
+                // var n_scl_x = n_len_with_padding_for_rgba; // Some calculation based on data length
+                // var n_scl_y = 1; // Some calculation based on data length
+
+                // // Create and bind texture
+                // var texture = gl.createTexture();
+                // gl.bindTexture(gl.TEXTURE_2D, texture);
+                // // ... Set texture parameters ...
+
+                // // Set texture parameters
+                // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+                // // Upload the data to the texture
+                // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, n_scl_x, n_scl_y, 0, gl.RGBA, gl.UNSIGNED_BYTE, a_n__typed_padded);
+            }
+            throw Error(`cannot pass variable of type ${v_s_type} and value ${v} to shader`)
+        }
+
+        var o_buffer_position = o_ctx.createBuffer();
+        o_ctx.bindBuffer(o_ctx.ARRAY_BUFFER, o_buffer_position);
 
         // Set the positions for a square.
-        var positions = [
+        var a_n_position = [
             -1.0, -1.0,
             1.0, -1.0,
             -1.0,  1.0,
             1.0,  1.0,
         ];
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+        o_ctx.bufferData(o_ctx.ARRAY_BUFFER, new Float32Array(a_n_position), o_ctx.STATIC_DRAW);
 
         // Tell WebGL how to pull out the positions from the position buffer into the vertexPosition attribute
-        var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-        gl.enableVertexAttribArray(positionAttributeLocation);
-        gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+        var o_attribute_location__position = o_ctx.getAttribLocation(o_program, "a_position");
+        o_ctx.enableVertexAttribArray(o_attribute_location__position);
+        o_ctx.vertexAttribPointer(o_attribute_location__position, 2, o_ctx.FLOAT, false, 0, 0);
 
         // Draw the square
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
+        o_ctx.drawArrays(o_ctx.TRIANGLE_STRIP, 0, 4);
 
     }
-    return canvas;
+    return o_canvas;
 }
 
 let f_s_uuidv4 = function() {
@@ -1323,6 +1457,8 @@ export {
     f_o_nvidia_smi_help_info, 
     f_o_nvidia_smi_info, 
     f_o_number_value__from_s_input,
-    f_v_at_n_idx_relative
+    f_v_at_n_idx_relative, 
+    f_v_s_type__from_value, 
+    f_v_s_type_from_array
 }
 
