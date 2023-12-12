@@ -935,6 +935,9 @@ let a_o_test =
                         
                         float n_ratio_x_to_y = o_scl.x / o_scl.y;
                         vec2 o_factor = vec2(n_ratio_x_to_y, 1.);
+                        if(n_i_b_mouse_moved_since_last_frame == 0){
+                            o_factor*=(sin(n_t*0.001)*.5+.5)*3.+0.1;
+                        }
                         vec2 o_tpn = (o_trn_nor_pixel);
                         vec2 o_tnm = (o_trn_nor_mouse);
                         if(n_i_b_pointer_down == 1){
@@ -943,9 +946,9 @@ let a_o_test =
                                 cos(n_t*0.003)
                             )*0.2+.5;
                         }
-                        if(n_i_b_mouse_moved_since_last_frame == 0){
-                            o_tpn*=(sin(n_t*0.001)*.5+.5)*2.;
-                        }
+                        o_tpn *= o_factor;
+                        o_tnm *= o_factor;
+
                         float n_dist = length(o_tnm-o_tpn);
 
                         float n1 = sin(n_dist*3.*3.+n_t*0.009)*.5+.5;
@@ -985,7 +988,7 @@ let a_o_test =
                 window.setInterval(
                     function(){
                         o_data_for_shader.n_t = window.performance.now()
-                        console.log(o_data_for_shader)
+                        // console.log(o_data_for_shader)
                         // const o_ctx = o_canvas.getContext("webgl");
                         // o_ctx.readPixels(
                         //   0,
