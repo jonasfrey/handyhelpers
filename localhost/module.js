@@ -1298,14 +1298,14 @@ function f_o_canvas_webgl(
                 // const maxFragmentUniformVectors = o_ctx.getParameter(o_ctx.MAX_FRAGMENT_UNIFORM_VECTORS);
                 // debugger
 
-                // Create and bind the buffer for your array
-                const buffer = o_ctx.createBuffer();
-                o_ctx.bindBuffer(o_ctx.ARRAY_BUFFER, buffer);
-                o_ctx.bufferData(o_ctx.ARRAY_BUFFER, v, o_ctx.STATIC_DRAW);
-                // Get the location of the uniform in the fragment shader
-                const uniformLocation = o_ctx.getUniformLocation(o_program, s_prop);
-                // You may need to use a different method to pass the array depending on its size and type
-                o_ctx.uniform1fv(uniformLocation, v);
+                // // Create and bind the buffer for your array
+                // const buffer = o_ctx.createBuffer();
+                // o_ctx.bindBuffer(o_ctx.ARRAY_BUFFER, buffer);
+                // o_ctx.bufferData(o_ctx.ARRAY_BUFFER, v, o_ctx.STATIC_DRAW);
+                // // Get the location of the uniform in the fragment shader
+                // const uniformLocation = o_ctx.getUniformLocation(o_program, s_prop);
+                // // You may need to use a different method to pass the array depending on its size and type
+                // o_ctx.uniform1fv(uniformLocation, v);
 
 
                 // let n_dimensions_per_texture = 2
@@ -1322,7 +1322,6 @@ function f_o_canvas_webgl(
                 for (let i = 0; i < v.length; i++) {
                     textureData[i * 4] = v[i]; // Store each float in the red channel, for example
                 }
-
                 // Load the texture data
                 o_ctx.texImage2D(o_ctx.TEXTURE_2D, 0, o_ctx.RGBA32F, v.length, 1, 0, o_ctx.RGBA, o_ctx.FLOAT, textureData);
 
@@ -1342,18 +1341,23 @@ function f_o_canvas_webgl(
         o_ctx.bindBuffer(o_ctx.ARRAY_BUFFER, o_buffer_position);
 
         // Set the positions for a square.
-        var a_n_position = [
-            -1.0, -1.0,
-            1.0, -1.0,
-            -1.0,  1.0,
-            1.0,  1.0,
+        var a_o_vec_position_vertex = [
+            //x    y     z    w 
+            // v1
+            -1.0, -1.0,  0., 1.0,
+            // v2
+            1.0, -1.0,  0., 1.0,
+            // v3
+            -1.0,  1.0,  0., 1.0,
+            // v4
+            1.0,  1.0,  0., 1.0,
         ];
-        o_ctx.bufferData(o_ctx.ARRAY_BUFFER, new Float32Array(a_n_position), o_ctx.STATIC_DRAW);
+        o_ctx.bufferData(o_ctx.ARRAY_BUFFER, new Float32Array(a_o_vec_position_vertex), o_ctx.STATIC_DRAW);
 
         // Tell WebGL how to pull out the positions from the position buffer into the vertexPosition attribute
-        var o_attribute_location__position = o_ctx.getAttribLocation(o_program, "a_position");
+        var o_attribute_location__position = o_ctx.getAttribLocation(o_program, "a_o_vec_position_vertex");
         o_ctx.enableVertexAttribArray(o_attribute_location__position);
-        o_ctx.vertexAttribPointer(o_attribute_location__position, 2, o_ctx.FLOAT, false, 0, 0);
+        o_ctx.vertexAttribPointer(o_attribute_location__position, 4, o_ctx.FLOAT, false, 0, 0);
 
         // Draw the square
         o_ctx.drawArrays(o_ctx.TRIANGLE_STRIP, 0, 4);

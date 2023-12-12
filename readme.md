@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Tue Dec 12 2023 22:35:12 GMT+0100 (Central European Standard Time)","n_ts_created":1702416912307} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Tue Dec 12 2023 23:11:08 GMT+0100 (Central European Standard Time)","n_ts_created":1702419068966} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -699,22 +699,15 @@ we can also pass an object which values get passed to the shader
                 );
                 let o_canvas = f_o_canvas_webgl(
                     `#version 300 es
-                    // attribute vec4 a_position;
-                    in vec4 a_position;
+                    in vec4 a_o_vec_position_vertex;
                     out vec2 o_trn_nor_pixel;
-                    float f_n_a_n_f32_ms_diff_history(20){
-                        
-                    }
-                    int f_n_idx_a_n_f32_ms_diff_history(20);
                     void main() {
-                        gl_Position = a_position;
-                        o_trn_nor_pixel = (a_position.xy + 1.0) / 2.0; // Convert from clip space to texture coordinates
+                        gl_Position = a_o_vec_position_vertex;
+                        o_trn_nor_pixel = (a_o_vec_position_vertex.xy + 1.0) / 2.0; // Convert from clip space to texture coordinates
                     }`,
                     `#version 300 es
                     precision mediump float;
-                    // uniform float a_n_f32_ms_diff_history[100];
-                    uniform float a_n_f32_ms_diff_history[${o_data_for_shader.a_n_f32_ms_diff_history.length}]; // Array of floats
-                    // uniform sampler2D a_n_f32_ms_diff_history;
+                    uniform sampler2D a_n_f32_ms_diff_history;
                     in vec2 o_trn_nor_pixel;
                     out vec4 fragColor;
 
@@ -725,10 +718,9 @@ we can also pass an object which values get passed to the shader
                     uniform int n_i_b_mouse_moved_since_last_frame;
             
                     void main() {
-                        float n_f32_ms_diff_nor = a_n_f32_ms_diff_history[int(o_trn_nor_pixel.x*${o_data_for_shader.a_n_f32_ms_diff_history.length}.)]/60.;
 
-                        // vec4 o_n_f32_ms_diff_nor = texture(a_n_f32_ms_diff_history, vec2(o_trn_nor_pixel.x, 0.5));
-                        // float n_f32_ms_diff_nor = (o_n_f32_ms_diff_nor[0])/60.;
+                        vec4 o_n_f32_ms_diff_nor = texture(a_n_f32_ms_diff_history, vec2(o_trn_nor_pixel.x, 0.5));
+                        float n_f32_ms_diff_nor = (o_n_f32_ms_diff_nor[0])/60.;
 
                         float n_dist_y = pow(1.-abs((o_trn_nor_pixel.y-.5)-n_f32_ms_diff_nor),20.);
                         n_dist_y*=2.;
