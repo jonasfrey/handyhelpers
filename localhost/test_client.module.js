@@ -47,6 +47,7 @@ import {
     f_v_at_n_idx_relative,
     f_v_s_type__from_value,
     f_v_s_type_from_array,
+    f_o_image_data_from_s_url,
 } from "./module.js"
 
 
@@ -1238,7 +1239,28 @@ let a_o_test =
             f_assert_equals(f_v_s_type_from_array(new Int32Array([1,2,3])),'a_n_i32')
             //readme.md:end
         }),
-
+        f_o_test("f_o_image_data_from_s_url", async () => {
+            //readme.md:start
+            let o_image_data = await f_o_image_data_from_s_url('./deno_logo.jpg');
+            f_assert_equals(
+                o_image_data.width, 
+                600
+            )
+            f_assert_equals(
+                o_image_data.height, 
+                600
+            )
+            f_assert_equals(
+                o_image_data.colorSpace, 
+                'srgb'
+            )
+            f_assert_equals(
+                o_image_data.data.length, 
+                600*600*4// wtf why 4 channels when srgb...
+            )
+            console.log(o_image_data)
+            //readme.md:end
+        }),
     ]
 
 

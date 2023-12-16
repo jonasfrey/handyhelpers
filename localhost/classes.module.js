@@ -626,15 +626,7 @@ class O_meminfo{
     }
 }
 
-class O_webgl_data{ // i really dont want to call this texture or image because just because webgl screwed up with having a option to pass 1d arrays to 
-    constructor(
-        o_scl, 
-        a_n__typed
-    ){
-        this.o_scl = o_scl
-        this.a_n__typed = a_n__typed 
-    }
-}
+
 export{
     O_cpu_stats,
     O_cpu_core_stats, 
@@ -646,5 +638,4 @@ export{
     O_nvidia_smi_metric,
     O_nvidia_smi_help_info, 
     O_number_value, 
-    O_webgl_data
 }

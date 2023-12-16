@@ -1150,12 +1150,144 @@ let f_v_s_type_from_array = function(a_v){
     return `a_${v_s_type_first}`
 }
 
-function f_o_canvas_webgl(
+
+let f_s_uuidv4 = function() {
+    if(!('crypto' in window)){
+        console.warn('the crypto global property is not available in this JS runtime, https://developer.mozilla.org/en-US/docs/Web/API/crypto_property')
+
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+        .replace(/[xy]/g, function (c) {
+            const r = Math.random() * 16 | 0, 
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    return crypto.randomUUID()
+}
+let f_b_uuid = function(s){
+    // let o_regexp = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+    let o_regexp = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+    return o_regexp.test(s)
+}
+
+let f_a_n_nor__rgb__from_a_n_nor__hsl = (
+    n_hue_nor, 
+    n_saturation_nor, 
+    n_lightness_nor
+) => {
+    let n_hue_deg = n_hue_nor*360;
+    const k = n => (n +  n_hue_deg / 30) % 12;
+    const a = n_saturation_nor * Math.min(n_lightness_nor, 1 - n_lightness_nor);
+    const f = n =>
+    n_lightness_nor - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return [f(0), f(8), f(4)];
+};
+
+
+
+// const f_a_n_nor__hsl__from_a_n_nor__rgb = (
+//     n_r_nor,
+//     n_g_nor,
+//     n_b_nor
+//     ) => {
+
+//     const l = Math.max(n_r_nor, n_g_nor, n_b_nor);
+//     const s = l - Math.min(n_r_nor, n_g_nor, n_b_nor);
+//     const h = s
+//       ? l === n_r_nor
+//         ? (n_g_nor - n_b_nor) / s
+//         : l === n_g_nor
+//         ? 2 + (n_b_nor - n_r_nor) / s
+//         : 4 + (n_r_nor - n_g_nor) / s
+//       : 0;
+//     return [
+//        (60 * h < 0 ? 60 * h + 360 : 60 * h)/360,
+//        (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0),
+//        ((2 * l - s)) / 2,
+//     ];
+//   };
+
+let f_a_n_nor__hsl__from_a_n_nor__rgb = function(r, g, b) {
+  const vmax = Math.max(r, g, b), vmin = Math.min(r, g, b);
+  let h, s, l = (vmax + vmin) / 2;
+
+  if (vmax === vmin) {
+    return [0, 0, l]; // achromatic
+  }
+
+  const d = vmax - vmin;
+  s = l > 0.5 ? d / (2 - vmax - vmin) : d / (vmax + vmin);
+  if (vmax === r) h = (g - b) / d + (g < b ? 6 : 0);
+  if (vmax === g) h = (b - r) / d + 2;
+  if (vmax === b) h = (r - g) / d + 4;
+  h /= 6;
+
+  return [h, s, l];
+}
+
+let f_b_js_object =function(v){
+    return typeof v === 'object' &&
+        !Array.isArray(v) &&
+        v !== null
+}
+
+
+
+let f_o_empty_recursive = function(
+    o,
+    f_v_empty = function(
+        v, s_prop
+    ){
+        if(Array.isArray(v)){
+            return []
+        }
+
+        return null
+    }
+){
+    let o_new = {}
+    for(let s_prop in o){
+        let v = o[s_prop]
+        if(f_b_js_object(v)){
+            console.log(v)
+            o_new[s_prop] = f_o_empty_recursive(v);
+        }else{
+            o_new[s_prop] = f_v_empty(v, s_prop) 
+        }
+    }
+    return o_new
+}
+
+
+let f_o_image_data_from_s_url = async function(s_url){
+    return new Promise(
+        (f_res, f_rej)=>{
+            let o_img = new Image();
+            o_img.onload = function(){
+                let o_canvas = document.createElement('canvas');
+                var o_ctx = o_canvas.getContext('2d');
+                o_canvas.width = o_img.width;
+                o_canvas.height = o_img.height;            
+                o_ctx.drawImage(o_img, 0, 0);
+                return f_res(
+                    o_ctx.getImageData(0, 0, o_img.width, o_img.height)
+                );
+            }
+            o_img.onerror = (o_e)=>{return f_rej(o_e)}
+            o_img.src = s_url;
+        }
+    )
+}
+
+let f_o_canvas_webgl = function(
     s_code_shader__vertex = '', 
     s_code_shader__fragment = '', 
     n_scl_x = 100,
     n_scl_y = 100,
-) {
+){
+    console.info('! deprecated, this function will not be present in the next version!,  please use https://deno.land/x/gpugateway')
+
     // Create the canvas element
     var o_canvas = document.createElement('canvas');
     o_canvas.width = n_scl_x;
@@ -1366,116 +1498,6 @@ function f_o_canvas_webgl(
     return o_canvas;
 }
 
-let f_s_uuidv4 = function() {
-    if(!('crypto' in window)){
-        console.warn('the crypto global property is not available in this JS runtime, https://developer.mozilla.org/en-US/docs/Web/API/crypto_property')
-
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-        .replace(/[xy]/g, function (c) {
-            const r = Math.random() * 16 | 0, 
-                v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
-
-    return crypto.randomUUID()
-}
-let f_b_uuid = function(s){
-    // let o_regexp = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
-    let o_regexp = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
-    return o_regexp.test(s)
-}
-
-let f_a_n_nor__rgb__from_a_n_nor__hsl = (
-    n_hue_nor, 
-    n_saturation_nor, 
-    n_lightness_nor
-) => {
-    let n_hue_deg = n_hue_nor*360;
-    const k = n => (n +  n_hue_deg / 30) % 12;
-    const a = n_saturation_nor * Math.min(n_lightness_nor, 1 - n_lightness_nor);
-    const f = n =>
-    n_lightness_nor - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-    return [f(0), f(8), f(4)];
-};
-
-
-
-// const f_a_n_nor__hsl__from_a_n_nor__rgb = (
-//     n_r_nor,
-//     n_g_nor,
-//     n_b_nor
-//     ) => {
-
-//     const l = Math.max(n_r_nor, n_g_nor, n_b_nor);
-//     const s = l - Math.min(n_r_nor, n_g_nor, n_b_nor);
-//     const h = s
-//       ? l === n_r_nor
-//         ? (n_g_nor - n_b_nor) / s
-//         : l === n_g_nor
-//         ? 2 + (n_b_nor - n_r_nor) / s
-//         : 4 + (n_r_nor - n_g_nor) / s
-//       : 0;
-//     return [
-//        (60 * h < 0 ? 60 * h + 360 : 60 * h)/360,
-//        (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0),
-//        ((2 * l - s)) / 2,
-//     ];
-//   };
-
-let f_a_n_nor__hsl__from_a_n_nor__rgb = function(r, g, b) {
-  const vmax = Math.max(r, g, b), vmin = Math.min(r, g, b);
-  let h, s, l = (vmax + vmin) / 2;
-
-  if (vmax === vmin) {
-    return [0, 0, l]; // achromatic
-  }
-
-  const d = vmax - vmin;
-  s = l > 0.5 ? d / (2 - vmax - vmin) : d / (vmax + vmin);
-  if (vmax === r) h = (g - b) / d + (g < b ? 6 : 0);
-  if (vmax === g) h = (b - r) / d + 2;
-  if (vmax === b) h = (r - g) / d + 4;
-  h /= 6;
-
-  return [h, s, l];
-}
-
-let f_b_js_object =function(v){
-    return typeof v === 'object' &&
-        !Array.isArray(v) &&
-        v !== null
-}
-
-
-
-let f_o_empty_recursive = function(
-    o,
-    f_v_empty = function(
-        v, s_prop
-    ){
-        if(Array.isArray(v)){
-            return []
-        }
-
-        return null
-    }
-){
-    let o_new = {}
-    for(let s_prop in o){
-        let v = o[s_prop]
-        if(f_b_js_object(v)){
-            console.log(v)
-            o_new[s_prop] = f_o_empty_recursive(v);
-        }else{
-            o_new[s_prop] = f_v_empty(v, s_prop) 
-        }
-    }
-    return o_new
-}
-
-
-
 export {
     f_o_empty_recursive,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
@@ -1517,6 +1539,7 @@ export {
     f_o_number_value__from_s_input,
     f_v_at_n_idx_relative, 
     f_v_s_type__from_value, 
-    f_v_s_type_from_array
+    f_v_s_type_from_array,
+    f_o_image_data_from_s_url
 }
 
