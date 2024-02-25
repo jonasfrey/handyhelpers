@@ -27,6 +27,7 @@ import {
     f_n_idx_ensured_inside_array,
     f_move_v_in_array,
     f_swap_v_in_array,
+    f_a_v_add_v_circular_to_array,
     f_a_v__recursive,
     f_a_a_v__combinations, 
     f_s_n_beautified,
@@ -324,6 +325,107 @@ let a_o_test =
             )
             //readme.md:end
         }),
+        f_o_test("f_a_v_add_v_circular_to_array", async () => {
+            //readme.md:start
+            
+            //md: ## f_a_v_add_v_circular_to_array
+            //md: adds a value to an array at the beginning or at the end and shifts all items +1 or -1 index respectively
+
+            let a_v = ["a","b",0,"d"];
+            let n_len_max = 7;
+            
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'e',
+                        n_len_max,
+                        true
+                    )
+                ),
+                '["e","a","b",0,"d"]'
+            ),
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'f',
+                        n_len_max,
+                        true
+                    )
+                ),
+                '["f","e","a","b",0,"d"]'
+            )
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        7,
+                        n_len_max,
+                        true
+                    )
+                ),
+                '[7,"f","e","a","b",0,"d"]'
+            )
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'h',
+                        n_len_max,
+                        true
+                    )
+                ),
+                '["h",7,"f","e","a","b",0]'
+            )
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'i',
+                        n_len_max,
+                        true
+                    )
+                ),
+                '["i","h",7,"f","e","a","b"]'
+            )
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'asdf',
+                        n_len_max,
+                        true
+                    )
+                ),
+                '["asdf","i","h",7,"f","e","a"]'
+            )
+            // insert at end
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'lol',
+                        n_len_max,
+                        false
+                    )
+                ),
+                '["i","h",7,"f","e","a","lol"]'
+            )
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        1234,
+                        n_len_max,
+                        false
+                    )
+                ),
+                '["h",7,"f","e","a","lol",1234]'
+            )
+            //readme.md:end
+        }),
+        
         f_o_test("f_sleep_ms", async () => {
             //readme.md:start
             //md: ## f_sleep_ms

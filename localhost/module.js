@@ -1030,6 +1030,42 @@ let f_swap_v_in_array = function(
     let n_idx_2 = a_v.indexOf(v_2);
     return f_swap_in_array(a_v, n_idx_1, n_idx_2); 
 }
+let f_a_v_add_v_circular_to_array = function(
+    a_v, 
+    v,
+    n_len_max, 
+    b_insert_at_beginning = false
+){
+    if(a_v.length < n_len_max){
+        a_v.push(v)
+        if(!b_insert_at_beginning){
+            return a_v
+        }
+    }
+    if(a_v.length > n_len_max){
+        a_v = a_v.slice(0,n_len_max);
+    }
+    if(b_insert_at_beginning){
+
+        // let a_v_new = [
+        //     v,
+        //     ...a_v.slice(1),
+        // ]
+        for(let n_idx = (a_v.length-1); n_idx>0; n_idx-=1){
+            a_v[n_idx] = a_v[n_idx-1];
+        }
+        a_v[0] = v
+    }
+    if(!b_insert_at_beginning){
+
+        for(let n_idx = 0; n_idx<a_v.length; n_idx+=1){
+            a_v[n_idx] = a_v[n_idx+1];
+        }
+        a_v[a_v.length-1] = v
+    }
+
+    return a_v
+}
 
 let f_a_v__recursive = function(
     n_y,
@@ -1540,6 +1576,7 @@ export {
     f_v_at_n_idx_relative, 
     f_v_s_type__from_value, 
     f_v_s_type_from_array,
-    f_o_image_data_from_s_url
+    f_o_image_data_from_s_url,
+    f_a_v_add_v_circular_to_array
 }
 

@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Tue Dec 12 2023 23:11:08 GMT+0100 (Central European Standard Time)","n_ts_created":1702419068966} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sun Feb 25 2024 01:59:00 GMT+0100 (Central European Standard Time)","n_ts_created":1708822740496} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -187,6 +187,103 @@ moves a value in an array by a index difference
             f_assert_equals(
                 a_o.at(0) == o5, 
                 true
+            )
+            
+```
+## f_a_v_add_v_circular_to_array
+adds a value to an array at the beginning or at the end and shifts all items +1 or -1 index respectively
+```javascript
+            let a_v = ["a","b",0,"d"];
+            let n_len_max = 7;
+            
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'e',
+                        n_len_max,
+                        true
+                    )
+                ),
+                '["e","a","b",0,"d"]'
+            ),
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'f',
+                        n_len_max,
+                        true
+                    )
+                ),
+                '["f","e","a","b",0,"d"]'
+            )
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        7,
+                        n_len_max,
+                        true
+                    )
+                ),
+                '[7,"f","e","a","b",0,"d"]'
+            )
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'h',
+                        n_len_max,
+                        true
+                    )
+                ),
+                '["h",7,"f","e","a","b",0]'
+            )
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'i',
+                        n_len_max,
+                        true
+                    )
+                ),
+                '["i","h",7,"f","e","a","b"]'
+            )
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'asdf',
+                        n_len_max,
+                        true
+                    )
+                ),
+                '["asdf","i","h",7,"f","e","a"]'
+            )
+            // insert at end
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        'lol',
+                        n_len_max,
+                        false
+                    )
+                ),
+                '["i","h",7,"f","e","a","lol"]'
+            )
+            f_assert_equals(
+                JSON.stringify(
+                    f_a_v_add_v_circular_to_array(
+                        a_v,
+                        1234,
+                        n_len_max,
+                        false
+                    )
+                ),
+                '["h",7,"f","e","a","lol",1234]'
             )
 ```
 ## f_sleep_ms
@@ -976,4 +1073,22 @@ we can also pass an object which values get passed to the shader
             f_assert_equals(f_v_s_type_from_array([1,false, {}, [1]]),'a_v')
             f_assert_equals(f_v_s_type_from_array(['h', 'e','l','l', 'o','!']),'a_s')
             f_assert_equals(f_v_s_type_from_array(new Int32Array([1,2,3])),'a_n_i32')
+            let o_image_data = await f_o_image_data_from_s_url('./deno_logo.jpg');
+            f_assert_equals(
+                o_image_data.width, 
+                600
+            )
+            f_assert_equals(
+                o_image_data.height, 
+                600
+            )
+            f_assert_equals(
+                o_image_data.colorSpace, 
+                'srgb'
+            )
+            f_assert_equals(
+                o_image_data.data.length, 
+                600*600*4// wtf why 4 channels when srgb...
+            )
+            console.log(o_image_data)
 ```
