@@ -51,6 +51,8 @@ import {
     f_v_s_type__from_value,
     f_v_s_type_from_array,
     f_o_image_data_from_s_url,
+    f_dd,
+    f_ddd,
 } from "./module.js"
 
 
@@ -1361,6 +1363,27 @@ let a_o_test =
                 600*600*4// wtf why 4 channels when srgb...
             )
             console.log(o_image_data)
+            //readme.md:end
+        }),
+
+        f_o_test("f_dd", async () => {
+            //readme.md:start
+            //md: #'f_dd' function dump and die 
+            //md: console.logs and deno.exit (if available)
+            console.log(1);
+            f_dd({s:'test'});
+            console.log(2);
+
+
+            //readme.md:end
+        }),
+        f_o_test("f_ddd", async () => {
+            //readme.md:start
+            //md: #'f_ddd' same as f_dd but print current date as heading
+            console.log(1);
+            f_ddd({s:'test'});
+            console.log(2);
+
             //readme.md:end
         }),
     ]

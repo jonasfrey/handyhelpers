@@ -1534,6 +1534,41 @@ let f_o_canvas_webgl = function(
     return o_canvas;
 }
 
+let f_ddd = function(){
+
+    let o_date = new Date();
+    let n_year = o_date.getUTCFullYear();
+    let n_month = o_date.getUTCMonth()+1;
+    let n_day = o_date.getUTCDate();
+    let n_hours = o_date.getUTCHours();
+    let n_minutes = o_date.getUTCMinutes();
+    let n_seconds = o_date.getUTCSeconds();
+
+    let s_month_zeropadded = n_month.toString().padStart(2,'0');
+    let s_day_zeropadded = n_day.toString().padStart(2,'0');
+    let s_hours_zeropadded = n_hours.toString().padStart(2,'0');
+    let s_minutes_zeropadded = n_minutes.toString().padStart(2,'0');
+    let s_seconds_zeropadded = n_seconds.toString().padStart(2,'0');
+    let s_milliseconds_zeropadded = o_date.getUTCMilliseconds().toString().padStart(3,'0');
+
+    let s_ymd_hms = `${n_year}-${s_month_zeropadded}-${s_day_zeropadded} ${s_hours_zeropadded}:${s_minutes_zeropadded}:${s_seconds_zeropadded}.${s_milliseconds_zeropadded}`
+    
+    let s_date = `f_ddd: ${s_ymd_hms}`;
+    let s = `
+╔═${`═`.repeat(s_date.length)}═╗
+║ ${s_date} ║
+╚═${`═`.repeat(s_date.length)}═╝
+`.trim()
+    console.log(s)
+    return f_dd(...arguments);
+}
+let f_dd = function(){
+    
+    console.log(...arguments);
+    if(f_b_denojs()){
+        Deno.exit();
+    }
+}
 export {
     f_o_empty_recursive,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
@@ -1577,6 +1612,8 @@ export {
     f_v_s_type__from_value, 
     f_v_s_type_from_array,
     f_o_image_data_from_s_url,
-    f_a_v_add_v_circular_to_array
+    f_a_v_add_v_circular_to_array, 
+    f_dd, 
+    f_ddd
 }
 
