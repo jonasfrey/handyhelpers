@@ -53,6 +53,7 @@ import {
     f_o_image_data_from_s_url,
     f_dd,
     f_ddd,
+    f_o_object_assign_nested
 } from "./module.js"
 
 
@@ -1386,6 +1387,36 @@ let a_o_test =
 
             //readme.md:end
         }),
+        f_o_test("f_o_object_assign_nested", async () => {
+            //readme.md:start
+            //md: #'f_o_object_assign_nested' assign properties of nested objects, 'extend' the properties instead of overwriting them
+            let o_options = {
+                headers: {
+                    'Accept': 'image/png'
+                }
+            }
+            let o_options_def = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+            f_o_object_assign_nested(
+                o_options_def,
+                o_options
+            );
+            f_assert_equals(
+                o_options_def,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'image/png',
+                    }
+                }
+                
+            )
+            //readme.md:end
+        }),
+        
     ]
 
 

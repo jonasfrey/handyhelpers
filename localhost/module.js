@@ -1569,6 +1569,27 @@ let f_dd = function(){
         Deno.exit();
     }
 }
+
+
+let f_o_object_assign_nested = function(
+    o1, 
+    o2
+){
+    for(let s_prop in o2){
+        let v = o2[s_prop];
+        if(typeof v == 'object' && !Array.isArray(v)){
+            o1[s_prop] = (o1[s_prop]) ? o1[s_prop] : {}
+            f_o_object_assign_nested(
+                o1[s_prop],
+                v
+            )
+            continue
+        }
+        o1[s_prop] = v;
+    }
+    return o1
+}
+
 export {
     f_o_empty_recursive,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
@@ -1614,6 +1635,7 @@ export {
     f_o_image_data_from_s_url,
     f_a_v_add_v_circular_to_array, 
     f_dd, 
-    f_ddd
+    f_ddd,
+    f_o_object_assign_nested
 }
 
