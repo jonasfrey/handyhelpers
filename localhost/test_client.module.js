@@ -53,7 +53,9 @@ import {
     f_o_image_data_from_s_url,
     f_dd,
     f_ddd,
-    f_o_object_assign_nested
+    f_o_object_assign_nested,
+    f_b_check_type_and_potentially_throw_error,
+    f_a_n_u8_from_s_b64
 } from "./module.js"
 
 
@@ -1413,6 +1415,65 @@ let a_o_test =
                     }
                 }
                 
+            )
+            //readme.md:end
+        }),
+        f_o_test("f_b_check_type_and_potentially_throw_error", async () => {
+            //readme.md:start
+            //md: #'f_b_check_type_and_potentially_throw_error' check the type according to the prefix
+            let b = f_b_check_type_and_potentially_throw_error(
+                {
+                    s_test: "hello", 
+                    a_v: [1,true],
+                    a_n_u8: new Uint8Array(),
+                    b_bool: true, 
+                    o: {
+                        n: 1
+                    }
+                }
+            );
+            f_assert_equals(
+                b,
+                true
+            )
+            //recursive check 
+            let b2 = f_b_check_type_and_potentially_throw_error(
+                {
+                    o: {
+                        a: [1]
+                    }, 
+                    o2: {}, 
+                    o3: {
+                        o4: {
+                            o5: {
+                                n:1, 
+                                b: true, 
+                                o: [1,2,3]
+                            }
+                        }
+                    }
+                }
+            );
+            f_assert_equals(
+                b2,
+                false
+            )
+            //readme.md:end
+        }),
+        f_o_test("f_a_n_u8_from_s_b64", async () => {
+            //readme.md:start
+            //md: #'f_a_n_u8_from_s_b64' convert a base 64 b64 string to a a_n_u8 uint8array
+            // let s_expected = 'Hellö'
+            // let s_b64 = btoa(s_expected);
+            // let a_n_u8_expected = new TextEncoder().encode(s_expected) // this wont work since it encodes as utf8
+            // we want the unicode code point of each caracter which is 246 for 'ö'
+            let s_b64 = 'SGVsbPY=';
+            let a_n_u8 = f_a_n_u8_from_s_b64(
+                s_b64
+            );
+            f_assert_equals(
+                a_n_u8,
+                new Uint8Array([72, 101, 108, 108, 246])
             )
             //readme.md:end
         }),

@@ -1265,6 +1265,7 @@ let f_a_n_nor__hsl__from_a_n_nor__rgb = function(r, g, b) {
 let f_b_js_object =function(v){
     return typeof v === 'object' &&
         !Array.isArray(v) &&
+        !v.constructor.name.includes('Array') &&
         v !== null
 }
 
@@ -1589,7 +1590,87 @@ let f_o_object_assign_nested = function(
     }
     return o1
 }
+let f_throw = (
+    s_type_expected,
+    s_type_present,
+    s_path_prop, 
+)=>{
+    throw Error(
+        JSON.stringify(
+            {
+                s_msg: 'type error',
+                s_path_prop, 
+                s_type_expected, 
+                s_type_present, 
+            },
+            null, 
+            4
+        )
+    )
+}
+let o_s_prefix_f_callback = {
+    's': (v,s_path_prop)=>{
+        let s_type_expected = "string";
+        let s_type = typeof v;
+        if(typeof v != s_type_expected){
+            f_throw(s_type_expected, s_type, s_path_prop)
+        }
+    }, 
+    'n': (v,s_path_prop)=>{
+        let s_type_expected = "number";
+        let s_type = typeof v;
+        if(typeof v != s_type_expected){
+            f_throw(s_type_expected, s_type, s_path_prop)
+        }
+    }, 
+    'a': (v,s_path_prop)=>{
+        let s_type_expected = "array";
+        let s_type = typeof v;
+        if(!v.constructor.name.includes('Array')){
+            f_throw(s_type_expected, s_type, s_path_prop)
+        }
+    },
+    'o': (v,s_path_prop)=>{
+        let s_type_expected = "object";
+        let s_type = typeof v;
+        if(!f_b_js_object(v)){
+            f_throw(s_type_expected, v?.constructor?.name, s_path_prop)
+        }
+    }
+}
+let f_b_check_type_and_potentially_throw_error = function(
+    o, 
+    s_path_prop = '',
+    b_recursive = true
+){
 
+    for(let s in o){
+        let s_prefix = s[0];
+        let v = o[s];
+        let s_path_prop2 = `${s_path_prop}.${s}`
+        o_s_prefix_f_callback?.[s_prefix]?.(v,s_path_prop2);
+        if(b_recursive){
+
+            if(typeof v == 'object' && !v.constructor.name.includes('Array')){
+                f_b_check_type_and_potentially_throw_error(
+                    v, 
+                    s_path_prop2,
+                    b_recursive
+                )
+            }
+        }
+    }
+    return true
+}
+let f_a_n_u8_from_s_b64 = function(s_b64){
+    f_b_check_type_and_potentially_throw_error({s_b64});
+    let s_decoded = atob(s_b64)
+    let a_n_u8 = new Uint8Array(s_decoded?.length);
+    for (let n_i = 0; n_i < s_decoded?.length; n_i++) {
+        a_n_u8[n_i] = s_decoded.charCodeAt(n_i);
+    }
+    return a_n_u8
+}
 export {
     f_o_empty_recursive,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
@@ -1636,6 +1717,8 @@ export {
     f_a_v_add_v_circular_to_array, 
     f_dd, 
     f_ddd,
-    f_o_object_assign_nested
+    f_o_object_assign_nested, 
+    f_b_check_type_and_potentially_throw_error, 
+    f_a_n_u8_from_s_b64
 }
 
