@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sun Feb 25 2024 01:59:00 GMT+0100 (Central European Standard Time)","n_ts_created":1708822740496} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Mon Mar 11 2024 20:47:29 GMT+0100 (Central European Standard Time)","n_ts_created":1710186449749} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1091,4 +1091,47 @@ we can also pass an object which values get passed to the shader
                 600*600*4// wtf why 4 channels when srgb...
             )
             console.log(o_image_data)
+```
+#'f_dd' function dump and die
+console.logs and deno.exit (if available)
+```javascript
+            console.log(1);
+            f_dd({s:'test'});
+            console.log(2);
+
+
+```
+#'f_ddd' same as f_dd but print current date as heading
+```javascript
+            console.log(1);
+            f_ddd({s:'test'});
+            console.log(2);
+
+```
+#'f_o_object_assign_nested' assign properties of nested objects, 'extend' the properties instead of overwriting them
+```javascript
+            let o_options = {
+                headers: {
+                    'Accept': 'image/png'
+                }
+            }
+            let o_options_def = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+            f_o_object_assign_nested(
+                o_options_def,
+                o_options
+            );
+            f_assert_equals(
+                o_options_def,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'image/png',
+                    }
+                }
+                
+            )
 ```
