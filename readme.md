@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Mon Mar 11 2024 20:47:29 GMT+0100 (Central European Standard Time)","n_ts_created":1710186449749} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Mar 13 2024 14:21:19 GMT+0100 (Central European Standard Time)","n_ts_created":1710336079217} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1092,7 +1092,8 @@ we can also pass an object which values get passed to the shader
             )
             console.log(o_image_data)
 ```
-#'f_dd' function dump and die
+# 'f_dd'
+function dump and die
 console.logs and deno.exit (if available)
 ```javascript
             console.log(1);
@@ -1101,14 +1102,15 @@ console.logs and deno.exit (if available)
 
 
 ```
-#'f_ddd' same as f_dd but print current date as heading
+# 'f_ddd' same as f_dd but print current date as heading
 ```javascript
             console.log(1);
             f_ddd({s:'test'});
             console.log(2);
 
 ```
-#'f_o_object_assign_nested' assign properties of nested objects, 'extend' the properties instead of overwriting them
+# 'f_o_object_assign_nested'
+assign properties of nested objects, 'extend' the properties instead of overwriting them
 ```javascript
             let o_options = {
                 headers: {
@@ -1133,5 +1135,62 @@ console.logs and deno.exit (if available)
                     }
                 }
                 
+            )
+```
+# 'f_b_check_type_and_potentially_throw_error'
+check the type according to the prefix
+```javascript
+            let b = f_b_check_type_and_potentially_throw_error(
+                {
+                    s_test: "hello", 
+                    a_v: [1,true],
+                    a_n_u8: new Uint8Array(),
+                    b_bool: true, 
+                    o: {
+                        n: 1
+                    }
+                }
+            );
+            f_assert_equals(
+                b,
+                true
+            )
+            //recursive check 
+            let b2 = f_b_check_type_and_potentially_throw_error(
+                {
+                    o: {
+                        a: [1]
+                    }, 
+                    o2: {}, 
+                    o3: {
+                        o4: {
+                            o5: {
+                                n:1, 
+                                b: true, 
+                                o: [1,2,3]
+                            }
+                        }
+                    }
+                }
+            );
+            f_assert_equals(
+                b2,
+                false
+            )
+```
+# 'f_a_n_u8_from_s_b64'
+convert a base 64 b64 string to a a_n_u8 uint8array
+```javascript
+            // let s_expected = 'Hellö'
+            // let s_b64 = btoa(s_expected);
+            // let a_n_u8_expected = new TextEncoder().encode(s_expected) // this wont work since it encodes as utf8
+            // we want the unicode code point of each caracter which is 246 for 'ö'
+            let s_b64 = 'SGVsbPY=';
+            let a_n_u8 = f_a_n_u8_from_s_b64(
+                s_b64
+            );
+            f_assert_equals(
+                a_n_u8,
+                new Uint8Array([72, 101, 108, 108, 246])
             )
 ```

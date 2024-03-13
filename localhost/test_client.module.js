@@ -1371,7 +1371,8 @@ let a_o_test =
 
         f_o_test("f_dd", async () => {
             //readme.md:start
-            //md: #'f_dd' function dump and die 
+            //md: # 'f_dd' 
+            //md: function dump and die 
             //md: console.logs and deno.exit (if available)
             console.log(1);
             f_dd({s:'test'});
@@ -1382,7 +1383,7 @@ let a_o_test =
         }),
         f_o_test("f_ddd", async () => {
             //readme.md:start
-            //md: #'f_ddd' same as f_dd but print current date as heading
+            //md: # 'f_ddd' same as f_dd but print current date as heading
             console.log(1);
             f_ddd({s:'test'});
             console.log(2);
@@ -1391,7 +1392,8 @@ let a_o_test =
         }),
         f_o_test("f_o_object_assign_nested", async () => {
             //readme.md:start
-            //md: #'f_o_object_assign_nested' assign properties of nested objects, 'extend' the properties instead of overwriting them
+            //md: # 'f_o_object_assign_nested'
+            //md: assign properties of nested objects, 'extend' the properties instead of overwriting them
             let o_options = {
                 headers: {
                     'Accept': 'image/png'
@@ -1420,7 +1422,8 @@ let a_o_test =
         }),
         f_o_test("f_b_check_type_and_potentially_throw_error", async () => {
             //readme.md:start
-            //md: #'f_b_check_type_and_potentially_throw_error' check the type according to the prefix
+            //md: # 'f_b_check_type_and_potentially_throw_error'
+            //md: check the type according to the prefix
             let b = f_b_check_type_and_potentially_throw_error(
                 {
                     s_test: "hello", 
@@ -1462,7 +1465,8 @@ let a_o_test =
         }),
         f_o_test("f_a_n_u8_from_s_b64", async () => {
             //readme.md:start
-            //md: #'f_a_n_u8_from_s_b64' convert a base 64 b64 string to a a_n_u8 uint8array
+            //md: # 'f_a_n_u8_from_s_b64'
+            //md: convert a base 64 b64 string to a a_n_u8 uint8array
             // let s_expected = 'Hellö'
             // let s_b64 = btoa(s_expected);
             // let a_n_u8_expected = new TextEncoder().encode(s_expected) // this wont work since it encodes as utf8
