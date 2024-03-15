@@ -55,7 +55,9 @@ import {
     f_ddd,
     f_o_object_assign_nested,
     f_b_check_type_and_potentially_throw_error,
-    f_a_n_u8_from_s_b64
+    f_a_n_u8_from_s_b64,
+    f_a_n_trn__relative_to_o_html,
+    f_a_n_trn__relative_to_o_html__nor
 } from "./module.js"
 
 
@@ -1481,7 +1483,40 @@ let a_o_test =
             )
             //readme.md:end
         }),
-        
+        f_o_test("f_a_n_trn__relative_to_o_html__nor", async () => {
+            //readme.md:start
+            //md: # 'f_a_n_trn__relative_to_o_html__nor' and 'f_a_n_trn__relative_to_o_html' 
+            //md: get the relative position of an element [o.clientX, o.clientY] inside another element
+            //md: _nor => normalized , returns translation arra/vector between 0.0 and 1.0
+            let o_el = document.createElement('div');
+            o_el.style.width = '500px'
+            o_el.style.height = '500px'
+            o_el.style.position = 'relative'
+            o_el.style.background = 'blue'
+            let o_c = document.createElement('div');
+            o_c.style.width = '50px'
+            o_c.style.height = '50px'
+            o_c.style.background = 'red';
+            o_c.style.position = 'absolute';
+            o_el.appendChild(o_c);
+            o_el.addEventListener('pointermove', (o_e)=>{
+                let a_n_trn = f_a_n_trn__relative_to_o_html__nor(
+                    [
+                        o_e.clientX,
+                        o_e.clientY,
+                    ],
+                    o_e.target
+                );
+                o_c.style.left = `${a_n_trn[0]*100}%`
+                o_c.style.top = `${a_n_trn[1]*100}%`
+            })
+            document.body.appendChild(
+                o_el
+            )
+            //readme.md:end
+        }),
+
+
     ]
 
 

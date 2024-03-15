@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Mar 13 2024 14:21:19 GMT+0100 (Central European Standard Time)","n_ts_created":1710336079217} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Fri Mar 15 2024 16:48:23 GMT+0100 (Central European Standard Time)","n_ts_created":1710517703880} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1192,5 +1192,35 @@ convert a base 64 b64 string to a a_n_u8 uint8array
             f_assert_equals(
                 a_n_u8,
                 new Uint8Array([72, 101, 108, 108, 246])
+            )
+```
+# 'f_a_n_trn__relative_to_o_html__nor' and 'f_a_n_trn__relative_to_o_html'
+get the relative position of an element [o.clientX, o.clientY] inside another element
+_nor => normalized , returns translation arra/vector between 0.0 and 1.0
+```javascript
+            let o_el = document.createElement('div');
+            o_el.style.width = '500px'
+            o_el.style.height = '500px'
+            o_el.style.position = 'relative'
+            o_el.style.background = 'blue'
+            let o_c = document.createElement('div');
+            o_c.style.width = '50px'
+            o_c.style.height = '50px'
+            o_c.style.background = 'red';
+            o_c.style.position = 'absolute';
+            o_el.appendChild(o_c);
+            o_el.addEventListener('pointermove', (o_e)=>{
+                let a_n_trn = f_a_n_trn__relative_to_o_html__nor(
+                    [
+                        o_e.clientX,
+                        o_e.clientY,
+                    ],
+                    o_e.target
+                );
+                o_c.style.left = `${a_n_trn[0]*100}%`
+                o_c.style.top = `${a_n_trn[1]*100}%`
+            })
+            document.body.appendChild(
+                o_el
             )
 ```

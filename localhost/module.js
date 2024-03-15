@@ -1671,6 +1671,31 @@ let f_a_n_u8_from_s_b64 = function(s_b64){
     }
     return a_n_u8
 }
+
+let f_a_n_trn__relative_to_o_html = function(
+    a_n__trn_mouse, 
+    o_el
+){
+    const o_brect  = o_el.getBoundingClientRect();
+
+    return [
+        a_n__trn_mouse[0] - o_brect.left,
+        a_n__trn_mouse[1] - o_brect.top
+    ]
+}
+let f_a_n_trn__relative_to_o_html__nor = function(
+    a_n__trn_mouse, 
+    o_el
+){
+    const o_brect  = o_el.getBoundingClientRect();
+    
+    let a_n_trn = f_a_n_trn__relative_to_o_html(a_n__trn_mouse, o_el);
+    return [
+        a_n_trn[0] / o_brect.width,
+        a_n_trn[1] / o_brect.height,
+    ]    
+}
+
 export {
     f_o_empty_recursive,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
@@ -1719,6 +1744,8 @@ export {
     f_ddd,
     f_o_object_assign_nested, 
     f_b_check_type_and_potentially_throw_error, 
-    f_a_n_u8_from_s_b64
+    f_a_n_u8_from_s_b64, 
+    f_a_n_trn__relative_to_o_html,
+    f_a_n_trn__relative_to_o_html__nor
 }
 
