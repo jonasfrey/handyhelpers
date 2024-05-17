@@ -57,7 +57,8 @@ import {
     f_b_check_type_and_potentially_throw_error,
     f_a_n_u8_from_s_b64,
     f_a_n_trn__relative_to_o_html,
-    f_a_n_trn__relative_to_o_html__nor
+    f_a_n_trn__relative_to_o_html__nor,
+    f_a_o_entry__from_s_path
 } from "./module.js"
 
 
@@ -1517,8 +1518,29 @@ let a_o_test =
         }),
 
 
+        f_o_test("f_a_o_entry__from_s_path", async () => {
+            //readme.md:start
+            //md: # 'f_a_o_entry__from_s_path' 
+            //md: returns all entries from a directory path
+            let a_o = await f_a_o_entry__from_s_path('./test_dir');
+            console.log(a_o)
+            f_assert_equals(a_o.length, 2);
+
+
+            let b_recursive = true;
+            let a_o2 = await f_a_o_entry__from_s_path('./test_dir', b_recursive);
+            console.log({a_o2})
+            f_assert_equals(a_o2.length, 3);
+
+            //readme.md:end
+        }),
+
+
+
+        
+
     ]
 
 
 
-f_display_test_selection_or_run_selected_test_and_print_summary(a_o_test);
+await f_display_test_selection_or_run_selected_test_and_print_summary(a_o_test);

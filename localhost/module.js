@@ -1696,6 +1696,25 @@ let f_a_n_trn__relative_to_o_html__nor = function(
     ]    
 }
 
+let f_a_o_entry__from_s_path = async function(s_path, b_recursive = false){
+    return new Promise(
+        async (f_res)=>{
+            let a_o = [];
+            for  await(let o of Deno.readDir(s_path)){
+                a_o.push(o)
+                if(o.isDirectory && b_recursive){
+                    console.log(`${s_path}/${o.name}`)
+
+                    // let a_o2 = await f_a_o_entry__from_s_path(`${s_path}/${o.name}`, b_recursive);
+                    a_o.push(f_a_o_entry__from_s_path(`${s_path}/${o.name}`, b_recursive))
+                }
+            }
+            return Promise.all(a_o).then(a_o2 =>{
+                return f_res(a_o2.flat())
+            })
+        }
+    )
+}
 export {
     f_o_empty_recursive,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
@@ -1746,6 +1765,7 @@ export {
     f_b_check_type_and_potentially_throw_error, 
     f_a_n_u8_from_s_b64, 
     f_a_n_trn__relative_to_o_html,
-    f_a_n_trn__relative_to_o_html__nor
+    f_a_n_trn__relative_to_o_html__nor,
+    f_a_o_entry__from_s_path
 }
 
