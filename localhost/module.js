@@ -1702,9 +1702,10 @@ let f_a_o_entry__from_s_path = async function(s_path, b_recursive = false){
             let a_o = [];
             for  await(let o of Deno.readDir(s_path)){
                 a_o.push(o)
+                o.s_path_folder_parent = `${s_path}`
+                o.s_path_file = `${s_path}/${o.name}`
                 if(o.isDirectory && b_recursive){
-                    console.log(`${s_path}/${o.name}`)
-
+                    // console.log(`${s_path}/${o.name}`)                    
                     // let a_o2 = await f_a_o_entry__from_s_path(`${s_path}/${o.name}`, b_recursive);
                     a_o.push(f_a_o_entry__from_s_path(`${s_path}/${o.name}`, b_recursive))
                 }
