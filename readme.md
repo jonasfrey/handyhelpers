@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Mon Jun 10 2024 21:27:12 GMT+0200 (Central European Summer Time)","n_ts_created":1718047632750} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Mon Jun 10 2024 23:40:52 GMT+0200 (Central European Summer Time)","n_ts_created":1718055652337} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1269,4 +1269,52 @@ add border to text
             // |                        |
             // | four different corners |
             // ?________________________#
+
+
+            let s3 = await f_s_bordered(
+                [
+                    'heading',
+                    `and four different corners`, 
+                ],
+            '=', 
+            '_', 
+            ['$', '+', '#', '?'], 
+            );
+            console.log(s3)
+            // prints 
+            // $============================+
+            // |                            |
+            // | heading                    |
+            // $============================+
+            // |                            |
+            // | and four different corners |
+            // ?____________________________#
+
+
+            let s4 = await f_s_bordered(
+                [
+                    'this',
+                    `gets`, 
+                    `out of`, 
+                    `control`, 
+                ],
+            '=', 
+            '_', 
+            ['+'], 
+            );
+            console.log(s4)
+            // prints 
+            // +=========+
+            // |         |
+            // | this    |
+            // +=========+
+            // |         |
+            // | gets    |
+            // +=========+
+            // |         |
+            // | out of  |
+            // +=========+
+            // |         |
+            // | control |
+            // +_________+
 ```

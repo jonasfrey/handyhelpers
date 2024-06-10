@@ -1567,6 +1567,54 @@ let a_o_test =
             // |                        |
             // | four different corners |
             // ?________________________#
+
+
+            let s3 = await f_s_bordered(
+                [
+                    'heading',
+                    `and four different corners`, 
+                ],
+            '=', 
+            '_', 
+            ['$', '+', '#', '?'], 
+            );
+            console.log(s3)
+            // prints 
+            // $============================+
+            // |                            |
+            // | heading                    |
+            // $============================+
+            // |                            |
+            // | and four different corners |
+            // ?____________________________#
+
+
+            let s4 = await f_s_bordered(
+                [
+                    'this',
+                    `gets`, 
+                    `out of`, 
+                    `control`, 
+                ],
+            '=', 
+            '_', 
+            ['+'], 
+            );
+            console.log(s4)
+            // prints 
+            // +=========+
+            // |         |
+            // | this    |
+            // +=========+
+            // |         |
+            // | gets    |
+            // +=========+
+            // |         |
+            // | out of  |
+            // +=========+
+            // |         |
+            // | control |
+            // +_________+
             //readme.md:end
         }),
 

@@ -1716,15 +1716,18 @@ let f_a_o_entry__from_s_path = async function(s_path, b_recursive = false){
         }
     )
 }
-let f_s_bordered = function(s, s_char_border_top = '_', s_char_border_bottom = "_", a_s_char_corner = ["+","+","+","+"]){
-    let a_s = s.split('\n');
-      let s_longest = a_s.sort((s1, s2)=>{return s2.length -s1.length})[0];
+let f_s_bordered = function(a_s, s_char_border_top = '_', s_char_border_bottom = "_", a_s_char_corner = ["+","+","+","+"]){
+    if(typeof a_s === 'string'){
+        a_s = [a_s]
+    }
+    let a_a_s = a_s.map(s=>s.split('\n'));
+      let s_longest = a_a_s.flat().sort((s1, s2)=>{return s2.length -s1.length})[0];
       let n_len_longest = s_longest.length;
       let s_border_top = s_char_border_top.repeat(n_len_longest + 2);
       let s_border_bottom = s_char_border_bottom.repeat(n_len_longest + 2);
       let s_empty = ' '.repeat(n_len_longest);
       if(a_s_char_corner.length == 1){ 
-        a_s_char_corner  = a_s_char_corner[0].repeat(4).split()
+        a_s_char_corner  = a_s_char_corner[0].repeat(4).split('')
       }
       if(a_s_char_corner.length == 2){ 
         a_s_char_corner  = [
@@ -1742,17 +1745,26 @@ let f_s_bordered = function(s, s_char_border_top = '_', s_char_border_bottom = "
             a_s_char_corner[2],
         ]
       }
-      let s2 = [
-        (`${a_s_char_corner[0]}${s_border_top}${a_s_char_corner[1]}`),
-        (`| ${s_empty} |`),
-        ...s.split('\n').map(
-          s=>{
-            return (`| ${s.padEnd(n_len_longest, ' ')} |`)
-          }
+      let a_s2 = [
+        a_a_s.map(a_s=>{
+            return [
+                (`${a_s_char_corner[0]}${s_border_top}${a_s_char_corner[1]}`),
+                (`| ${s_empty} |`),
+                ...a_s.map(
+                s=>{
+                    return (`| ${s.padEnd(n_len_longest, ' ')} |`)
+                }
+                )
+            ].join('\n')
+        }).join(
+            `\n`
         ),
-        (`${a_s_char_corner[3]}${s_border_bottom}${a_s_char_corner[2]}`)
-      ].join('\n')
-      return s2
+        `${a_s_char_corner[3]}${s_border_bottom}${a_s_char_corner[2]}`
+
+      ]
+    
+      return a_s2.join('\n')
+      
   }
 export {
     f_o_empty_recursive,
