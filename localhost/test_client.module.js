@@ -58,7 +58,8 @@ import {
     f_a_n_u8_from_s_b64,
     f_a_n_trn__relative_to_o_html,
     f_a_n_trn__relative_to_o_html__nor,
-    f_a_o_entry__from_s_path
+    f_a_o_entry__from_s_path,
+    f_s_bordered
 } from "./module.js"
 
 
@@ -1532,6 +1533,40 @@ let a_o_test =
             console.log({a_o2})
             f_assert_equals(a_o2.length, 3);
 
+            //readme.md:end
+        }),
+        f_o_test("f_s_bordered", async () => {
+            //readme.md:start
+            //md: # 'f_s_bordered' 
+            //md: add border to text 
+            let s1 = await f_s_bordered(`
+            this 
+            is
+            a
+            test
+            `);
+            // prints 
+            // +___________________+
+            // |                   |
+            // |                   |
+            // |             this  |
+            // |             is    |
+            // |             a     |
+            // |             test  |
+            // |                   |
+            // +___________________+
+            console.log(s1)
+            let s2 = await f_s_bordered(`four different corners`, 
+            '=', 
+            '_', 
+            ['$', '+', '#', '?'], 
+            );
+            console.log(s2)
+            // prints 
+            // $========================+
+            // |                        |
+            // | four different corners |
+            // ?________________________#
             //readme.md:end
         }),
 

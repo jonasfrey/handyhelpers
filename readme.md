@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Fri Mar 15 2024 16:48:23 GMT+0100 (Central European Standard Time)","n_ts_created":1710517703880} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Mon Jun 10 2024 21:27:12 GMT+0200 (Central European Summer Time)","n_ts_created":1718047632750} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1223,4 +1223,50 @@ _nor => normalized , returns translation arra/vector between 0.0 and 1.0
             document.body.appendChild(
                 o_el
             )
+```
+# 'f_a_o_entry__from_s_path'
+returns all entries from a directory path
+```javascript
+            let a_o = await f_a_o_entry__from_s_path('./test_dir');
+            console.log(a_o)
+            f_assert_equals(a_o.length, 2);
+
+
+            let b_recursive = true;
+            let a_o2 = await f_a_o_entry__from_s_path('./test_dir', b_recursive);
+            console.log({a_o2})
+            f_assert_equals(a_o2.length, 3);
+
+```
+# 'f_s_bordered'
+add border to text
+```javascript
+            let s1 = await f_s_bordered(`
+            this 
+            is
+            a
+            test
+            `);
+            // prints 
+            // +___________________+
+            // |                   |
+            // |                   |
+            // |             this  |
+            // |             is    |
+            // |             a     |
+            // |             test  |
+            // |                   |
+            // +___________________+
+            console.log(s1)
+            let s2 = await f_s_bordered(`four different corners`, 
+            '=', 
+            '_', 
+            ['$', '+', '#', '?'], 
+            );
+            console.log(s2)
+            // prints 
+            // $========================+
+            // |                        |
+            // | four different corners |
+            // ?________________________#
 ```
