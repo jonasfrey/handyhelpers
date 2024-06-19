@@ -139,7 +139,13 @@ let a_o_test =
 
         }),
         f_o_test("f_n_idx_ensured_inside_array", async () => {
-            // only internally used and tested
+            //readme.md:start
+            
+            //md: ## f_n_idx_ensured_inside_array
+            //md: get an index of an item in an array relative to the first argument as a number, 
+            //md: the index will be wrapped around if negative or bigger than array length
+            //md: so it is ensured that it stays in the array
+
             let n_len = 3; 
             f_assert_equals(f_n_idx_ensured_inside_array(0, n_len), 0)
             f_assert_equals(f_n_idx_ensured_inside_array(1, n_len), 1)
@@ -155,6 +161,7 @@ let a_o_test =
             f_assert_equals(f_n_idx_ensured_inside_array(-4, n_len), 2)
             f_assert_equals(f_n_idx_ensured_inside_array(-5, n_len), 1)
             f_assert_equals(f_n_idx_ensured_inside_array(-6, n_len), 0)
+            //readme.md:end
 
         }),
         f_o_test("f_v_at_n_idx_relative", async () => {

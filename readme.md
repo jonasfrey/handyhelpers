@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Mon Jun 10 2024 23:40:52 GMT+0200 (Central European Summer Time)","n_ts_created":1718055652337} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Jun 19 2024 23:55:04 GMT+0200 (Central European Summer Time)","n_ts_created":1718834104320} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -53,6 +53,28 @@ get a n-dimensional array with a value of choice
 ```javascript
             let a = f_a_v__recursive(3,3,function(n_x, n_y){return `${[n_x, n_y].join(',')}`})
             console.log(a);
+            
+```
+## f_n_idx_ensured_inside_array
+get an index of an item in an array relative to the first argument as a number,
+the index will be wrapped around if negative or bigger than array length
+so it is ensured that it stays in the array
+```javascript
+            let n_len = 3; 
+            f_assert_equals(f_n_idx_ensured_inside_array(0, n_len), 0)
+            f_assert_equals(f_n_idx_ensured_inside_array(1, n_len), 1)
+            f_assert_equals(f_n_idx_ensured_inside_array(2, n_len), 2)
+            f_assert_equals(f_n_idx_ensured_inside_array(3, n_len), 0)
+            f_assert_equals(f_n_idx_ensured_inside_array(4, n_len), 1)
+            f_assert_equals(f_n_idx_ensured_inside_array(5, n_len), 2)
+            f_assert_equals(f_n_idx_ensured_inside_array(6, n_len), 0)
+            f_assert_equals(f_n_idx_ensured_inside_array(0, n_len), 0)
+            f_assert_equals(f_n_idx_ensured_inside_array(-1, n_len), 2)
+            f_assert_equals(f_n_idx_ensured_inside_array(-2, n_len), 1)
+            f_assert_equals(f_n_idx_ensured_inside_array(-3, n_len), 0)
+            f_assert_equals(f_n_idx_ensured_inside_array(-4, n_len), 2)
+            f_assert_equals(f_n_idx_ensured_inside_array(-5, n_len), 1)
+            f_assert_equals(f_n_idx_ensured_inside_array(-6, n_len), 0)
             
 ```
 ## f_move_in_array
