@@ -1769,13 +1769,11 @@ let f_s_bordered = function(a_s, s_char_border_top = '_', s_char_border_bottom =
 
 let f_s_color_rgba_from_a_n_nor_channelcolorrgba = function(a_n){
     let s = `rgba(${a_n.slice(0,3).map(n=>n*255)},${a_n[3]})`
-    console.log(s)
     return s
 }
 let f_s_color_hex_from_a_n_nor_channelcolorrgba = function(a_n
 ){
     let s = `#${a_n.slice(0,3).map(n=>parseInt(n*255).toString(16).padStart(2,'0')).join('')}`
-    console.log(s)
     return s
 }
 let f_a_n_nor_channelcolorrgba_from_color_hex = function(
