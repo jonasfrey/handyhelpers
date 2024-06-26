@@ -59,7 +59,10 @@ import {
     f_a_n_trn__relative_to_o_html,
     f_a_n_trn__relative_to_o_html__nor,
     f_a_o_entry__from_s_path,
-    f_s_bordered
+    f_s_bordered,
+    f_s_color_rgba_from_a_n_nor_channelcolorrgba,
+    f_s_color_hex_from_a_n_nor_channelcolorrgba,
+    f_a_n_nor_channelcolorrgba_from_color_hex
 } from "./module.js"
 
 
@@ -1628,6 +1631,45 @@ let a_o_test =
 
 
         
+        f_o_test("f_s_color_rgba_from_a_n_nor_channelcolorrgba", async () => {
+            //readme.md:start
+            //md: # 'f_s_color_rgba_from_a_n_nor_channelcolorrgba' 
+            //md: 'rgba(127, 64, 255, 1)' from [0.5, 0.25, 1, 1]
+            f_assert_equals(
+                'rgba(127.5,63.75,255,1)', 
+                f_s_color_rgba_from_a_n_nor_channelcolorrgba([0.5, 0.25, 1, 1])
+            );
+
+            //readme.md:end
+        }),
+        f_o_test("f_s_color_hex_from_a_n_nor_channelcolorrgba", async () => {
+            //readme.md:start
+            //md: # 'f_s_color_hex_from_a_n_nor_channelcolorrgba' 
+            //md: '#ff7f3f' from '[1,0.5,0.25]'
+            f_assert_equals(
+                '#ff7f3f', 
+                f_s_color_hex_from_a_n_nor_channelcolorrgba([1,0.5,0.25])
+            );
+
+            //readme.md:end
+        }),
+        
+        f_o_test("f_a_n_nor_channelcolorrgba_from_color_hex", async () => {
+            //readme.md:start
+            //md: # 'f_a_n_nor_channelcolorrgba_from_color_hex' 
+            //md:  will add a alpha channel of 1 if not existing!
+            //md: '[1, 0.4980392156862745, 0.24705882352941178, 1]' from '#ff7f3f' 
+            f_assert_equals(
+                [1, 0.4980392156862745, 0.24705882352941178, 1],
+                f_a_n_nor_channelcolorrgba_from_color_hex('#ff7f3f'), 
+            );
+            //readme.md:end
+        }),
+        
+
+
+        
+
 
     ]
 

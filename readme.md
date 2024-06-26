@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Jun 19 2024 23:55:04 GMT+0200 (Central European Summer Time)","n_ts_created":1718834104320} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Jun 26 2024 12:28:39 GMT+0200 (Central European Summer Time)","n_ts_created":1719397719805} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1339,4 +1339,31 @@ add border to text
             // |         |
             // | control |
             // +_________+
+```
+# 'f_s_color_rgba_from_a_n_nor_channelcolorrgba'
+'rgba(127, 64, 255, 1)' from [0.5, 0.25, 1, 1]
+```javascript
+            f_assert_equals(
+                'rgba(127.5,63.75,255,1)', 
+                f_s_color_rgba_from_a_n_nor_channelcolorrgba([0.5, 0.25, 1, 1])
+            );
+
+```
+# 'f_s_color_hex_from_a_n_nor_channelcolorrgba'
+'#ff7f3f' from '[1,0.5,0.25]'
+```javascript
+            f_assert_equals(
+                '#ff7f3f', 
+                f_s_color_hex_from_a_n_nor_channelcolorrgba([1,0.5,0.25])
+            );
+
+```
+# 'f_a_n_nor_channelcolorrgba_from_color_hex'
+will add a alpha channel of 1 if not existing!
+'[1, 0.4980392156862745, 0.24705882352941178, 1]' from '#ff7f3f'
+```javascript
+            f_assert_equals(
+                [1, 0.4980392156862745, 0.24705882352941178, 1],
+                f_a_n_nor_channelcolorrgba_from_color_hex('#ff7f3f'), 
+            );
 ```

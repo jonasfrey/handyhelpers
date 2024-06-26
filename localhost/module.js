@@ -1766,6 +1766,34 @@ let f_s_bordered = function(a_s, s_char_border_top = '_', s_char_border_bottom =
       return a_s2.join('\n')
       
   }
+
+let f_s_color_rgba_from_a_n_nor_channelcolorrgba = function(a_n){
+    let s = `rgba(${a_n.slice(0,3).map(n=>n*255)},${a_n[3]})`
+    console.log(s)
+    return s
+}
+let f_s_color_hex_from_a_n_nor_channelcolorrgba = function(a_n
+){
+    let s = `#${a_n.slice(0,3).map(n=>parseInt(n*255).toString(16).padStart(2,'0')).join('')}`
+    console.log(s)
+    return s
+}
+let f_a_n_nor_channelcolorrgba_from_color_hex = function(
+    s_color_hex
+){
+    s_color_hex = s_color_hex.trim().replaceAll('#', '');
+    let n_col = parseInt(s_color_hex,16);
+    let n_nor_alpha = 1;
+    let n_channels = (s_color_hex.length == 8) ? 4 : 3;
+    let a_n_channelrgba_col_nor = [
+        ((n_col >> (8*(n_channels-1)))& (1<<8)-1)/255, 
+        ((n_col >> (8*(n_channels-2)))& (1<<8)-1)/255, 
+        ((n_col >> (8*(n_channels-3)))& (1<<8)-1)/255, 
+        (n_channels == 4) ? ((n_col >> (8*(n_channels-4))) & (1<<8)-1)/255 : n_nor_alpha
+    ]
+    return a_n_channelrgba_col_nor
+}
+
 export {
     f_o_empty_recursive,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
@@ -1818,6 +1846,9 @@ export {
     f_a_n_trn__relative_to_o_html,
     f_a_n_trn__relative_to_o_html__nor,
     f_a_o_entry__from_s_path, 
-    f_s_bordered
+    f_s_bordered, 
+    f_s_color_rgba_from_a_n_nor_channelcolorrgba,
+    f_s_color_hex_from_a_n_nor_channelcolorrgba, 
+    f_a_n_nor_channelcolorrgba_from_color_hex
 }
 
