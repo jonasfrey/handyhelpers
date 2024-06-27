@@ -41,7 +41,6 @@ import {
     f_o_nvidia_smi_help_info,
     f_o_nvidia_smi_info,
     f_o_number_value__from_s_input, 
-    f_o_canvas_webgl,
     f_s_uuidv4,
     f_b_uuid,
     f_a_n_nor__rgb__from_a_n_nor__hsl,
@@ -62,7 +61,11 @@ import {
     f_s_bordered,
     f_s_color_rgba_from_a_n_nor_channelcolorrgba,
     f_s_color_hex_from_a_n_nor_channelcolorrgba,
-    f_a_n_nor_channelcolorrgba_from_color_hex
+    f_a_n_nor_channelcolorrgba_from_color_hex,
+    f_o_webgl_program,
+    f_resize_canvas_from_o_webgl_program,
+    f_render_from_o_webgl_program,
+    f_delete_o_webgl_program
 } from "./module.js"
 
 
@@ -1013,168 +1016,7 @@ let a_o_test =
         //     )
         //     //readme.md:end
         // }),
-        f_o_test("f_o_canvas_webgl", async () => {
-            //readme.md:start
-            
-            //md: ## create a small canvas with a shader
-            //md: oh how i hate it to write 100+ lines of code 'just' to get a small shader running
-            //md: this function is a shortcut, well it became kind of a big shader but this is an example containing all possibilities so...
-            //md: we can also pass an object which values get passed to the shader
-            if(f_b_denojs()){
-                console.log('f_o_canvas_webgl is not supported yet on denojs just in the browser')
-            }else{
 
-
-                let o_trn_nor_mouse__last = [];// data that should not be passed to the shader can be out of scope 
-                let o_data_for_shader = {
-                    // a simple number value will be unifrom float n_t; in shader
-                    n_t: window.performance.now(), 
-                    n_id_frame: 0,
-                    // normal arrays can only contain up to 4 values
-                    // will be uniform vec2 o_scl; in the shader
-                    o_scl : [window.innerWidth, window.innerHeight],
-                    o_trn_nor_mouse : [0,0],
-                    // 'n_i' variable starting with this prefix will be numbers integers to be specific
-                    // n_i_b the b here only indicates that it should be interpreted as a boolean 
-                    n_i_b_pointer_down: 0, 
-                    n_i_b_mouse_moved_since_last_frame: 0, 
-                    // we can also pass bigger arrays, but then they have to be typed arrays!
-                    // this will be used to show the frames per second statistics 
-                    a_n_f32_ms_diff_history: new Float32Array(window.innerWidth)
-                }
-                let a_n_u8__rgba_image_data = new Uint8Array(
-                    o_data_for_shader.o_scl[0] * o_data_for_shader.o_scl[1] * 4,
-                );
-                let o_canvas = f_o_canvas_webgl(
-                    `#version 300 es
-                    in vec4 a_o_vec_position_vertex;
-                    out vec2 o_trn_nor_pixel;
-                    void main() {
-                        gl_Position = a_o_vec_position_vertex;
-                        o_trn_nor_pixel = (a_o_vec_position_vertex.xy + 1.0) / 2.0; // Convert from clip space to texture coordinates
-                    }`,
-                    `#version 300 es
-                    precision mediump float;
-                    uniform sampler2D a_n_f32_ms_diff_history;
-                    in vec2 o_trn_nor_pixel;
-                    out vec4 fragColor;
-
-                    uniform float n_t;
-                    uniform vec2 o_trn_nor_mouse;
-                    uniform vec2 o_scl;
-                    uniform int n_i_b_pointer_down;
-                    uniform int n_i_b_mouse_moved_since_last_frame;
-            
-                    void main() {
-
-                        vec4 o_n_f32_ms_diff_nor = texture(a_n_f32_ms_diff_history, vec2(o_trn_nor_pixel.x, 0.5));
-                        float n_f32_ms_diff_nor = (o_n_f32_ms_diff_nor[0])/60.;
-
-                        float n_dist_y = pow(1.-abs((o_trn_nor_pixel.y-.5)-n_f32_ms_diff_nor),20.);
-                        n_dist_y*=2.;
-                        fragColor = vec4(vec3(n_dist_y), 1.);
-                        // return;
-                        float n_ratio_x_to_y = o_scl.x / o_scl.y;
-                        vec2 o_factor = vec2(n_ratio_x_to_y, 1.);
-                        if(n_i_b_mouse_moved_since_last_frame == 0){
-                            o_factor*=(sin(n_t*0.001)*.5+.5)*3.+0.1;
-                        }
-                        vec2 o_tpn = (o_trn_nor_pixel);
-                        vec2 o_tnm = (o_trn_nor_mouse);
-                        if(n_i_b_pointer_down == 1){
-                            o_tnm = vec2(
-                                sin(n_t*0.003), 
-                                cos(n_t*0.003)
-                            )*0.2+.5;
-                        }
-                        o_tpn *= o_factor;
-                        o_tnm *= o_factor;
-
-                        float n_dist = length(o_tnm-o_tpn);
-
-                        float n1 = sin(n_dist*3.*3.+n_t*0.009)*.5+.5;
-                        float n2 = sin(n_dist*6.*3.+n_t*0.009)*.5+.5;
-                        float n3 = sin(n_dist*9.*3.+n_t*0.009)*.5+.5;
-
-                        fragColor *= vec4(
-                            pow(abs(n1-.5),1./(3.*o_tnm.x)),
-                            pow(abs(n2-.5),1./(3.*o_tnm.y)), 
-                            pow(abs(n3-.5),1./(3.*o_tnm.x*o_tnm.y)),
-                            1.
-                        );
-                        // fragColor = vec4(vec3(n_dist), 1.);
-                    }
-                    `, 
-                    o_data_for_shader.o_scl[0], 
-                    o_data_for_shader.o_scl[1]
-                )
-                o_canvas?.addEventListener('mousemove', function(o_e){
-                    let o_bounding_rect = o_e.target.getBoundingClientRect();
-                    let n_nor__x = (o_e.clientX - o_bounding_rect.left)/o_bounding_rect.width;
-                    let n_nor__y = (o_e.clientY - o_bounding_rect.top)/o_bounding_rect.height;
-
-                    o_data_for_shader.o_trn_nor_mouse[0] = n_nor__x;
-                    o_data_for_shader.o_trn_nor_mouse[1] = 1.-n_nor__y;
-
-
-                });
-                o_canvas?.addEventListener('pointerdown', function(){
-                    o_data_for_shader.n_i_b_pointer_down = 1
-                })
-                o_canvas?.addEventListener('pointerup', function(){
-                    o_data_for_shader.n_i_b_pointer_down = 0
-                })
-
-                document.body.appendChild(o_canvas);
-
-                let n_ms_last = 0;
-                let n_ms_diff = 0;
-                window.setInterval(
-                    function(){
-                        o_data_for_shader.n_id_frame +=1;
-                        o_data_for_shader.n_t = window.performance.now()
-                        n_ms_diff = Math.abs(n_ms_last - o_data_for_shader.n_t);
-                        n_ms_last = o_data_for_shader.n_t
-                        // console.log(o_data_for_shader)
-                        // const o_ctx = o_canvas.getContext("webgl");
-                        // o_ctx.readPixels(
-                        //   0,
-                        //   0,
-                        //   o_ctx.drawingBufferWidth,
-                        //   o_ctx.drawingBufferHeight,
-                        //   o_ctx.RGBA,
-                        //   o_ctx.UNSIGNED_BYTE,
-                        //   a_n_u8__rgba_image_data,
-                        // );
-                        // console.log('read out image data')
-                        // console.log(a_n_u8__rgba_image_data); // Uint8Array
-                        console.log(n_ms_diff)
-                        o_data_for_shader.a_n_f32_ms_diff_history[(
-                            o_data_for_shader.n_id_frame % o_data_for_shader.a_n_f32_ms_diff_history.length
-                        )] = n_ms_diff
-
-                        o_data_for_shader.n_i_b_mouse_moved_since_last_frame = (
-                            o_data_for_shader.o_trn_nor_mouse[0] == o_trn_nor_mouse__last[0]
-                            &&
-                            o_data_for_shader.o_trn_nor_mouse[1] == o_trn_nor_mouse__last[1]
-                        ) ? 0 : 1
-                        console.log(o_data_for_shader.a_n_f32_ms_diff_history)
-                        // o_canvas.f_render(
-                        //     o_data_for_shader
-                        // )
-                        o_canvas.f_render(
-                            // we can also only pass some props of the object
-                            o_data_for_shader
-                        )
-                        o_trn_nor_mouse__last = [...o_data_for_shader.o_trn_nor_mouse];
-
-                    }, 
-                    1000/60//(60+(Math.random()*10)) // random fps for testing
-                )
-            }
-
-            //readme.md:end
-        }),
 
         f_o_test("f_b_uuid", async () => {
             //readme.md:start
@@ -1667,7 +1509,234 @@ let a_o_test =
         }),
         
 
+        f_o_test("f_o_webgl_program", async () => {
+            //readme.md:start
+            //md: # 'f_o_webgl_program','f_delete_o_webgl_program','f_resize_canvas_from_o_webgl_program','f_render_from_o_webgl_program' 
+            //md: some simple helper functions to create a webgl programm, using GLSL shader code to control the GPU
 
+            // it is our job to create or get the cavas
+            let o_canvas = document.createElement('canvas'); // or document.querySelector("#my_canvas");
+            // just for the demo 
+            // o_canvas.style.position = 'fixed';
+            // o_canvas.style.width = '100vw';
+            // o_canvas.style.height = '100vh';
+            let o_webgl_program = f_o_webgl_program(
+                o_canvas,
+                `#version 300 es
+                in vec4 a_o_vec_position_vertex;
+                void main() {
+                    gl_Position = a_o_vec_position_vertex;
+                }`, 
+                `#version 300 es
+                precision mediump float;
+                out vec4 fragColor;
+                uniform vec2 o_scl_canvas; // is here by default
+                void main() {
+                    // gl_FragCoord is the current pixel coordinate and available by default
+                    vec2 o_trn_pix_nor = (gl_FragCoord.xy - o_scl_canvas.xy*.5) / vec2(min(o_scl_canvas.x, o_scl_canvas.y));
+                    float n = (o_trn_pix_nor.x*o_trn_pix_nor.y);
+                    fragColor = vec4(
+                        sin(n*33.+0.1), 
+                        sin(n*33.+0.0), 
+                        sin(n*33.-0.1), 
+                        1.
+                    );
+                }`
+            )
+            document.body.appendChild(o_canvas);
+            window.addEventListener('resize', ()=>{
+                // this will resize the canvas and also update 'o_scl_canvas'
+                f_resize_canvas_from_o_webgl_program(
+                    o_webgl_program,
+                    window.innerWidth, 
+                    window.innerHeight
+                )
+                f_render_from_o_webgl_program(o_webgl_program);
+
+            });
+
+            // this will render the webgl program once
+            f_render_from_o_webgl_program(o_webgl_program);
+
+            // when finished or if we want to reinitialize a new programm with different GPU code
+            // we have to first delete the program
+            f_delete_o_webgl_program(o_webgl_program)
+
+            // now an example of passing data to a webgl programm will follow
+            // for arrays we have to know the length of them before we compile the shader
+            
+            let a_n = new Float32Array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]);
+            // arrays with vectors are always one dimensional and have to be interpreted multidimensional by
+            // a 'scale dimension'
+            // the arrays are then automatically converted to vec2, vec3, or vec4 inside the GLSL shader code
+
+            // here the dimension would be (2,3) 2 per x axis, 3 per y axis
+            let a_o_vec2 = new Float32Array([ 
+                0.1, 0.2, // vec2(0.1, 0.2) / a_o_vec2[0]
+                0.3, 0.4, // vec2(0.3, 0.4) / a_o_vec2[1]
+                0.5, 0.6  // vec2(0.5, 0.6) / a_o_vec2[2]
+            ]);
+            // (3,5) 
+            let a_o_vec3 = new Float32Array([
+                0.1, 0.2, 0.4, // vec2(0.1, 0.2, 0.4) / a_o_vec3[0]
+                0.3, 0.4, 0.4, // vec2(0.3, 0.4, 0.4) / a_o_vec3[1]
+                0.3, 0.4, 0.4, // vec2(0.3, 0.4, 0.4) / a_o_vec3[2]
+                0.3, 0.4, 0.4, // vec2(0.3, 0.4, 0.4) / a_o_vec3[3]
+                0.3, 0.4, 0.4, // vec2(0.3, 0.4, 0.4) / a_o_vec3[4]
+            ]);
+            // (4,2)
+            let a_o_vec4 = new Float32Array([
+                0.1, 0.2, 0.2, 0.1, // vec2(0.1, 0.2, 0.2, 0.1) / a_o_vec4[0]
+                0.3, 0.4, 0.2, 0.1, // vec2(0.3, 0.4, 0.2, 0.1) / a_o_vec4[1]
+            ]);
+            
+
+            o_webgl_program = f_o_webgl_program(
+                o_canvas,
+                `#version 300 es
+                in vec4 a_o_vec_position_vertex;
+                void main() {
+                    gl_Position = a_o_vec_position_vertex;
+                }`, 
+                `#version 300 es
+                precision mediump float;
+                out vec4 fragColor;
+                uniform vec2 o_scl_canvas;
+                uniform float n_ms_time; // we expect the float variable here in the shader
+                uniform vec2 o_vec2;
+                uniform vec3 o_vec3;
+                uniform vec4 o_vec4;
+                uniform float a_n[${a_n.length}];
+                uniform vec2 a_o_vec2[${a_o_vec2.length/2}];
+                uniform vec2 a_o_vec3[${a_o_vec3.length/3}];
+                uniform vec2 a_o_vec4[${a_o_vec4.length/4}];
+
+                uniform sampler2D o_texture_0;
+                uniform sampler2D o_texture_1;
+
+                void main() {
+                    // gl_FragCoord is the current pixel coordinate and available by default
+                    vec2 o_trn_pix_nor = (gl_FragCoord.xy - o_scl_canvas.xy*.5) / vec2(min(o_scl_canvas.x, o_scl_canvas.y));
+                    vec2 o_trn_pix_nor2 = (o_trn_pix_nor+.5);
+                    o_trn_pix_nor2.y = 1.-o_trn_pix_nor2.y;
+                    float n1 = (o_trn_pix_nor.x*o_trn_pix_nor.y);
+                    float n2 = sin(length(o_trn_pix_nor)*3.);
+                    float n_t = n_ms_time *0.005;
+                    float n = sin(n_t*0.2)*n1 + 1.-cos(n_t*0.2)*n2; 
+
+                    vec4 o_pixel_from_image_0 = texture(o_texture_0, o_trn_pix_nor2+vec2(0.009, -0.08));
+                    vec4 o_pixel_from_image_1 = texture(o_texture_1, o_trn_pix_nor2+vec2(0.009, -0.08));
+
+                    fragColor = (clamp(vec4(
+                        sin(n*33.+0.1+n_t), 
+                        sin(n*33.+0.0+n_t), 
+                        sin(n*33.-0.1+n_t), 
+                        1.
+                    ), 0., 1.)
+                    +(1.-o_pixel_from_image_0))
+                    *(1.-o_pixel_from_image_1);
+                }`
+            )
+            // passing variables
+            
+            let o_ufloc__n_ms_time = o_webgl_program?.o_ctx.getUniformLocation(o_webgl_program?.o_shader__program, 'n_ms_time');
+            o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, 0.5);
+
+            let o_ufloc__o_vec2 = o_webgl_program?.o_ctx.getUniformLocation(o_webgl_program?.o_shader__program, 'o_vec2');
+            o_webgl_program?.o_ctx.uniform2f(o_ufloc__o_vec2, 0.5, 0.5);
+
+            let o_ufloc__o_vec3 = o_webgl_program?.o_ctx.getUniformLocation(o_webgl_program?.o_shader__program, 'o_vec3');
+            o_webgl_program?.o_ctx.uniform3f(o_ufloc__o_vec3, 0.5, 0.5, 0.5);
+
+            let o_ufloc__o_vec4 = o_webgl_program?.o_ctx.getUniformLocation(o_webgl_program?.o_shader__program, 'o_vec4');
+            o_webgl_program?.o_ctx.uniform4f(o_ufloc__o_vec4, 0.5, 0.5, 0.5, 0.5);
+
+            let o_ufloc__a_n = o_webgl_program?.o_ctx.getUniformLocation(o_webgl_program?.o_shader__program, 'a_n');
+            o_webgl_program?.o_ctx.uniform1fv(o_ufloc__a_n, a_n);
+
+            let o_ufloc__a_o_vec2 = o_webgl_program?.o_ctx.getUniformLocation(o_webgl_program?.o_shader__program, 'a_o_vec2');
+            o_webgl_program?.o_ctx.uniform2fv(o_ufloc__a_o_vec2, a_o_vec2);
+
+            let o_ufloc__a_o_vec3 = o_webgl_program?.o_ctx.getUniformLocation(o_webgl_program?.o_shader__program, 'a_o_vec3');
+            o_webgl_program?.o_ctx.uniform3fv(o_ufloc__a_o_vec3, a_o_vec3);
+
+            let o_ufloc__a_o_vec4 = o_webgl_program?.o_ctx.getUniformLocation(o_webgl_program?.o_shader__program, 'a_o_vec4');
+            o_webgl_program?.o_ctx.uniform4fv(o_ufloc__a_o_vec4, a_o_vec4);
+
+            // passing a texture 
+            let f_o_img = async function(s_url){
+                return new Promise((f_res, f_rej)=>{
+                    let o = new Image();
+                    o.onload = function(){
+                        return f_res(o)
+                    }
+                    o.onerror = (o_err)=>{return f_rej(o_err)}
+                    o.src = s_url;
+                })
+            }
+            let o_img_0 = await f_o_img('./deno_logo.jpg')
+            let o_gl = o_webgl_program?.o_ctx;
+            const o_texture_0 = o_gl.createTexture();
+            o_gl.bindTexture(o_gl.TEXTURE_2D, o_texture_0);
+            o_gl.texImage2D(o_gl.TEXTURE_2D, 0, o_gl.RGBA, o_gl.RGBA, o_gl.UNSIGNED_BYTE, o_img_0);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_WRAP_S, o_gl.CLAMP_TO_EDGE);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_WRAP_T, o_gl.CLAMP_TO_EDGE);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_MIN_FILTER, o_gl.LINEAR);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_MAG_FILTER, o_gl.LINEAR);
+    
+            o_gl.bindTexture(o_gl.TEXTURE_2D, null);  // Unbind the texture
+
+            let o_img_1 = await f_o_img('./module_banner.png')
+            const o_texture_1 = o_gl.createTexture();
+            o_gl.bindTexture(o_gl.TEXTURE_2D, o_texture_1);
+            o_gl.texImage2D(o_gl.TEXTURE_2D, 0, o_gl.RGBA, o_gl.RGBA, o_gl.UNSIGNED_BYTE, o_img_1);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_WRAP_S, o_gl.CLAMP_TO_EDGE);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_WRAP_T, o_gl.CLAMP_TO_EDGE);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_MIN_FILTER, o_gl.LINEAR);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_MAG_FILTER, o_gl.LINEAR);
+            o_gl.bindTexture(o_gl.TEXTURE_2D, null);  // Unbind the texture
+
+            document.body.appendChild(o_canvas);
+
+            // this will render the webgl program once
+            f_render_from_o_webgl_program(o_webgl_program);
+
+            // to create an animation we have to render multiple frames 
+            // with a short delay this will create the impression of moving things
+            let n_id_raf = 0;
+            let f_raf = function(){
+
+                o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, window.performance.now());
+
+                // it is important to update each texture binding on each render call
+                let n_idx_texture = 0;
+                o_gl.activeTexture(o_gl.TEXTURE0+n_idx_texture);
+                o_gl.bindTexture(o_gl.TEXTURE_2D, o_texture_0);
+                const o_uloc_o_texture = o_gl.getUniformLocation(o_webgl_program?.o_shader__program, 'o_texture_0');
+                o_gl.uniform1i(o_uloc_o_texture, n_idx_texture);  
+
+
+                n_idx_texture = 1;
+                o_gl.activeTexture(o_gl.TEXTURE0+n_idx_texture);
+                o_gl.bindTexture(o_gl.TEXTURE_2D, o_texture_1);
+                const o_uloc_o_texture_1 = o_gl.getUniformLocation(o_webgl_program?.o_shader__program, 'o_texture_1');
+                o_gl.uniform1i(o_uloc_o_texture_1, n_idx_texture);  
+
+                
+                f_render_from_o_webgl_program(o_webgl_program);
+
+                n_id_raf = requestAnimationFrame(f_raf)
+
+            }
+            n_id_raf = requestAnimationFrame(f_raf)
+
+            // when finished or if we want to reinitialize a new programm with different GPU code
+            // we have to first delete the program
+            f_delete_o_webgl_program(o_webgl_program)
+
+
+            //readme.md:end
+        }),
         
 
 

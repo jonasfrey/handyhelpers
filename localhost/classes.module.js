@@ -627,6 +627,76 @@ class O_meminfo{
 }
 
 
+class O_webgl_program{ 
+    constructor(
+        o_canvas, 
+        o_ctx,
+        a_o_shader_info,
+        o_shader__program, 
+        s_name_a_o_vec_position_vertex, 
+        o_s_name_o_uniform_location,
+        s_context_webgl_version
+    ){
+        this.o_canvas = o_canvas
+        this.o_ctx = o_ctx
+        this.a_o_shader_info = a_o_shader_info
+        this.o_shader__program = o_shader__program
+        this.s_name_a_o_vec_position_vertex = s_name_a_o_vec_position_vertex
+        this.o_s_name_o_uniform_location = o_s_name_o_uniform_location
+        this.s_context_webgl_version = s_context_webgl_version
+    }
+}
+
+class O_webgl_uniform_location{
+    constructor(
+        s_name, 
+        o_uniform_location, 
+        v_data
+    ){
+        this.s_name = s_name
+        this.o_uniform_location = o_uniform_location
+        this.v_data = v_data
+    }
+}
+class O_shader_info{
+    constructor(
+        s_type,
+        s_code_shader,
+        o_shader, 
+        a_o_shader_error, 
+        n_ts_ms_start_compile, 
+        n_ms_duration_compile
+    ){
+        this.s_type = s_type
+        this.s_code_shader = s_code_shader  ,
+        this.o_shader = o_shader  , 
+        this.a_o_shader_error = a_o_shader_error,
+        this.n_ts_ms_start_compile = n_ts_ms_start_compile, 
+        this.n_ms_duration_compile = n_ms_duration_compile  
+    }
+}
+class O_shader_error{
+    constructor(
+        o_shader_info, 
+        s_error_prefix,
+        n_idx,
+        n_line,
+        s_code_content_with_error__quoted,
+        s_error_type,
+        s_line_code_with_error,
+        s_rustlike_error
+    ){
+        this.o_shader_info = o_shader_info, 
+        this.s_error_prefix = s_error_prefix,
+        this.n_idx = n_idx,
+        this.n_line = n_line,
+        this.s_code_content_with_error__quoted = s_code_content_with_error__quoted,
+        this.s_error_type = s_error_type,
+        this.s_line_code_with_error = s_line_code_with_error,
+        this.s_rustlike_error = s_rustlike_error
+    }
+}
+
 export{
     O_cpu_stats,
     O_cpu_core_stats, 
@@ -638,4 +708,8 @@ export{
     O_nvidia_smi_metric,
     O_nvidia_smi_help_info, 
     O_number_value, 
+    O_webgl_program, 
+    O_webgl_uniform_location,
+    O_shader_info, 
+    O_shader_error
 }
