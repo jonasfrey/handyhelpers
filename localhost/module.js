@@ -1248,6 +1248,16 @@ let f_a_n_nor__rgb__from_a_n_nor__hsl = (
 //     ];
 //   };
 
+let f_a_n_rgb_from_n_hue_nor = function(n_hue_nor){
+    let n_colors = 3; 
+    let n_nor = n_hue_nor;//0.0; // 0- 1./3. red, 1./3. - 2./3./ green , 2/3 - 3/3 blue
+    let n_nor2 = n_nor*n_colors;
+    let a_n_interpolated = new Array(n_colors).fill(0);
+    a_n_interpolated[Math.floor(n_nor2)] = (1.-n_nor2%1.0)
+    a_n_interpolated[(Math.floor(n_nor2)+1)%n_colors] = n_nor2%1.0
+    let a_n_rgb = a_n_interpolated.map(n=>{return n*255})
+    return a_n_rgb;
+}
 let f_a_n_nor__hsl__from_a_n_nor__rgb = function(r, g, b) {
   const vmax = Math.max(r, g, b), vmin = Math.min(r, g, b);
   let h, s, l = (vmax + vmin) / 2;
@@ -1816,6 +1826,52 @@ let f_a_n_nor_channelcolorrgba_from_color_hex = function(
         (n_channels == 4) ? ((n_col >> (8*(n_channels-4))) & (1<<8)-1)/255 : n_nor_alpha
     ]
     return a_n_channelrgba_col_nor
+}
+
+let f_s_json_from_google_sheet_api_response = function(s_text){
+    // Use a regex to extract the JSON part from the response
+    const a_s_json = s_text.match(/(?<=\()\{.*\}(?=\))/);
+
+    if (a_s_json && a_s_json[0]) {
+        const s_json = JSON.parse(a_s_json[0]);
+        return s_json
+        // Process jsonData.table.rows to get your data
+    } else {
+        console.error(`Failed to parse JSON data from response: ${s_text.slice(0, 100)}${(s_text.length > 100) ? '...': ''}`);
+    }
+}
+let f_o_data_from_google_sheet = async function(
+    s_sheet_id, 
+    s_name_sheet = 'Sheet1'
+){
+
+    // Construct the URL to fetch data from Sheet2
+    const s_url = `https://docs.google.com/spreadsheets/d/${s_sheet_id}/gviz/tq?tqx=out:json&sheet=${s_name_sheet}`;
+
+    return fetch(s_url)
+        .then(response => response.text())
+        .then(s_text => {
+            let s_json = f_s_json_from_google_sheet_api_response(s_text);
+            return JSON.parse(s_json)
+        })
+        .catch(error => console.error('Error fetching data:', error));
+}
+let f_o_google_sheet_data_from_o_resp_data = function(o_resp_data){
+    let o = o_resp_data.table.rows.map(o_row =>{
+
+        let a_o = o_resp_data.table.cols.map((o_col, n_idx)=>{
+    
+                return {
+                    [o_col.label] : o_row.c[n_idx]
+                }
+            })
+        return Object.assign({}, ...a_o);
+        
+    })
+    return {
+        o: o, 
+        o_resp_data: o_resp_data
+    }
 }
 
 export {
