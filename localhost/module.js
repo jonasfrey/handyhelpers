@@ -1856,7 +1856,7 @@ let f_o_data_from_google_sheet = async function(
         .catch(error => console.error('Error fetching data:', error));
 }
 let f_o_google_sheet_data_from_o_resp_data = function(o_resp_data){
-    let o = o_resp_data.table.rows.map(o_row =>{
+    let a_o = o_resp_data.table.rows.map(o_row =>{
 
         let a_o = o_resp_data.table.cols.map((o_col, n_idx)=>{
     
@@ -1871,7 +1871,7 @@ let f_o_google_sheet_data_from_o_resp_data = function(o_resp_data){
         
     })
     return {
-        o: o, 
+        a_o: a_o, 
         o_resp_data: o_resp_data
     }
 }

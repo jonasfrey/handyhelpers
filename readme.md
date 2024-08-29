@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Aug 29 2024 13:02:18 GMT+0200 (Central European Summer Time)","n_ts_created":1724929338353} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Aug 29 2024 13:07:43 GMT+0200 (Central European Summer Time)","n_ts_created":1724929663911} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1433,8 +1433,9 @@ some simple helper functions to create a webgl programm, using GLSL shader code 
 
 ```
 # 'f_o_data_from_google_sheet'
-will add a alpha channel of 1 if not existing!
-'[1, 0.4980392156862745, 0.24705882352941178, 1]' from '#ff7f3f'
+fetches information from a google sheet by s_id and s_sheet_name (default 'Sheet1')
+also will create an array of object with the first column as the property name
+so that stuff can be accessed by 'o.a_o[20].s_name', for example
 ```javascript
             let s_id = '1Sfywi55sApSeKO-CerfpMPq9R-6luo6-jstjKiLoeU4';
             let s_name_sheet = 'custom_named_sheet'
