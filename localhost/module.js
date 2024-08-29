@@ -1841,7 +1841,6 @@ let f_s_json_from_google_sheet_api_response = function(s_text){
 let f_o_data_from_google_sheet = async function(
     s_sheet_id, 
     s_name_sheet = 'Sheet1', 
-    s_api_key
 ){
 
     // Construct the URL to fetch data from Sheet2
