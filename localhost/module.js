@@ -1840,12 +1840,19 @@ let f_s_json_from_google_sheet_api_response = function(s_text){
 }
 let f_o_data_from_google_sheet = async function(
     s_sheet_id, 
-    s_name_sheet = 'Sheet1'
+    s_name_sheet = 'Sheet1', 
+    s_api_key
 ){
 
     // Construct the URL to fetch data from Sheet2
-    const s_url = `https://docs.google.com/spreadsheets/d/${s_sheet_id}/gviz/tq?tqx=out:json&sheet=${s_name_sheet}`;
-
+    // there are at least two ways to read data from google sheet with api
+    // the first does not need an API key but the sheet has to be 'public anyone can read'
+    // it returns the result as a google visualization string that contains some kind of function call
+    // the json can be extracted and parsed to an object, tihs will contain a .col property which is the header row(s)
+    // that are automatically detected
+    let s_url = `https://docs.google.com/spreadsheets/d/${s_sheet_id}/gviz/tq?tqx=out:json&sheet=${s_name_sheet}&tq=SELECT *`;
+    // s_url = `https://sheets.googleapis.com/v4/spreadsheets/${s_sheet_id}/values/${s_name_sheet}`//?key=${apiKey}` this requires an api key
+    
     return fetch(s_url)
         .then(response => response.text())
         .then(s_text => {
@@ -1859,9 +1866,19 @@ let f_o_google_sheet_data_from_o_resp_data = function(o_resp_data){
     let a_o = o_resp_data.table.rows.map(o_row =>{
 
         let a_o = o_resp_data.table.cols.map((o_col, n_idx)=>{
-    
+                // as long as the data in the row does not match the data format of the row
+                // the row will get counted as a 'header' row and the 'label' the title of the row 
+                // will be a whitespace joined string with the value of each row of the current column
+                // example 
+                // | s_string        | n_number | b_bool |
+                // | str             | num      | bool   |
+                //                                              those first two rows are counted as a 'header' 
+                //                                              so 'table.cols[0].label will be 's_string str'
+                // | tihs is a test  | 1        | TRUE   |  
+                // | antoerh one t.  | 2.2      | false  |  
+                // | some string t   | 1        | TRUE   |  
                 return {
-                    [o_col.label] : Object.assign(
+                    [o_col.label.split(' ').shift()] : Object.assign(
                         {o_sheet_col_info: o_col},
                         o_row.c[n_idx]
                     )

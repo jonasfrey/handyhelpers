@@ -1746,9 +1746,10 @@ let a_o_test =
             //md:  fetches information from a google sheet by s_id and s_sheet_name (default 'Sheet1')
             //md: also will create an array of object with the first column as the property name
             //md: so that stuff can be accessed by 'o.a_o[20].s_name', for example
-            let s_id = '1Sfywi55sApSeKO-CerfpMPq9R-6luo6-jstjKiLoeU4';
+            let s_id = '1Sfywi55sApSeKO-CerfpMPq9R-6luo6-jbtjKiLoeU4';
             let s_name_sheet = 'custom_named_sheet'
             let o_data = await f_o_data_from_google_sheet(s_id, s_name_sheet);
+            console.log(o_data)
             // o_data will be something like 
             let o_data_demo = {
                 "o": [
