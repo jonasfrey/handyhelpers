@@ -65,7 +65,8 @@ import {
     f_o_webgl_program,
     f_resize_canvas_from_o_webgl_program,
     f_render_from_o_webgl_program,
-    f_delete_o_webgl_program
+    f_delete_o_webgl_program,
+    f_o_data_from_google_sheet
 } from "./module.js"
 
 
@@ -1737,6 +1738,101 @@ let a_o_test =
 
             //readme.md:end
         }),
+        
+
+        f_o_test("f_o_data_from_google_sheet", async () => {
+            //readme.md:start
+            //md: # 'f_o_data_from_google_sheet' 
+            //md:  will add a alpha channel of 1 if not existing!
+            //md: '[1, 0.4980392156862745, 0.24705882352941178, 1]' from '#ff7f3f' 
+            let s_id = '1Sfywi55sApSeKO-CerfpMPq9R-6luo6-jstjKiLoeU4';
+            let s_name_sheet = 'custom_named_sheet'
+            let o_data = await f_o_data_from_google_sheet(s_id, s_name_sheet);
+            // o_data will be something like 
+            let o_data_demo = {
+                "o": [
+                    {
+                        "b_bool": {
+                            "o_sheet_col_info": {
+                                "id": "A",
+                                "label": "b_bool",
+                                "type": "boolean"
+                            },
+                            "v": false,
+                            "f": "FALSE"
+                        },
+                        "n_num": {
+                            "o_sheet_col_info": {
+                                "id": "B",
+                                "label": "n_num",
+                                "type": "number",
+                                "pattern": "General"
+                            },
+                            "v": -123,
+                            "f": "-123"
+                        },
+                        "s_string": {
+                            "o_sheet_col_info": {
+                                "id": "C",
+                                "label": "s_string",
+                                "type": "string"
+                            },
+                            "v": "once upon a time..."
+                        }
+                    }
+                ],
+                "o_resp_data": {
+                    "version": "0.6",
+                    "reqId": "0",
+                    "status": "ok",
+                    "sig": "1810700530",
+                    "table": {
+                        "cols": [
+                            {
+                                "id": "A",
+                                "label": "b_bool",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "B",
+                                "label": "n_num",
+                                "type": "number",
+                                "pattern": "General"
+                            },
+                            {
+                                "id": "C",
+                                "label": "s_string",
+                                "type": "string"
+                            }
+                        ],
+                        "rows": [
+                            {
+                                "c": [
+                                    {
+                                        "v": false,
+                                        "f": "FALSE"
+                                    },
+                                    {
+                                        "v": -123,
+                                        "f": "-123"
+                                    },
+                                    {
+                                        "v": "once upon a time..."
+                                    }
+                                ]
+                            }
+                        ],
+                        "parsedNumHeaders": 1
+                    }
+                }
+            }
+            // f_assert_equals(
+            //     [1, 0.4980392156862745, 0.24705882352941178, 1],
+            //     f_o_data_from_google_sheet('#ff7f3f'), 
+            // );
+            //readme.md:end
+        }),
+
         
 
 

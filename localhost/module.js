@@ -1831,10 +1831,8 @@ let f_a_n_nor_channelcolorrgba_from_color_hex = function(
 let f_s_json_from_google_sheet_api_response = function(s_text){
     // Use a regex to extract the JSON part from the response
     const a_s_json = s_text.match(/(?<=\()\{.*\}(?=\))/);
-
     if (a_s_json && a_s_json[0]) {
-        const s_json = JSON.parse(a_s_json[0]);
-        return s_json
+        return a_s_json[0]
         // Process jsonData.table.rows to get your data
     } else {
         console.error(`Failed to parse JSON data from response: ${s_text.slice(0, 100)}${(s_text.length > 100) ? '...': ''}`);
@@ -1852,7 +1850,8 @@ let f_o_data_from_google_sheet = async function(
         .then(response => response.text())
         .then(s_text => {
             let s_json = f_s_json_from_google_sheet_api_response(s_text);
-            return JSON.parse(s_json)
+            let o = JSON.parse(s_json);
+            return f_o_google_sheet_data_from_o_resp_data(o);
         })
         .catch(error => console.error('Error fetching data:', error));
 }
@@ -1862,7 +1861,10 @@ let f_o_google_sheet_data_from_o_resp_data = function(o_resp_data){
         let a_o = o_resp_data.table.cols.map((o_col, n_idx)=>{
     
                 return {
-                    [o_col.label] : o_row.c[n_idx]
+                    [o_col.label] : Object.assign(
+                        {o_sheet_col_info: o_col},
+                        o_row.c[n_idx]
+                    )
                 }
             })
         return Object.assign({}, ...a_o);
@@ -1932,6 +1934,8 @@ export {
     f_o_webgl_program,
     f_delete_o_webgl_program,
     f_resize_canvas_from_o_webgl_program,
-    f_render_from_o_webgl_program
+    f_render_from_o_webgl_program, 
+    f_o_data_from_google_sheet,
+    f_o_google_sheet_data_from_o_resp_data
 }
 
