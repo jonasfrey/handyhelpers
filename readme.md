@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Jun 27 2024 16:15:11 GMT+0200 (Central European Summer Time)","n_ts_created":1719497711387} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Aug 29 2024 13:02:18 GMT+0200 (Central European Summer Time)","n_ts_created":1724929338353} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1431,4 +1431,94 @@ some simple helper functions to create a webgl programm, using GLSL shader code 
             f_delete_o_webgl_program(o_webgl_program)
 
 
+```
+# 'f_o_data_from_google_sheet'
+will add a alpha channel of 1 if not existing!
+'[1, 0.4980392156862745, 0.24705882352941178, 1]' from '#ff7f3f'
+```javascript
+            let s_id = '1Sfywi55sApSeKO-CerfpMPq9R-6luo6-jstjKiLoeU4';
+            let s_name_sheet = 'custom_named_sheet'
+            let o_data = await f_o_data_from_google_sheet(s_id, s_name_sheet);
+            // o_data will be something like 
+            let o_data_demo = {
+                "o": [
+                    {
+                        "b_bool": {
+                            "o_sheet_col_info": {
+                                "id": "A",
+                                "label": "b_bool",
+                                "type": "boolean"
+                            },
+                            "v": false,
+                            "f": "FALSE"
+                        },
+                        "n_num": {
+                            "o_sheet_col_info": {
+                                "id": "B",
+                                "label": "n_num",
+                                "type": "number",
+                                "pattern": "General"
+                            },
+                            "v": -123,
+                            "f": "-123"
+                        },
+                        "s_string": {
+                            "o_sheet_col_info": {
+                                "id": "C",
+                                "label": "s_string",
+                                "type": "string"
+                            },
+                            "v": "once upon a time..."
+                        }
+                    }
+                ],
+                "o_resp_data": {
+                    "version": "0.6",
+                    "reqId": "0",
+                    "status": "ok",
+                    "sig": "1810700530",
+                    "table": {
+                        "cols": [
+                            {
+                                "id": "A",
+                                "label": "b_bool",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "B",
+                                "label": "n_num",
+                                "type": "number",
+                                "pattern": "General"
+                            },
+                            {
+                                "id": "C",
+                                "label": "s_string",
+                                "type": "string"
+                            }
+                        ],
+                        "rows": [
+                            {
+                                "c": [
+                                    {
+                                        "v": false,
+                                        "f": "FALSE"
+                                    },
+                                    {
+                                        "v": -123,
+                                        "f": "-123"
+                                    },
+                                    {
+                                        "v": "once upon a time..."
+                                    }
+                                ]
+                            }
+                        ],
+                        "parsedNumHeaders": 1
+                    }
+                }
+            }
+            // f_assert_equals(
+            //     [1, 0.4980392156862745, 0.24705882352941178, 1],
+            //     f_o_data_from_google_sheet('#ff7f3f'), 
+            // );
 ```
