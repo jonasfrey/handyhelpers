@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Aug 29 2024 13:07:43 GMT+0200 (Central European Summer Time)","n_ts_created":1724929663911} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Aug 29 2024 15:17:13 GMT+0200 (Central European Summer Time)","n_ts_created":1724937433404} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1437,9 +1437,10 @@ fetches information from a google sheet by s_id and s_sheet_name (default 'Sheet
 also will create an array of object with the first column as the property name
 so that stuff can be accessed by 'o.a_o[20].s_name', for example
 ```javascript
-            let s_id = '1Sfywi55sApSeKO-CerfpMPq9R-6luo6-jstjKiLoeU4';
+            let s_id = '1Sfywi55sApSeKO-CerfpMPq9R-6luo6-jbtjKiLoeU4';
             let s_name_sheet = 'custom_named_sheet'
             let o_data = await f_o_data_from_google_sheet(s_id, s_name_sheet);
+            console.log(o_data)
             // o_data will be something like 
             let o_data_demo = {
                 "o": [
