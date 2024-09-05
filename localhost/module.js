@@ -1352,6 +1352,7 @@ let f_a_o_shader_error = function(
             ?.split('\n')
             ?.filter(s=>!a_s_ignore.includes(s))
             ?.map(s=>{
+                console.error(s)
                 let a_s_part = s.split(':').map(s=>s.trim());
                 let s_error_prefix = a_s_part[0];
                 let n_idx = parseInt(a_s_part[1]);
@@ -1436,13 +1437,21 @@ let f_o_webgl_program = function(
     o_canvas, 
     s_code_shader__vertex = '',
     s_code_shader__fragment = '', 
-    s_name_a_o_vec_position_vertex = 'a_o_vec_position_vertex'
+    o_options__getContext = {}
 ){
+    let s_name_a_o_vec_position_vertex = 'a_o_vec_position_vertex' 
     let s_context_webgl_version = 'webgl2';
 
+    
     let o_ctx = o_canvas.getContext(
         s_context_webgl_version,
-        {preserveDrawingBuffer: true} // o_canvas.getContext(...).readPixels(...) will return 0 without this
+        Object.assign(
+            {
+                preserveDrawingBuffer: true, // o_canvas.getContext(...).readPixels(...) will return 0 without this, 
+                // antialias: false // blitFrameBfufer wont work without this, since something with multisampling
+            },
+            o_options__getContext
+        )
     );
     if (!o_ctx) {
         throw Error(`${s_context_webgl_version} is not supported or disabled in this browser.`);
@@ -1495,6 +1504,20 @@ let f_o_webgl_program = function(
     // Set uniform value (vec2)
     o_ctx.uniform2f(o_s_name_o_uniform_location.o_scl_canvas.o_uniform_location, o_canvas.width, o_canvas.height);
 
+    // Set the positions for a square.
+    let a_o_vec_position_vertex = [
+        -1, -1,
+        1, -1,
+       -1,  1,
+        1,  1,
+    ];
+    var o_buffer_position = o_ctx.createBuffer();
+    o_ctx.bindBuffer(o_ctx.ARRAY_BUFFER, o_buffer_position);
+    o_ctx.bufferData(o_ctx.ARRAY_BUFFER, new Float32Array(a_o_vec_position_vertex), o_ctx.STATIC_DRAW);
+    // Tell WebGL how to pull out the positions from the position buffer into the vertexPosition attribute
+    var o_afloc_a_o_vec_position_vertex = o_ctx.getAttribLocation(o_shader__program, s_name_a_o_vec_position_vertex);
+    
+
     // Additional setup for drawing (e.g., buffers, attributes)
     return new O_webgl_program(
         o_canvas, 
@@ -1503,7 +1526,10 @@ let f_o_webgl_program = function(
         o_shader__program, 
         s_name_a_o_vec_position_vertex, 
         o_s_name_o_uniform_location, 
-        s_context_webgl_version
+        s_context_webgl_version, 
+        o_buffer_position,
+        a_o_vec_position_vertex,
+        o_afloc_a_o_vec_position_vertex
     )
 
 }
@@ -1543,32 +1569,11 @@ let f_resize_canvas_from_o_webgl_program = function(
 let f_render_from_o_webgl_program = function(
     o_webgl_program
 ){
-    o_webgl_program.o_ctx = o_webgl_program.o_canvas.getContext(o_webgl_program.s_context_webgl_version)
-    var o_buffer_position = o_webgl_program.o_ctx.createBuffer();
-    o_webgl_program.o_ctx.bindBuffer(o_webgl_program.o_ctx.ARRAY_BUFFER, o_buffer_position);
-
-    // Set the positions for a square.
-    var a_o_vec_position_vertex = [
-        //x    y     z    w 
-        // v1
-        -1.0, -1.0,  0., 1.0,
-        // v2
-        1.0, -1.0,  0., 1.0,
-        // v3
-        -1.0,  1.0,  0., 1.0,
-        // v4
-        1.0,  1.0,  0., 1.0,
-    ];
-    o_webgl_program.o_ctx.bufferData(o_webgl_program.o_ctx.ARRAY_BUFFER, new Float32Array(a_o_vec_position_vertex), o_webgl_program.o_ctx.STATIC_DRAW);
-
-    // Tell WebGL how to pull out the positions from the position buffer into the vertexPosition attribute
-    var o_attribute_location__position = o_webgl_program.o_ctx.getAttribLocation(o_webgl_program.o_shader__program, o_webgl_program.s_name_a_o_vec_position_vertex);
-    o_webgl_program.o_ctx.enableVertexAttribArray(o_attribute_location__position);
-    o_webgl_program.o_ctx.vertexAttribPointer(o_attribute_location__position, 4, o_webgl_program.o_ctx.FLOAT, false, 0, 0);
-
+    o_webgl_program.o_ctx.bindBuffer(o_webgl_program.o_ctx.ARRAY_BUFFER, o_webgl_program.o_buffer_position);
+    o_webgl_program.o_ctx.enableVertexAttribArray(o_webgl_program.o_afloc_a_o_vec_position_vertex);
+    o_webgl_program.o_ctx.vertexAttribPointer(o_webgl_program.o_afloc_a_o_vec_position_vertex, 2, o_webgl_program.o_ctx.FLOAT, false, 0, 0);
     // Draw the square
     o_webgl_program.o_ctx.drawArrays(o_webgl_program.o_ctx.TRIANGLE_STRIP, 0, 4);
-
 }
 
 let f_ddd = function(){

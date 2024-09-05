@@ -635,7 +635,10 @@ class O_webgl_program{
         o_shader__program, 
         s_name_a_o_vec_position_vertex, 
         o_s_name_o_uniform_location,
-        s_context_webgl_version
+        s_context_webgl_version, 
+        o_buffer_position,
+        a_o_vec_position_vertex, 
+        o_afloc_a_o_vec_position_vertex
     ){
         this.o_canvas = o_canvas
         this.o_ctx = o_ctx
@@ -644,6 +647,10 @@ class O_webgl_program{
         this.s_name_a_o_vec_position_vertex = s_name_a_o_vec_position_vertex
         this.o_s_name_o_uniform_location = o_s_name_o_uniform_location
         this.s_context_webgl_version = s_context_webgl_version
+        this.o_buffer_position = o_buffer_position
+        this.a_o_vec_position_vertex = a_o_vec_position_vertex
+        this.o_afloc_a_o_vec_position_vertex = o_afloc_a_o_vec_position_vertex
+
     }
 }
 
