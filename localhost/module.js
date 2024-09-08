@@ -25,58 +25,301 @@ let f_s_number__from_s_input = function(
     // If matches are found, convert them to numbers, otherwise return an empty array
     return matches ? matches.map(Number) : [];
 }
-let f_o_number_value__from_s_input = function(
-    s_input
-){
-    let a_a_n_factor_a_s_name_unit = [
-        [1, ['B', 'Bytes', 'bytes', /*'bytes' this would match all following kilo'bytes', mega'bytes', etc...*/]],
-        [Math.pow(1000, 1), ['KB', 'Kb', 'Kilobytes', 'kilobytes']],
-        [Math.pow(1024, 1), ['KiB', 'Kib', 'Kibibytes', 'kibibytes']],
-        [Math.pow(1000, 2), ['MB', 'Mb', 'Megabytes', 'megabytes']],
-        [Math.pow(1024, 2), ['MiB', 'Mib', 'Mebibytes', 'mebibytes']],
-        [Math.pow(1000, 3), ['GB', 'Gb', 'Gigabytes', 'gigabytes']],
-        [Math.pow(1024, 3), ['GiB', 'Gib', 'Gibibytes', 'gibibytes']],
-        [Math.pow(1000, 4), ['TB', 'Tb', 'Terabytes', 'terabytes']],
-        [Math.pow(1024, 4), ['TiB', 'Tib', 'Tebibytes', 'tebibytes']],
-        [Math.pow(1000, 5), ['PB', 'Pb', 'Petabytes', 'petabytes']],
-        [Math.pow(1024, 5), ['PiB', 'Pib', 'Pebibytes', 'pebibytes']],
-        [Math.pow(1000, 6), ['EB', 'Eb', 'Exabytes', 'exabytes']],
-        [Math.pow(1024, 6), ['EiB', 'Eib', 'Exbibytes', 'exbibytes']],
-        [Math.pow(1000, 7), ['ZB', 'Zb', 'Zettabytes', 'zettabytes']],
-        [Math.pow(1024, 7), ['ZiB', 'Zib', 'Zebibytes', 'zebibytes']],
-        [Math.pow(1000, 8), ['YB', 'Yb', 'Yottabytes', 'yottabytes']],
-        [Math.pow(1024, 8), ['YiB', 'Yib', 'Yobibytes', 'yobibytes']]
-    ]
-    let n_bytes = 0;
-    let n_num = parseFloat(f_s_number__from_s_input(s_input));
 
-    for(let a_n_a_s of a_a_n_factor_a_s_name_unit){
-        if(a_n_a_s[1].find(s=>{
-            return s_input.includes(`${(a_n_a_s[0] == 1) ? ' ': ""}${s}`)
-        })){
-            // a_s_name_unit = a_n_a_s
-            // console.log('asdf')
-            // console.log(n_num)
-            // console.log(a_n_a_s[0])
-            n_bytes = parseInt(n_num*a_n_a_s[0]);
-            break
+let f_o_number_value__from_s_input = function(s_input) {
+    // Remove extraneous characters like square brackets and trim whitespace
+    s_input = s_input.replace(/[\[\]]/g, '').trim();
+
+    // List of known units with their respective base multipliers
+    let a_o = [
+        {
+            n_pow: Math.pow(10, -3),
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['mW', 'MW', 'Milliwatts', 'MilliWatts',], 'Watt',],
+                [['mV', 'MV', 'Millivolts', 'MilliVolts',], 'Volt',],
+                [['mm', 'MM', 'Millimeters', 'MilliMeters',], 'Meter',],
+                [['ml', 'ML', 'Milliliters', 'MilliLiters'], 'Liter',]
+            ]
+        },
+        {
+            n_pow: Math.pow(10, -2),
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['cl', 'CL', 'Centiliters', 'CentiLiters',],'Liter',],
+                [['cm', 'CM', 'Centimeters', 'CentiMeters', ],'Meter',],
+                [['%', 'Percent', ],'Percent'],
+            ]
+        },
+        {
+            n_pow: Math.pow(10, -1),
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['dm', 'DM', 'Decimeters', 'DeciMeters',],'Meter',],
+                [['dl', 'DL', 'Deciliters', 'DeciLiters'],'Liter'],
+            ]
+        },
+        {
+            n_pow: Math.pow(10, 0),
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['W', 'w', 'Watts', 'Watt',], 'Watt',],
+                [['V', 'v', 'Volts', 'Volt',], 'Volt',],
+                [['C', 'c', 'Celsius', '°C',], 'Celsius',],
+                [['F', 'f', 'Fahrenheit', '°F',], 'Fahrenheit',],
+                [['K', 'k', 'Kelvin',], 'Kelvin',],
+                [['M', 'm', 'Meters', ], 'Meter',],
+                [['Hz', 'HZ', 'hZ', 'Hertz'], 'Hertz',],
+            ]
+        },
+        {
+            n_pow: Math.pow(10, 1),
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['daL', 'DAL', 'Decaliters', 'DecaLiters',], 'Liter',],
+                [['daM', 'DAM', 'Decameters', 'DecaMeters'], 'Meter',],
+            ]
+        },
+        {
+            n_pow: Math.pow(10, 2),
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['hL', 'HL', 'Hectoliters', 'HectoLiters',], 'Liter',],
+                [['hM', 'HM', 'Hectometers', 'HectoMeters',], 'Meter', ],
+            ]
+        },
+        {
+            n_pow: Math.pow(10, 3),
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['kHz', 'KHz', 'KHZ', 'Kilohertz', 'KiloHertz',], 'Hertz',],
+                [['km', 'KM', 'Kilometers', 'KiloMeters',], 'Meter',],
+                [['kL', 'KL', 'Kiloliters', 'KiloLiters'], 'Liter',],
+            ]
+        },
+        {
+            n_pow: Math.pow(1000, 1), // 10^3 bytes (Kilobytes)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['kB', 'KB', 'Kilobytes', 'KiloBytes'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1000, 1) * 8, // 10^3 bits (Kilobits)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['Kb', 'kB', 'Kilobits', 'KiloBits'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1024, 1), // 1024^1 bytes (Kibibytes)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['KiB', 'KIB', 'Kibibytes', 'KibiBytes'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1024, 1) * 8, // 1024^1 bits (Kibibits)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['Kib', 'KIB', 'Kibibits', 'KibiBits'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1000, 2), // 10^6 bytes (Megabytes)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['MB', 'Mb', 'Megabytes', 'MegaBytes'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1000, 2) * 8, // 10^6 bits (Megabits)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['Mb', 'MB', 'Megabits', 'MegaBits'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1024, 2), // 1024^2 bytes (Mebibytes)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['MiB', 'MIB', 'Mebibytes', 'MebiBytes'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1024, 2) * 8, // 1024^2 bits (Mebibits)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['Mib', 'MIB', 'Mebibits', 'MebiBits'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1000, 3), // 10^9 bytes (Gigabytes)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['GB', 'Gb', 'Gigabytes', 'GigaBytes'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1000, 3) * 8, // 10^9 bits (Gigabits)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['Gb', 'GB', 'Gigabits', 'GigaBits'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1024, 3), // 1024^3 bytes (Gibibytes)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['GiB', 'GIB', 'Gibibytes', 'GibiBytes'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1024, 3) * 8, // 1024^3 bits (Gibibits)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['Gib', 'GIB', 'Gibibits', 'GibiBits'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(10, 6), // Megahertz
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['MHz', 'MHZ', 'Megahertz', 'MegaHertz'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(10, 9), // Gigahertz
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['GHz', 'GHZ', 'Gigahertz', 'GigaHertz'], 'Byte']
+            ]
+        }, 
+        {
+            n_pow: Math.pow(1000, 4), // 10^12 bytes (Terabytes)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['TB', 'Tb', 'Terabytes', 'TeraBytes'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1000, 4) * 8, // 10^12 bits (Terabits)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['Tb', 'TB', 'Terabits', 'TeraBits'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1024, 4), // 1024^4 bytes (Tebibytes)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['TiB', 'TIB', 'Tebibytes', 'TebiBytes'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1024, 4) * 8, // 1024^4 bits (Tebibits)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['Tib', 'TIB', 'Tebibits', 'TebiBits'], 'Byte']
+            ]
+        }, 
+        {
+            n_pow: Math.pow(1000, 5), // 10^15 bytes (Petabytes)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['PB', 'Pb', 'Petabytes', 'PetaBytes'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1000, 5) * 8, // 10^15 bits (Petabits)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['Pb', 'PB', 'Petabits', 'PetaBits'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1024, 5), // 1024^5 bytes (Pebibytes)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['PiB', 'PIB', 'Pebibytes', 'PebiBytes'], 'Byte']
+            ]
+        },
+        {
+            n_pow: Math.pow(1024, 5) * 8, // 1024^5 bits (Pebibits)
+            a_a_s_name_unit_possible_s_name_unit: [
+                [['Pib', 'PIB', 'Pebibits', 'PebiBits'], 'Byte']
+            ]
         }
+    ];
+        
+  
+    // Extract the number and the unit from the input string using regex
+    // let a_s_match = s_input.match(/^([+-]?\d*\.?\d+)\s*(\w+)/);
+    let a_s_match = s_input.match(/^([+-]?\d*\.?\d+)\s*([^\s]+)/);
+
+    if (!a_s_match) throw new Error(`Invalid input format: ${s_input}`);
+    let [_, s_num, s_unit] = a_s_match;
+    let s_unit_base = '';
+    let o_found = a_o.find(o=>{
+        return o.a_a_s_name_unit_possible_s_name_unit.find(a_s_name_unit_possible_s_name_unit=>{
+            let [a_s_name_unit_possible,s_name_unit] = a_s_name_unit_possible_s_name_unit;
+            // console.log(a_s_name_unit_possible)
+            if(a_s_name_unit_possible.includes(s_unit)){
+                s_unit_base = s_name_unit
+                return true;
+            }
+            return false
+        });
+    });
+    if (!o_found) {
+        throw new Error(`Unknown unit in input string: ${s_input}, possible unit strings are ${a_o.map(o=>o.a_a_s_name_unit_possible_s_name_unit).join(',')}`);
     }
-    // console.log(n_bytes)
-    if(!n_bytes){
-        throw Error(`could not detect unit in input string ${s_input}, available units are ${a_a_n_factor_a_s_name_unit}`)
+    let n_num = parseFloat(s_num);
+    let n_value_base = n_num * o_found.n_pow;
+
+
+    // Conversion factors for SI and binary prefixes
+    const a_o_factor = {
+        nano: Math.pow(10, -9),
+        micro: Math.pow(10, -6),
+        milli: Math.pow(10, -3),
+        centi: Math.pow(10, -2),
+        deci: Math.pow(10, -1),
+        base: 1,
+        kilo: Math.pow(10, 3),
+        mega: Math.pow(10, 6),
+        giga: Math.pow(10, 9),
+        tera: Math.pow(10, 12),
+        peta: Math.pow(10, 15), 
+        kibi: Math.pow(1024, 1),
+        mebi: Math.pow(1024, 2),
+        gibi: Math.pow(1024, 3),
+        tebi: Math.pow(1024, 4),
+        peti: Math.pow(1024, 5)
+    };
+
+
+    // Create the object to hold all unit conversions
+    let o_number_value = new O_number_value(s_input, s_unit_base);
+
+    // Populate the SI units
+    for (let [s_prefix, n_factor] of Object.entries(a_o_factor)) {
+        let s_prop = `n_${s_prefix}`
+        if(s_prefix == 'base'){s_prop = 'n'}
+        let n_res = n_value_base / n_factor
+        o_number_value[s_prop] = n_res
     }
-    let o_number_value = new O_number_value(s_input);
-    for(let a_n_a_s of a_a_n_factor_a_s_name_unit){
-        let n_val = n_bytes / a_n_a_s[0];
-        for(let s of a_n_a_s[1]){
-            o_number_value[`n_${s}`] = n_val
-        }
-    }
-    // console.log(o_number_value)
-    return o_number_value
-    // O_number_value
+
+    return o_number_value;
 }
+let f_a_o_number_value_temperature_from_s_temp = function(
+    s_temp
+){
+    let o_number_value = f_o_number_value__from_s_input(s_temp);
+    let o_number_value_celsius = null;
+    let o_number_value_fahrenheit = null;
+    let o_number_value_kelvin = null;
+    if(o_number_value.s_name_base_unit == 'Celsius'){
+        o_number_value_celsius = o_number_value;
+        let n_fahrenheit = (o_number_value_celsius.n * 9/5) + 32;
+        let n_kelvin = o_number_value_celsius.n + 273.15;
+        o_number_value_fahrenheit = f_o_number_value__from_s_input(`${n_fahrenheit} Fahrenheit`);
+        o_number_value_kelvin = f_o_number_value__from_s_input(`${n_kelvin} Kelvin`);
+    }
+    if(o_number_value.s_name_base_unit == 'Fahrenheit'){
+        o_number_value_fahrenheit = o_number_value;
+        let n_celsius = (o_number_value_fahrenheit.n - 32) * 5/9;
+        let n_kelvin = (o_number_value_fahrenheit.n - 32) * 5/9 + 273.15;
+        o_number_value_celsius = f_o_number_value__from_s_input(`${n_celsius} Celsius`);
+        o_number_value_kelvin = f_o_number_value__from_s_input(`${n_kelvin} Kelvin`);
+    }
+    if(o_number_value.s_name_base_unit == 'Kelvin'){
+        o_number_value_kelvin = o_number_value;
+        let n_celsius = o_number_value_kelvin.n - 273.15;
+        let n_fahrenheit =(o_number_value_kelvin.n - 273.15) * 9/5 + 32;
+        o_number_value_celsius = f_o_number_value__from_s_input(`${n_celsius} Celsius`);
+        o_number_value_fahrenheit = f_o_number_value__from_s_input(`${n_fahrenheit} Fahrenheit`);
+    }
+
+    return [
+        o_number_value_kelvin,
+        o_number_value_celsius,
+        o_number_value_fahrenheit
+    ]
+}
+
 let f_a_a_v__from_a_v__f_b = function(
     a_v, 
     f_b
@@ -1935,6 +2178,7 @@ export {
     f_o_nvidia_smi_help_info, 
     f_o_nvidia_smi_info, 
     f_o_number_value__from_s_input,
+    f_a_o_number_value_temperature_from_s_temp,
     f_v_at_n_idx_relative, 
     f_v_s_type__from_value, 
     f_v_s_type_from_array,

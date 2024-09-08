@@ -29,96 +29,47 @@ class O_nvidia_smi_help_info{
 }
 class O_number_value{
     constructor(
-        s_input, 
-        n_B,
-        n_Bytes,
-        n_KB,
-        n_Kilobytes,
-        n_KiB,
-        n_Kibibytes,
-        n_MB,
-        n_Megabytes,
-        n_MiB,
-        n_Mebibytes,
-        n_GB,
-        n_Gigabytes,
-        n_GiB,
-        n_Gibibytes,
-        n_TB,
-        n_Terabytes,
-        n_TiB,
-        n_Tebibytes,
-        n_PB,
-        n_Petabytes,
-        n_PiB,
-        n_Pebibytes,
-        n_EB,
-        n_Exabytes,
-        n_EiB,
-        n_Exbibytes,
-        n_ZB,
-        n_Zettabytes,
-        n_ZiB,
-        n_Zebibytes,
-        n_YB,
-        n_Yottabytes,
-        n_YiB,
-        n_Yobibytes,
+        s_original, 
+        s_name_base_unit, 
+        n_nano,
+        n_micro, 
+        n_milli, 
+        n_centi, 
+        n_deci, 
+        n, 
+        n_kilo, 
+        n_kibi,
+        n_mega, 
+        n_mebi, 
+        n_giga,
+        n_gibi, 
+        n_tera, 
+        n_tebi, 
+        n_peta, 
+        n_peti
+
     ){
-        this.s_input = s_input
-        //B: Bytes
-        this.n_B = n_B;
-        this.n_Bytes = n_Bytes; 
-        //KB: Kilobytes (1 KB = 1,000 Bytes)
-        this.n_KB = n_KB;
-        this.n_Kilobytes = n_Kilobytes; 
-        //KiB: Kibibytes (1 KiB = 1,024 Bytes)
-        this.n_KiB = n_KiB;
-        this.n_Kibibytes = n_Kibibytes; 
-        //MB: Megabytes (1 MB = 1,000 KB)
-        this.n_MB = n_MB;
-        this.n_Megabytes = n_Megabytes; 
-        //MiB: Mebibytes (1 MiB = 1,024 KiB)
-        this.n_MiB = n_MiB;
-        this.n_Mebibytes = n_Mebibytes; 
-        //GB: Gigabytes (1 GB = 1,000 MB)
-        this.n_GB = n_GB;
-        this.n_Gigabytes = n_Gigabytes; 
-        //GiB: Gibibytes (1 GiB = 1,024 MiB)
-        this.n_GiB = n_GiB;
-        this.n_Gibibytes = n_Gibibytes; 
-        //TB: Terabytes (1 TB = 1,000 GB)
-        this.n_TB = n_TB;
-        this.n_Terabytes = n_Terabytes; 
-        //TiB: Tebibytes (1 TiB = 1,024 GiB)
-        this.n_TiB = n_TiB;
-        this.n_Tebibytes = n_Tebibytes; 
-        //PB: Petabytes (1 PB = 1,000 TB)
-        this.n_PB = n_PB;
-        this.n_Petabytes = n_Petabytes; 
-        //PiB: Pebibytes (1 PiB = 1,024 TiB)
-        this.n_PiB = n_PiB;
-        this.n_Pebibytes = n_Pebibytes; 
-        //EB: Exabytes (1 EB = 1,000 PB)
-        this.n_EB = n_EB;
-        this.n_Exabytes = n_Exabytes; 
-        //EiB: Exbibytes (1 EiB = 1,024 PiB)
-        this.n_EiB = n_EiB;
-        this.n_Exbibytes = n_Exbibytes; 
-        //ZB: Zettabytes (1 ZB = 1,000 EB)
-        this.n_ZB = n_ZB;
-        this.n_Zettabytes = n_Zettabytes; 
-        //ZiB: Zebibytes (1 ZiB = 1,024 EiB)
-        this.n_ZiB = n_ZiB;
-        this.n_Zebibytes = n_Zebibytes; 
-        //YB: Yottabytes (1 YB = 1,000 ZB)
-        this.n_YB = n_YB;
-        this.n_Yottabytes = n_Yottabytes; 
-        //YiB: Yobibytes (1 YiB = 1,024 ZiB)
-        this.n_YiB = n_YiB;
-        this.n_Yobibytes = n_Yobibytes; 
+        this.s_original = s_original, 
+        this.s_name_base_unit = s_name_base_unit, 
+        this.n_nano = n_nano,
+        this.n_micro = n_micro, 
+        this.n_milli = n_milli, 
+        this.n_centi = n_centi, 
+        this.n_deci = n_deci, 
+        this.n = n, 
+        this.n_kilo = n_kilo, 
+        this.n_kibi = n_kibi,
+        this.n_mega = n_mega, 
+        this.n_mebi = n_mebi, 
+        this.n_giga = n_giga,
+        this.n_gibi = n_gibi, 
+        this.n_tera = n_tera, 
+        this.n_tebi = n_tebi, 
+        this.n_peta = n_peta, 
+        this.n_peti = n_peti
     }
 }
+
 class O_cpu_stats__diff{
     constructor(
         o_cpu_stats_1, 

@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Aug 29 2024 15:17:13 GMT+0200 (Central European Summer Time)","n_ts_created":1724937433404} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sun Sep 08 2024 23:49:19 GMT+0200 (Central European Summer Time)","n_ts_created":1725832159526} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -769,21 +769,120 @@ to get all available properties
 
             // we can also parse the value 
             // console.log(o_nvidia_smi_info['o_memory.used'])
-        //     //md: #f_o_number_value__from_s_input
-        //     let o = f_o_number_value__from_s_input(
-        //         "123.443 [Mb]"
-        //     );
-        //     f_assert_equals(
-        //         o.n_bytes, 
-        //         123443000
-        //     )
-        //     o = f_o_number_value__from_s_input(
-        //         " 908 MiB "
-        //     );
-        //     f_assert_equals(
-        //         o.n_Mebibytes, 
-        //         908
-        //     )
+```
+#f_o_number_value__from_s_input
+```javascript
+            // Test Case: Megabits (Mb) to bytes
+            let o = f_o_number_value__from_s_input("123.443 [Mb]");
+            f_assert_equals(o.n, 123443000);  // Megabits to bits
+        
+            // Test Case: Mebibytes (MiB) to mebibytes
+            o = f_o_number_value__from_s_input(" 908 MiB ");
+            f_assert_equals(o.n_mebi, 908);
+        
+            // Test Case: Millivolts (mV)
+            o = f_o_number_value__from_s_input("1.23 mV");
+            f_assert_equals(o.n_milli, 1.23);
+            f_assert_equals(o.n_micro, 1230);
+        
+            // Test Case: Megahertz (MHz) to Hertz and Gigahertz
+            o = f_o_number_value__from_s_input("204.20 MHz");
+            f_assert_equals(o.n_mega, 204.2);
+            f_assert_equals(o.n, 204200000);  // Hz (base unit)
+            f_assert_equals(o.n_giga, 0.2042);
+        
+            // Test Case: Gigabytes (GB) to bytes, megabytes, and gigabytes
+            o = f_o_number_value__from_s_input("512 GB");
+            f_assert_equals(o.n_giga, 512);
+            f_assert_equals(o.n_mega, 512000);
+            f_assert_equals(o.n, 512000000000);  // Bytes (base unit)
+        
+            // Test Case: Kilobytes (KB)
+            o = f_o_number_value__from_s_input("120.5 KB");
+            f_assert_equals(o.n_kilo, 120.5);
+            f_assert_equals(o.n, 120500);  // Bytes
+        
+            // Test Case: Gigahertz (GHz) to Hertz and Megahertz
+            o = f_o_number_value__from_s_input("3.8 GHz");
+            f_assert_equals(o.n_giga, 3.8);
+            f_assert_equals(o.n_mega, 3800);
+            f_assert_equals(o.n, 3800000000);  // Hz
+        
+            // Test Case: Volts (V)
+            o = f_o_number_value__from_s_input("5 V");
+            f_assert_equals(o.n, 5);  // Volts (base unit)
+            f_assert_equals(o.n_milli, 5000);  // Millivolts
+        
+            // Test Case: Watts (W)
+            o = f_o_number_value__from_s_input("60 W");
+            f_assert_equals(o.n, 60);  // Watts (base unit)
+            f_assert_equals(o.n_milli, 60000);  // Milliwatts
+        
+            // Test Case: Celsius (C)
+            o = f_o_number_value__from_s_input("37 C");
+            f_assert_equals(o.n, 37);  // Celsius (base unit)
+        
+            // Test Case: Percentage (%)
+            o = f_o_number_value__from_s_input("85 %");
+            f_assert_equals(o.n, 0.85);  // Percent (base unit)
+        
+            // Test Case: Binary Units (GiB)
+            o = f_o_number_value__from_s_input("16 GiB");
+            f_assert_equals(o.n_gibi, 16);
+            f_assert_equals(o.n_mega, 17179.869184);  // Converting to megabytes (MB)
+            f_assert_equals(o.n, 17179869184);  // Bytes (base unit)
+        
+            // Test Case: Terabytes (TB)
+            o = f_o_number_value__from_s_input("1.5 TB");
+            f_assert_equals(o.n_tera, 1.5);
+            f_assert_equals(o.n_giga, 1500);
+            f_assert_equals(o.n, 1500000000000);  // Bytes (base unit)
+        
+```
+#f_a_o_number_value_temperature_from_s_temp
+detects the temperature value from the string, (has to be Kelvin, Celcius , or Fahrenheit)
+and then converts it to all other temperature values
+```javascript
+            // Test Case 1: Celsius to Fahrenheit and Kelvin
+            let a_o = f_a_o_number_value_temperature_from_s_temp("10.23 Celsius");
+            // console.log(a_o)
+            let o_fahrenheit = a_o.find(o => o.s_name_base_unit === 'Fahrenheit');
+            let o_kelvin = a_o.find(o => o.s_name_base_unit === 'Kelvin');
+            f_assert_equals(o_fahrenheit.n.toFixed(2), '50.41');
+            f_assert_equals(o_kelvin.n.toFixed(2), '283.38');
+            
+            // Test Case 2: Fahrenheit to Celsius and Kelvin
+            a_o = f_a_o_number_value_temperature_from_s_temp("50 Fahrenheit");
+            // console.log(a_o)
+            let o_celsius = a_o.find(o => o.s_name_base_unit === 'Celsius');
+            o_kelvin = a_o.find(o => o.s_name_base_unit === 'Kelvin');
+            f_assert_equals(o_celsius.n.toFixed(2), '10.00');
+            f_assert_equals(o_kelvin.n.toFixed(2), '283.15');
+
+            // Test Case 3: Kelvin to Celsius and Fahrenheit
+            a_o = f_a_o_number_value_temperature_from_s_temp("300 Kelvin");
+            // console.log(a_o)
+            o_celsius = a_o.find(o => o.s_name_base_unit === 'Celsius');
+            o_fahrenheit = a_o.find(o => o.s_name_base_unit === 'Fahrenheit');
+            f_assert_equals(o_celsius.n.toFixed(2), '26.85');
+            f_assert_equals(o_fahrenheit.n.toFixed(2), '80.33');
+
+            // Test Case 4: Negative Celsius to Fahrenheit and Kelvin
+            a_o = f_a_o_number_value_temperature_from_s_temp("-10 Celsius");
+            // console.log(a_o)
+            o_fahrenheit = a_o.find(o => o.s_name_base_unit === 'Fahrenheit');
+            o_kelvin = a_o.find(o => o.s_name_base_unit === 'Kelvin');
+            f_assert_equals(o_fahrenheit.n.toFixed(2), '14.00');
+            f_assert_equals(o_kelvin.n.toFixed(2), '263.15');
+
+            // Test Case 5: Kelvin to Celsius and Fahrenheit (Absolute Zero)
+            a_o = f_a_o_number_value_temperature_from_s_temp("0 Kelvin");
+            // console.log(a_o)
+            o_celsius = a_o.find(o => o.s_name_base_unit === 'Celsius');
+            o_fahrenheit = a_o.find(o => o.s_name_base_unit === 'Fahrenheit');
+            f_assert_equals(o_celsius.n.toFixed(2), '-273.15');
+            f_assert_equals(o_fahrenheit.n.toFixed(2), '-459.67');
+        
 
             f_assert_equals(
                 (
@@ -1400,7 +1499,22 @@ some simple helper functions to create a webgl programm, using GLSL shader code 
             // to create an animation we have to render multiple frames 
             // with a short delay this will create the impression of moving things
             let n_id_raf = 0;
-            let f_raf = function(){
+            let n_ms_last = 0;
+            let n_ms_sum = 0;
+            let n_ms_count = 0;
+            let f_raf = function(n_ms){
+
+                // ------------- performance measuring: start
+                let n_ms_delta = n_ms-n_ms_last;
+                n_ms_last = n_ms
+                n_ms_sum = parseFloat(n_ms_sum) + parseFloat(n_ms_delta);
+                n_ms_count+=1;
+                if(n_ms_sum > 1000){
+                    console.log(`n_fps ${1000/(n_ms_sum/n_ms_count)}`)
+                    n_ms_sum= 0;
+                    n_ms_count= 0;
+                }
+                // ------------- performance measuring: end
 
                 o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, window.performance.now());
 
@@ -1422,10 +1536,273 @@ some simple helper functions to create a webgl programm, using GLSL shader code 
                 f_render_from_o_webgl_program(o_webgl_program);
 
                 n_id_raf = requestAnimationFrame(f_raf)
+                
 
             }
             n_id_raf = requestAnimationFrame(f_raf)
 
+            // when finished or if we want to reinitialize a new programm with different GPU code
+            // we have to first delete the program
+            f_delete_o_webgl_program(o_webgl_program)
+
+
+```
+# 'f_o_webgl_program'
+backbuffer, last frame, automata, texture, blit, fbo
+this is just a boilerplate and an example of how to access data from the last frame
+which is needed for an automata for example
+```javascript
+            // it is our job to create or get the cavas
+            let o_canvas = document.createElement('canvas'); // or document.querySelector("#my_canvas");
+            // just for the demo 
+            // o_canvas.style.position = 'fixed';
+            // o_canvas.style.width = '100vw';
+            // o_canvas.style.height = '100vh';
+            let o_webgl_program = f_o_webgl_program(
+                o_canvas,
+                `#version 300 es
+                in vec4 a_o_vec_position_vertex;
+                void main() {
+                    gl_Position = a_o_vec_position_vertex;
+                }`, 
+                `#version 300 es
+                precision mediump float;
+                out vec4 fragColor;
+                uniform vec2 o_scl_canvas;
+                uniform float n_ms_time;
+                uniform sampler2D o_texture_last_frame;
+                uniform sampler2D o_texture_0;
+                uniform sampler2D o_texture_1;
+
+                void main() {
+                    // gl_FragCoord is the current pixel coordinate and available by default
+                    
+                    vec2 o_trn_pix_nor = (gl_FragCoord.xy - o_scl_canvas.xy*.5) / vec2(min(o_scl_canvas.x, o_scl_canvas.y));
+                    vec2 o_trn_pix_nor2 = (o_trn_pix_nor+.5);
+                    o_trn_pix_nor2.y = 1.-o_trn_pix_nor2.y;
+                    float n1 = (o_trn_pix_nor.x*o_trn_pix_nor.y);
+                    float n2 = sin(length(o_trn_pix_nor)*3.);
+                    float n_t = n_ms_time *0.005;
+                    float n = sin(n_t*0.2)*n1 + 1.-cos(n_t*0.2)*n2; 
+                    vec4 o_pixel_from_image_0 = texture(o_texture_0, o_trn_pix_nor2+vec2(0.009, -0.08));
+                    vec4 o_pixel_from_image_1 = texture(o_texture_1, o_trn_pix_nor2+vec2(0.009, -0.08));
+                    vec4 o_last = texelFetch(o_texture_last_frame, ivec2(gl_FragCoord.xy), 0);
+                    if(n_ms_time < 1000.){
+                        fragColor = vec4(o_last.rgb, 1.0);
+                        return;
+                    }
+
+                    n = o_last.r;
+                    n = (n > 0.5 ) ? 0. : 1.;
+                    // n-= 0.1;
+                    // n = gl_FragCoord.x/o_scl_canvas.x;
+                
+                    ivec2 texelCoord = ivec2(gl_FragCoord.xy); // Convert fragment coordinates to integer texel coordinates
+                
+                    // Define a 3x3 kernel
+                    int kernel[9] = int[9](-1, 0, 1,  -1, 0, 1,  -1, 0, 1);
+                    
+                    // Sum the values of the neighboring pixels (excluding the center pixel)
+                    float sum = 0.0;
+                    float n_count = 0.;
+                    for (int i = -3; i <= 3; i++) {
+                        for (int j = -3; j <= 3; j++) {
+                            ivec2 neighborCoord = texelCoord + ivec2(i, j);
+                            vec4 neighbor = texelFetch(o_texture_last_frame, neighborCoord, 0);
+                            if (i != 0 || j != 0) { // Exclude the center pixel
+                                n_count+=1.;
+                                sum += neighbor.r; // Assuming the "state" is in the red channel
+                            }
+                        }
+                    }
+                    float n_nor = sum/n_count;
+
+                    float n_diff = (n_nor-.5);
+                    float n_sign = sign(n_diff);
+                    float n_diff_abs = abs(n_diff);
+                    if(n_nor > 0.501){
+                        n = n - 0.49;
+                    }else{
+                        n = n + 0.49;
+                    }
+                    fragColor = vec4(n, n, n, 1.0);
+
+                }
+                `, 
+                {
+                    antialias: false // blitFrameBfufer wont work without this, since something with multisampling
+                },
+            );
+            o_webgl_program?.o_ctx.blitFramebuffer.bind(o_webgl_program?.o_ctx);
+
+            document.body.appendChild(o_canvas);
+
+            const a_o_texture = [o_webgl_program?.o_ctx.createTexture(), o_webgl_program?.o_ctx.createTexture()];
+            const a_o_framebuffer = [o_webgl_program?.o_ctx.createFramebuffer(), o_webgl_program?.o_ctx.createFramebuffer()];
+            let n_idx_a_o_framebuffer = 0;
+
+            let  f_setup_texture_and_framebuffer = function(o_texture, o_framebuffer) {
+                o_webgl_program?.o_ctx.bindTexture(o_webgl_program?.o_ctx.TEXTURE_2D, o_texture);
+    
+                const a_n_u8 = new Uint8Array(o_webgl_program?.o_canvas.width * o_webgl_program?.o_canvas.height * 4); // 4 for RGBA
+                o_webgl_program?.o_ctx.texImage2D(o_webgl_program?.o_ctx.TEXTURE_2D, 0, o_webgl_program?.o_ctx.RGBA, o_webgl_program?.o_canvas.width, o_webgl_program?.o_canvas.height, 0, o_webgl_program?.o_ctx.RGBA, o_webgl_program?.o_ctx.UNSIGNED_BYTE, a_n_u8);
+    
+                o_webgl_program?.o_ctx.texParameteri(o_webgl_program?.o_ctx.TEXTURE_2D, o_webgl_program?.o_ctx.TEXTURE_MIN_FILTER, o_webgl_program?.o_ctx.NEAREST);
+                o_webgl_program?.o_ctx.texParameteri(o_webgl_program?.o_ctx.TEXTURE_2D, o_webgl_program?.o_ctx.TEXTURE_MAG_FILTER, o_webgl_program?.o_ctx.NEAREST);
+                o_webgl_program?.o_ctx.texParameteri(o_webgl_program?.o_ctx.TEXTURE_2D, o_webgl_program?.o_ctx.TEXTURE_WRAP_S, o_webgl_program?.o_ctx.CLAMP_TO_EDGE);
+                o_webgl_program?.o_ctx.texParameteri(o_webgl_program?.o_ctx.TEXTURE_2D, o_webgl_program?.o_ctx.TEXTURE_WRAP_T, o_webgl_program?.o_ctx.CLAMP_TO_EDGE);
+                
+                o_webgl_program?.o_ctx.bindFramebuffer(o_webgl_program?.o_ctx.FRAMEBUFFER, o_framebuffer);
+                o_webgl_program?.o_ctx.framebufferTexture2D(o_webgl_program?.o_ctx.FRAMEBUFFER, o_webgl_program?.o_ctx.COLOR_ATTACHMENT0, o_webgl_program?.o_ctx.TEXTURE_2D, o_texture, 0);
+            }
+            let f_randomize_texture_data = function(o_texture) {
+                const a_n_u8_random = new Uint8Array(o_webgl_program?.o_canvas.width * o_webgl_program?.o_canvas.height * 4);
+                for (let i = 0; i < a_n_u8_random.length; i += 4) {
+                    const value = Math.random() > 0.5 ? 255 : 0;
+                    a_n_u8_random[i] = value;     // R
+                    a_n_u8_random[i + 1] = value; // G
+                    a_n_u8_random[i + 2] = value; // B
+                    a_n_u8_random[i + 3] = 255;   // A
+                }
+                o_webgl_program?.o_ctx.bindTexture(o_webgl_program?.o_ctx.TEXTURE_2D, o_texture);
+                o_webgl_program?.o_ctx.texImage2D(o_webgl_program?.o_ctx.TEXTURE_2D, 0, o_webgl_program?.o_ctx.RGBA, o_webgl_program?.o_canvas.width, o_webgl_program?.o_canvas.height, 0, o_webgl_program?.o_ctx.RGBA, o_webgl_program?.o_ctx.UNSIGNED_BYTE, a_n_u8_random);
+            }
+
+
+            let f_resize = function(){
+                // this will resize the canvas and also update 'o_scl_canvas'
+                f_resize_canvas_from_o_webgl_program(
+                    o_webgl_program,
+                    window.innerWidth, 
+                    window.innerHeight
+                )
+                f_setup_texture_and_framebuffer(a_o_texture[0], a_o_framebuffer[0]);
+                f_setup_texture_and_framebuffer(a_o_texture[1], a_o_framebuffer[1]);
+                f_randomize_texture_data(a_o_texture[0]);
+                f_randomize_texture_data(a_o_texture[1]);
+
+            }
+            window.addEventListener('resize', ()=>{
+                f_resize();
+                f_render_from_o_webgl_program_custom(o_webgl_program);
+
+            });
+
+            f_resize()
+            // passing a texture 
+            let f_o_img = async function(s_url){
+                return new Promise((f_res, f_rej)=>{
+                    let o = new Image();
+                    o.onload = function(){
+                        return f_res(o)
+                    }
+                    o.onerror = (o_err)=>{return f_rej(o_err)}
+                    o.src = s_url;
+                })
+            }
+            let o_img_0 = await f_o_img('./deno_logo.jpg')
+            let o_gl = o_webgl_program?.o_ctx;
+            const o_texture_0 = o_gl.createTexture();
+            o_gl.bindTexture(o_gl.TEXTURE_2D, o_texture_0);
+            o_gl.texImage2D(o_gl.TEXTURE_2D, 0, o_gl.RGBA, o_gl.RGBA, o_gl.UNSIGNED_BYTE, o_img_0);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_WRAP_S, o_gl.CLAMP_TO_EDGE);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_WRAP_T, o_gl.CLAMP_TO_EDGE);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_MIN_FILTER, o_gl.LINEAR);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_MAG_FILTER, o_gl.LINEAR);
+    
+            o_gl.bindTexture(o_gl.TEXTURE_2D, null);  // Unbind the texture
+
+            let o_img_1 = await f_o_img('./module_banner.png')
+            const o_texture_1 = o_gl.createTexture();
+            o_gl.bindTexture(o_gl.TEXTURE_2D, o_texture_1);
+            o_gl.texImage2D(o_gl.TEXTURE_2D, 0, o_gl.RGBA, o_gl.RGBA, o_gl.UNSIGNED_BYTE, o_img_1);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_WRAP_S, o_gl.CLAMP_TO_EDGE);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_WRAP_T, o_gl.CLAMP_TO_EDGE);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_MIN_FILTER, o_gl.LINEAR);
+            o_gl.texParameteri(o_gl.TEXTURE_2D, o_gl.TEXTURE_MAG_FILTER, o_gl.LINEAR);
+            o_gl.bindTexture(o_gl.TEXTURE_2D, null);  // Unbind the texture
+
+            document.body.appendChild(o_canvas);
+
+            let f_render_from_o_webgl_program_custom = function(
+                o_webgl_program
+            ){
+
+                let n_idx_a_o_framebuffer_next = (n_idx_a_o_framebuffer+1)%a_o_texture.length
+                // Render to the offscreen framebuffer
+                o_webgl_program.o_ctx.bindFramebuffer(o_webgl_program.o_ctx.FRAMEBUFFER, a_o_framebuffer[n_idx_a_o_framebuffer_next]);
+
+
+                o_webgl_program.o_ctx.bindBuffer(o_webgl_program.o_ctx.ARRAY_BUFFER, o_webgl_program.o_buffer_position);
+                o_webgl_program.o_ctx.enableVertexAttribArray(o_webgl_program.o_afloc_a_o_vec_position_vertex);
+                o_webgl_program.o_ctx.vertexAttribPointer(o_webgl_program.o_afloc_a_o_vec_position_vertex, 2, o_webgl_program.o_ctx.FLOAT, false, 0, 0);
+                
+
+                let n_idx_texture = 0;
+                o_webgl_program.o_ctx.activeTexture(o_webgl_program.o_ctx.TEXTURE0+n_idx_texture);
+                o_webgl_program.o_ctx.bindTexture(o_webgl_program.o_ctx.TEXTURE_2D, a_o_texture[n_idx_a_o_framebuffer]);
+                const o_ufloc_o_texture_0 = o_gl.getUniformLocation(o_webgl_program?.o_shader__program, 'o_texture_last_frame');
+                o_gl.uniform1i(o_ufloc_o_texture_0, n_idx_texture);  
+
+                n_idx_texture = 1
+                o_gl.activeTexture(o_gl.TEXTURE0+n_idx_texture);
+                o_gl.bindTexture(o_gl.TEXTURE_2D, o_texture_0);
+                const o_ufloc_o_texture_1 = o_gl.getUniformLocation(o_webgl_program?.o_shader__program, 'o_texture_0');
+                o_gl.uniform1i(o_ufloc_o_texture_1, n_idx_texture);  
+                n_idx_texture = 2
+                o_gl.activeTexture(o_gl.TEXTURE0+n_idx_texture);
+                o_gl.bindTexture(o_gl.TEXTURE_2D, o_texture_1);
+                const o_uloc_o_texture_2 = o_gl.getUniformLocation(o_webgl_program?.o_shader__program, 'o_texture_1');
+                o_gl.uniform1i(o_uloc_o_texture_2, n_idx_texture);  
+
+
+                // Render the cellular automata step to the offscreen framebuffer
+                o_webgl_program.o_ctx.drawArrays(o_webgl_program.o_ctx.TRIANGLE_STRIP, 0, 4);
+
+                // Now copy the framebuffer to the canvas using blitFramebuffer (for WebGL 2.0)
+                // Use WebGL2's blitFramebuffer to efficiently copy the framebuffer
+                o_webgl_program.o_ctx.bindFramebuffer(o_webgl_program.o_ctx.READ_FRAMEBUFFER, a_o_framebuffer[n_idx_a_o_framebuffer_next]);
+                o_webgl_program.o_ctx.bindFramebuffer(o_webgl_program.o_ctx.DRAW_FRAMEBUFFER, null); // Canvas framebuffer
+                o_webgl_program.o_ctx.blitFramebuffer(
+                    0, 0, o_webgl_program.o_canvas.width, o_webgl_program.o_canvas.height,
+                    0, 0, o_webgl_program.o_canvas.width, o_webgl_program.o_canvas.height,
+                    o_webgl_program.o_ctx.COLOR_BUFFER_BIT, o_webgl_program.o_ctx.NEAREST
+                );
+                n_idx_a_o_framebuffer = n_idx_a_o_framebuffer_next
+
+
+            }
+            let o_ufloc__n_ms_time = o_webgl_program?.o_ctx.getUniformLocation(o_webgl_program?.o_shader__program, 'n_ms_time');
+            o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, 0.5);
+
+            let n_id_raf = 0;
+            let n_ms_last = 0;
+            let n_ms_sum = 0;
+            let n_ms_count = 0;
+            let f_raf = function(n_ms){
+
+                // ------------- performance measuring: start
+                let n_ms_delta = n_ms-n_ms_last;
+                n_ms_last = n_ms
+                n_ms_sum = parseFloat(n_ms_sum) + parseFloat(n_ms_delta);
+                n_ms_count+=1;
+                if(n_ms_sum > 1000){
+                    console.log(`n_fps ${1000/(n_ms_sum/n_ms_count)}`)
+                    n_ms_sum= 0;
+                    n_ms_count= 0;
+                }
+                // ------------- performance measuring: end
+                o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, window.performance.now());
+                // console.log(window.performance.now())
+
+                f_render_from_o_webgl_program_custom(o_webgl_program);
+
+                n_id_raf = requestAnimationFrame(f_raf)
+
+            }
+            n_id_raf = requestAnimationFrame(f_raf)
+
+            
             // when finished or if we want to reinitialize a new programm with different GPU code
             // we have to first delete the program
             f_delete_o_webgl_program(o_webgl_program)

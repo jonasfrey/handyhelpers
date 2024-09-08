@@ -66,7 +66,8 @@ import {
     f_resize_canvas_from_o_webgl_program,
     f_render_from_o_webgl_program,
     f_delete_o_webgl_program,
-    f_o_data_from_google_sheet
+    f_o_data_from_google_sheet,
+    f_a_o_number_value_temperature_from_s_temp
 } from "./module.js"
 
 
@@ -998,26 +999,128 @@ let a_o_test =
             // console.log(o_nvidia_smi_info['o_memory.used'])
             //readme.md:end
         }),
-        // f_o_test("f_o_number_value__from_s_input ", async () => {
-        //     //readme.md:start
-        //     //md: #f_o_number_value__from_s_input
-        //     let o = f_o_number_value__from_s_input(
-        //         "123.443 [Mb]"
-        //     );
-        //     f_assert_equals(
-        //         o.n_bytes, 
-        //         123443000
-        //     )
-        //     o = f_o_number_value__from_s_input(
-        //         " 908 MiB "
-        //     );
-        //     f_assert_equals(
-        //         o.n_Mebibytes, 
-        //         908
-        //     )
-        //     //readme.md:end
-        // }),
+         
+        f_o_test("f_o_number_value__from_s_input", async () => {
+            //readme.md:start
+            //md: #f_o_number_value__from_s_input
+        
+            // Test Case: Megabits (Mb) to bytes
+            let o = f_o_number_value__from_s_input("123.443 [Mb]");
+            f_assert_equals(o.n, 123443000);  // Megabits to bits
+        
+            // Test Case: Mebibytes (MiB) to mebibytes
+            o = f_o_number_value__from_s_input(" 908 MiB ");
+            f_assert_equals(o.n_mebi, 908);
+        
+            // Test Case: Millivolts (mV)
+            o = f_o_number_value__from_s_input("1.23 mV");
+            f_assert_equals(o.n_milli, 1.23);
+            f_assert_equals(o.n_micro, 1230);
+        
+            // Test Case: Megahertz (MHz) to Hertz and Gigahertz
+            o = f_o_number_value__from_s_input("204.20 MHz");
+            f_assert_equals(o.n_mega, 204.2);
+            f_assert_equals(o.n, 204200000);  // Hz (base unit)
+            f_assert_equals(o.n_giga, 0.2042);
+        
+            // Test Case: Gigabytes (GB) to bytes, megabytes, and gigabytes
+            o = f_o_number_value__from_s_input("512 GB");
+            f_assert_equals(o.n_giga, 512);
+            f_assert_equals(o.n_mega, 512000);
+            f_assert_equals(o.n, 512000000000);  // Bytes (base unit)
+        
+            // Test Case: Kilobytes (KB)
+            o = f_o_number_value__from_s_input("120.5 KB");
+            f_assert_equals(o.n_kilo, 120.5);
+            f_assert_equals(o.n, 120500);  // Bytes
+        
+            // Test Case: Gigahertz (GHz) to Hertz and Megahertz
+            o = f_o_number_value__from_s_input("3.8 GHz");
+            f_assert_equals(o.n_giga, 3.8);
+            f_assert_equals(o.n_mega, 3800);
+            f_assert_equals(o.n, 3800000000);  // Hz
+        
+            // Test Case: Volts (V)
+            o = f_o_number_value__from_s_input("5 V");
+            f_assert_equals(o.n, 5);  // Volts (base unit)
+            f_assert_equals(o.n_milli, 5000);  // Millivolts
+        
+            // Test Case: Watts (W)
+            o = f_o_number_value__from_s_input("60 W");
+            f_assert_equals(o.n, 60);  // Watts (base unit)
+            f_assert_equals(o.n_milli, 60000);  // Milliwatts
+        
+            // Test Case: Celsius (C)
+            o = f_o_number_value__from_s_input("37 C");
+            f_assert_equals(o.n, 37);  // Celsius (base unit)
+        
+            // Test Case: Percentage (%)
+            o = f_o_number_value__from_s_input("85 %");
+            f_assert_equals(o.n, 0.85);  // Percent (base unit)
+        
+            // Test Case: Binary Units (GiB)
+            o = f_o_number_value__from_s_input("16 GiB");
+            f_assert_equals(o.n_gibi, 16);
+            f_assert_equals(o.n_mega, 17179.869184);  // Converting to megabytes (MB)
+            f_assert_equals(o.n, 17179869184);  // Bytes (base unit)
+        
+            // Test Case: Terabytes (TB)
+            o = f_o_number_value__from_s_input("1.5 TB");
+            f_assert_equals(o.n_tera, 1.5);
+            f_assert_equals(o.n_giga, 1500);
+            f_assert_equals(o.n, 1500000000000);  // Bytes (base unit)
+        
+            //readme.md:end
+        }),
 
+        f_o_test("f_a_o_number_value_temperature_from_s_temp", async () => {
+            //readme.md:start
+            //md: #f_a_o_number_value_temperature_from_s_temp
+            //md: detects the temperature value from the string, (has to be Kelvin, Celcius , or Fahrenheit)
+            //md: and then converts it to all other temperature values
+        
+            // Test Case 1: Celsius to Fahrenheit and Kelvin
+            let a_o = f_a_o_number_value_temperature_from_s_temp("10.23 Celsius");
+            // console.log(a_o)
+            let o_fahrenheit = a_o.find(o => o.s_name_base_unit === 'Fahrenheit');
+            let o_kelvin = a_o.find(o => o.s_name_base_unit === 'Kelvin');
+            f_assert_equals(o_fahrenheit.n.toFixed(2), '50.41');
+            f_assert_equals(o_kelvin.n.toFixed(2), '283.38');
+            
+            // Test Case 2: Fahrenheit to Celsius and Kelvin
+            a_o = f_a_o_number_value_temperature_from_s_temp("50 Fahrenheit");
+            // console.log(a_o)
+            let o_celsius = a_o.find(o => o.s_name_base_unit === 'Celsius');
+            o_kelvin = a_o.find(o => o.s_name_base_unit === 'Kelvin');
+            f_assert_equals(o_celsius.n.toFixed(2), '10.00');
+            f_assert_equals(o_kelvin.n.toFixed(2), '283.15');
+
+            // Test Case 3: Kelvin to Celsius and Fahrenheit
+            a_o = f_a_o_number_value_temperature_from_s_temp("300 Kelvin");
+            // console.log(a_o)
+            o_celsius = a_o.find(o => o.s_name_base_unit === 'Celsius');
+            o_fahrenheit = a_o.find(o => o.s_name_base_unit === 'Fahrenheit');
+            f_assert_equals(o_celsius.n.toFixed(2), '26.85');
+            f_assert_equals(o_fahrenheit.n.toFixed(2), '80.33');
+
+            // Test Case 4: Negative Celsius to Fahrenheit and Kelvin
+            a_o = f_a_o_number_value_temperature_from_s_temp("-10 Celsius");
+            // console.log(a_o)
+            o_fahrenheit = a_o.find(o => o.s_name_base_unit === 'Fahrenheit');
+            o_kelvin = a_o.find(o => o.s_name_base_unit === 'Kelvin');
+            f_assert_equals(o_fahrenheit.n.toFixed(2), '14.00');
+            f_assert_equals(o_kelvin.n.toFixed(2), '263.15');
+
+            // Test Case 5: Kelvin to Celsius and Fahrenheit (Absolute Zero)
+            a_o = f_a_o_number_value_temperature_from_s_temp("0 Kelvin");
+            // console.log(a_o)
+            o_celsius = a_o.find(o => o.s_name_base_unit === 'Celsius');
+            o_fahrenheit = a_o.find(o => o.s_name_base_unit === 'Fahrenheit');
+            f_assert_equals(o_celsius.n.toFixed(2), '-273.15');
+            f_assert_equals(o_fahrenheit.n.toFixed(2), '-459.67');
+        
+            //readme.md:end
+        }),
 
         f_o_test("f_b_uuid", async () => {
             //readme.md:start
