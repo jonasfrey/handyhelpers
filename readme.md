@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sun Sep 08 2024 23:49:19 GMT+0200 (Central European Summer Time)","n_ts_created":1725832159526} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sun Sep 08 2024 23:52:30 GMT+0200 (Central European Summer Time)","n_ts_created":1725832350263} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -770,7 +770,7 @@ to get all available properties
             // we can also parse the value 
             // console.log(o_nvidia_smi_info['o_memory.used'])
 ```
-#f_o_number_value__from_s_input
+# f_o_number_value__from_s_input
 ```javascript
             // Test Case: Megabits (Mb) to bytes
             let o = f_o_number_value__from_s_input("123.443 [Mb]");
@@ -839,7 +839,7 @@ to get all available properties
             f_assert_equals(o.n, 1500000000000);  // Bytes (base unit)
         
 ```
-#f_a_o_number_value_temperature_from_s_temp
+# f_a_o_number_value_temperature_from_s_temp
 detects the temperature value from the string, (has to be Kelvin, Celcius , or Fahrenheit)
 and then converts it to all other temperature values
 ```javascript
@@ -883,7 +883,9 @@ and then converts it to all other temperature values
             f_assert_equals(o_celsius.n.toFixed(2), '-273.15');
             f_assert_equals(o_fahrenheit.n.toFixed(2), '-459.67');
         
-
+```
+# f_b_uuid
+```javascript
             f_assert_equals(
                 (
                     true == f_b_uuid('c6fa6520-2dd0-4860-932d-4ccd52ab97b5')
@@ -904,7 +906,9 @@ and then converts it to all other temperature values
                 true
             );
 
-
+```
+# f_s_uuidv4
+```javascript
             let s_uuidv4 = f_s_uuidv4();
             console.log({s_uuidv4});
             f_assert_equals(
@@ -919,7 +923,9 @@ and then converts it to all other temperature values
             )
 
 
-
+```
+# f_a_n_nor__rgb__from_a_n_nor__hsl
+```javascript
             f_assert_equals(
                 f_a_n_nor__rgb__from_a_n_nor__hsl(
                     0,
@@ -929,7 +935,9 @@ and then converts it to all other temperature values
                 [1, 0 ,0]
             );
 
-
+```
+# f_a_n_nor__hsl__from_a_n_nor__rgb
+```javascript
             f_assert_equals(
                 f_a_n_nor__hsl__from_a_n_nor__rgb(
                     1, 
@@ -967,7 +975,8 @@ and then converts it to all other temperature values
             // )
 
 ```
-#creates a 'empty' object recursivly
+# f_o_empty
+creates a 'empty' object recursivly
 ```javascript
             let o_empty = f_o_empty_recursive(
                 {
@@ -1017,6 +1026,9 @@ and then converts it to all other temperature values
                   }
             )
 
+```
+# f_v_s_type__from_value
+```javascript
             f_assert_equals(f_v_s_type__from_value(false),null)
             f_assert_equals(f_v_s_type__from_value(true),null)
             f_assert_equals(f_v_s_type__from_value(0),'n_f64')
@@ -1029,11 +1041,17 @@ and then converts it to all other temperature values
             f_assert_equals(f_v_s_type__from_value(new BigInt64Array([42n,420n])),'a_n_i64')
             f_assert_equals(f_v_s_type__from_value([1,2,3,4,5,6]),null)
             f_assert_equals(f_v_s_type__from_value({n:2,n2:3}),null)
+```
+# f_v_s_type_from_array
+```javascript
             f_assert_equals(f_v_s_type_from_array([1,2]),'a_n_f64')
             f_assert_equals(f_v_s_type_from_array([false, false]),'a_v')
             f_assert_equals(f_v_s_type_from_array([1,false, {}, [1]]),'a_v')
             f_assert_equals(f_v_s_type_from_array(['h', 'e','l','l', 'o','!']),'a_s')
             f_assert_equals(f_v_s_type_from_array(new Int32Array([1,2,3])),'a_n_i32')
+```
+# f_o_image_data_from_s_url
+```javascript
             let o_image_data = await f_o_image_data_from_s_url('./deno_logo.jpg');
             f_assert_equals(
                 o_image_data.width, 

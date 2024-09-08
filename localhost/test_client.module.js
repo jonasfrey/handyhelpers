@@ -1002,7 +1002,7 @@ let a_o_test =
          
         f_o_test("f_o_number_value__from_s_input", async () => {
             //readme.md:start
-            //md: #f_o_number_value__from_s_input
+            //md: # f_o_number_value__from_s_input
         
             // Test Case: Megabits (Mb) to bytes
             let o = f_o_number_value__from_s_input("123.443 [Mb]");
@@ -1075,7 +1075,7 @@ let a_o_test =
 
         f_o_test("f_a_o_number_value_temperature_from_s_temp", async () => {
             //readme.md:start
-            //md: #f_a_o_number_value_temperature_from_s_temp
+            //md: # f_a_o_number_value_temperature_from_s_temp
             //md: detects the temperature value from the string, (has to be Kelvin, Celcius , or Fahrenheit)
             //md: and then converts it to all other temperature values
         
@@ -1124,6 +1124,7 @@ let a_o_test =
 
         f_o_test("f_b_uuid", async () => {
             //readme.md:start
+            //md: # f_b_uuid
 
             f_assert_equals(
                 (
@@ -1150,6 +1151,7 @@ let a_o_test =
 
         f_o_test("f_s_uuidv4", async () => {
             //readme.md:start
+            //md: # f_s_uuidv4
 
             let s_uuidv4 = f_s_uuidv4();
             console.log({s_uuidv4});
@@ -1171,6 +1173,7 @@ let a_o_test =
 
         f_o_test("f_a_n_nor__rgb__from_a_n_nor__hsl", async () => {
             //readme.md:start
+            //md: # f_a_n_nor__rgb__from_a_n_nor__hsl
 
             f_assert_equals(
                 f_a_n_nor__rgb__from_a_n_nor__hsl(
@@ -1187,6 +1190,7 @@ let a_o_test =
 
         f_o_test("f_a_n_nor__hsl__from_a_n_nor__rgb", async () => {
             //readme.md:start
+            //md: # f_a_n_nor__hsl__from_a_n_nor__rgb
 
             f_assert_equals(
                 f_a_n_nor__hsl__from_a_n_nor__rgb(
@@ -1228,7 +1232,8 @@ let a_o_test =
         }),
         f_o_test("f_o_empty", async () => {
             //readme.md:start
-            //md: #creates a 'empty' object recursivly
+            //md: # f_o_empty 
+            //md: creates a 'empty' object recursivly
             let o_empty = f_o_empty_recursive(
                 {
                     n: 2, 
@@ -1283,6 +1288,8 @@ let a_o_test =
 
         f_o_test("f_v_s_type__from_value", async () => {
             //readme.md:start
+            //md: # f_v_s_type__from_value 
+
             f_assert_equals(f_v_s_type__from_value(false),null)
             f_assert_equals(f_v_s_type__from_value(true),null)
             f_assert_equals(f_v_s_type__from_value(0),'n_f64')
@@ -1299,6 +1306,8 @@ let a_o_test =
         }),
         f_o_test("f_v_s_type_from_array", async () => {
             //readme.md:start
+            //md: # f_v_s_type_from_array 
+
             f_assert_equals(f_v_s_type_from_array([1,2]),'a_n_f64')
             f_assert_equals(f_v_s_type_from_array([false, false]),'a_v')
             f_assert_equals(f_v_s_type_from_array([1,false, {}, [1]]),'a_v')
@@ -1308,6 +1317,7 @@ let a_o_test =
         }),
         f_o_test("f_o_image_data_from_s_url", async () => {
             //readme.md:start
+            //md: # f_o_image_data_from_s_url
             let o_image_data = await f_o_image_data_from_s_url('./deno_logo.jpg');
             f_assert_equals(
                 o_image_data.width, 
