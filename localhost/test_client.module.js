@@ -1069,6 +1069,10 @@ let a_o_test =
             f_assert_equals(o.n_tera, 1.5);
             f_assert_equals(o.n_giga, 1500);
             f_assert_equals(o.n, 1500000000000);  // Bytes (base unit)
+
+            // Test Case: revolutions per minute
+            o = f_o_number_value__from_s_input("200 rpm");
+            f_assert_equals(o.n_kilo, 0.2);
         
             //readme.md:end
         }),

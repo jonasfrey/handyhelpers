@@ -66,6 +66,7 @@ let f_o_number_value__from_s_input = function(s_input) {
                 [['K', 'k', 'Kelvin',], 'Kelvin',],
                 [['M', 'm', 'Meters', ], 'Meter',],
                 [['Hz', 'HZ', 'hZ', 'Hertz'], 'Hertz',],
+                [['RPM', 'rpm', 'rpm', 'revolutions per minute'], 'Revolutions per minute',],
             ]
         },
         {

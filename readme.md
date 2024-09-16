@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sun Sep 08 2024 23:52:30 GMT+0200 (Central European Summer Time)","n_ts_created":1725832350263} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Mon Sep 16 2024 11:41:41 GMT+0200 (Central European Summer Time)","n_ts_created":1726479701257} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -837,6 +837,10 @@ to get all available properties
             f_assert_equals(o.n_tera, 1.5);
             f_assert_equals(o.n_giga, 1500);
             f_assert_equals(o.n, 1500000000000);  // Bytes (base unit)
+
+            // Test Case: revolutions per minute
+            o = f_o_number_value__from_s_input("200 rpm");
+            f_assert_equals(o.n_kilo, 0.2);
         
 ```
 # f_a_o_number_value_temperature_from_s_temp
