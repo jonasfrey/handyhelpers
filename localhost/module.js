@@ -34,7 +34,7 @@ let f_o_number_value__from_s_input = function(s_input) {
     let a_o = [
         {
             n_pow: Math.pow(10, -3),
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['mW', 'MW', 'Milliwatts', 'MilliWatts',], 'Watt',],
                 [['mV', 'MV', 'Millivolts', 'MilliVolts',], 'Volt',],
                 [['mm', 'MM', 'Millimeters', 'MilliMeters',], 'Meter',],
@@ -43,7 +43,7 @@ let f_o_number_value__from_s_input = function(s_input) {
         },
         {
             n_pow: Math.pow(10, -2),
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['cl', 'CL', 'Centiliters', 'CentiLiters',],'Liter',],
                 [['cm', 'CM', 'Centimeters', 'CentiMeters', ],'Meter',],
                 [['%', 'Percent', ],'Percent'],
@@ -51,14 +51,14 @@ let f_o_number_value__from_s_input = function(s_input) {
         },
         {
             n_pow: Math.pow(10, -1),
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['dm', 'DM', 'Decimeters', 'DeciMeters',],'Meter',],
                 [['dl', 'DL', 'Deciliters', 'DeciLiters'],'Liter'],
             ]
         },
         {
             n_pow: Math.pow(10, 0),
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['W', 'w', 'Watts', 'Watt',], 'Watt',],
                 [['V', 'v', 'Volts', 'Volt',], 'Volt',],
                 [['C', 'c', 'Celsius', '°C',], 'Celsius',],
@@ -71,21 +71,21 @@ let f_o_number_value__from_s_input = function(s_input) {
         },
         {
             n_pow: Math.pow(10, 1),
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['daL', 'DAL', 'Decaliters', 'DecaLiters',], 'Liter',],
                 [['daM', 'DAM', 'Decameters', 'DecaMeters'], 'Meter',],
             ]
         },
         {
             n_pow: Math.pow(10, 2),
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['hL', 'HL', 'Hectoliters', 'HectoLiters',], 'Liter',],
                 [['hM', 'HM', 'Hectometers', 'HectoMeters',], 'Meter', ],
             ]
         },
         {
             n_pow: Math.pow(10, 3),
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['kHz', 'KHz', 'KHZ', 'Kilohertz', 'KiloHertz',], 'Hertz',],
                 [['km', 'KM', 'Kilometers', 'KiloMeters',], 'Meter',],
                 [['kL', 'KL', 'Kiloliters', 'KiloLiters'], 'Liter',],
@@ -93,133 +93,133 @@ let f_o_number_value__from_s_input = function(s_input) {
         },
         {
             n_pow: Math.pow(1000, 1), // 10^3 bytes (Kilobytes)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['kB', 'KB', 'Kilobytes', 'KiloBytes'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1000, 1) * 8, // 10^3 bits (Kilobits)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['Kb', 'kB', 'Kilobits', 'KiloBits'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1024, 1), // 1024^1 bytes (Kibibytes)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['KiB', 'KIB', 'Kibibytes', 'KibiBytes'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1024, 1) * 8, // 1024^1 bits (Kibibits)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['Kib', 'KIB', 'Kibibits', 'KibiBits'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1000, 2), // 10^6 bytes (Megabytes)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['MB', 'Mb', 'Megabytes', 'MegaBytes'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1000, 2) * 8, // 10^6 bits (Megabits)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['Mb', 'MB', 'Megabits', 'MegaBits'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1024, 2), // 1024^2 bytes (Mebibytes)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['MiB', 'MIB', 'Mebibytes', 'MebiBytes'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1024, 2) * 8, // 1024^2 bits (Mebibits)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['Mib', 'MIB', 'Mebibits', 'MebiBits'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1000, 3), // 10^9 bytes (Gigabytes)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['GB', 'Gb', 'Gigabytes', 'GigaBytes'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1000, 3) * 8, // 10^9 bits (Gigabits)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['Gb', 'GB', 'Gigabits', 'GigaBits'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1024, 3), // 1024^3 bytes (Gibibytes)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['GiB', 'GIB', 'Gibibytes', 'GibiBytes'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1024, 3) * 8, // 1024^3 bits (Gibibits)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['Gib', 'GIB', 'Gibibits', 'GibiBits'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(10, 6), // Megahertz
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['MHz', 'MHZ', 'Megahertz', 'MegaHertz'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(10, 9), // Gigahertz
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['GHz', 'GHZ', 'Gigahertz', 'GigaHertz'], 'Byte']
             ]
         }, 
         {
             n_pow: Math.pow(1000, 4), // 10^12 bytes (Terabytes)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['TB', 'Tb', 'Terabytes', 'TeraBytes'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1000, 4) * 8, // 10^12 bits (Terabits)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['Tb', 'TB', 'Terabits', 'TeraBits'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1024, 4), // 1024^4 bytes (Tebibytes)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['TiB', 'TIB', 'Tebibytes', 'TebiBytes'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1024, 4) * 8, // 1024^4 bits (Tebibits)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['Tib', 'TIB', 'Tebibits', 'TebiBits'], 'Byte']
             ]
         }, 
         {
             n_pow: Math.pow(1000, 5), // 10^15 bytes (Petabytes)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['PB', 'Pb', 'Petabytes', 'PetaBytes'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1000, 5) * 8, // 10^15 bits (Petabits)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['Pb', 'PB', 'Petabits', 'PetaBits'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1024, 5), // 1024^5 bytes (Pebibytes)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['PiB', 'PIB', 'Pebibytes', 'PebiBytes'], 'Byte']
             ]
         },
         {
             n_pow: Math.pow(1024, 5) * 8, // 1024^5 bits (Pebibits)
-            a_a_s_name_unit_possible_s_name_unit: [
+            a_a_s_name_unit_alternative_s_name_unit: [
                 [['Pib', 'PIB', 'Pebibits', 'PebiBits'], 'Byte']
             ]
         }
@@ -231,21 +231,23 @@ let f_o_number_value__from_s_input = function(s_input) {
     let a_s_match = s_input.match(/^([+-]?\d*\.?\d+)\s*([^\s]+)/);
 
     if (!a_s_match) throw new Error(`Invalid input format: ${s_input}`);
-    let [_, s_num, s_unit] = a_s_match;
-    let s_unit_base = '';
+    let [_, s_num, s_name_unit_matched] = a_s_match;
+    let s_name_unit_base = '';
+    let a_s_name_unit_alterative = '';
     let o_found = a_o.find(o=>{
-        return o.a_a_s_name_unit_possible_s_name_unit.find(a_s_name_unit_possible_s_name_unit=>{
-            let [a_s_name_unit_possible,s_name_unit] = a_s_name_unit_possible_s_name_unit;
+        return o.a_a_s_name_unit_alternative_s_name_unit.find(a_s_name_unit_alternative_s_name_unit=>{
+            let [a_s_name_unit_alterative,s_name_unit] = a_s_name_unit_alternative_s_name_unit;
             // console.log(a_s_name_unit_possible)
-            if(a_s_name_unit_possible.includes(s_unit)){
-                s_unit_base = s_name_unit
+            if(a_s_name_unit_alterative.includes(s_name_unit_matched)){
+                s_name_unit_base = s_name_unit
+                a_s_name_unit_alterative = a_s_name_unit_alterative 
                 return true;
             }
             return false
         });
     });
     if (!o_found) {
-        throw new Error(`Unknown unit in input string: ${s_input}, possible unit strings are ${a_o.map(o=>o.a_a_s_name_unit_possible_s_name_unit).join(',')}`);
+        throw new Error(`Unknown unit in input string: ${s_input}, possible unit strings are ${a_o.map(o=>o.a_a_s_name_unit_alternative_s_name_unit).join(',')}`);
     }
     let n_num = parseFloat(s_num);
     let n_value_base = n_num * o_found.n_pow;
@@ -273,7 +275,12 @@ let f_o_number_value__from_s_input = function(s_input) {
 
 
     // Create the object to hold all unit conversions
-    let o_number_value = new O_number_value(s_input, s_unit_base);
+    let o_number_value = new O_number_value(
+        s_input, 
+        s_name_unit_matched, 
+        s_name_unit_base, 
+        a_s_name_unit_alterative 
+    );
 
     // Populate the SI units
     for (let [s_prefix, n_factor] of Object.entries(a_o_factor)) {
