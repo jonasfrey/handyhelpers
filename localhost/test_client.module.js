@@ -1007,7 +1007,7 @@ let a_o_test =
             // Test Case: Megabits (Mb) to bytes
             let o = f_o_number_value__from_s_input("123.443 [Mb]");
             f_assert_equals(o.n, 123443000);  // Megabits to bits
-        
+            console.log(o)
             // Test Case: Mebibytes (MiB) to mebibytes
             o = f_o_number_value__from_s_input(" 908 MiB ");
             f_assert_equals(o.n_mebi, 908);

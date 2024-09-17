@@ -236,11 +236,10 @@ let f_o_number_value__from_s_input = function(s_input) {
     let a_s_name_unit_alterative = '';
     let o_found = a_o.find(o=>{
         return o.a_a_s_name_unit_alternative_s_name_unit.find(a_s_name_unit_alternative_s_name_unit=>{
-            let [a_s_name_unit_alterative,s_name_unit] = a_s_name_unit_alternative_s_name_unit;
-            // console.log(a_s_name_unit_possible)
-            if(a_s_name_unit_alterative.includes(s_name_unit_matched)){
-                s_name_unit_base = s_name_unit
-                a_s_name_unit_alterative = a_s_name_unit_alterative 
+            let [a_s_name_unit_alterative2,s_name_unit_base2] = a_s_name_unit_alternative_s_name_unit;
+            if(a_s_name_unit_alterative2.includes(s_name_unit_matched)){
+                s_name_unit_base = s_name_unit_base2
+                a_s_name_unit_alterative = a_s_name_unit_alterative2 
                 return true;
             }
             return false

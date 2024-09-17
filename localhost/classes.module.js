@@ -32,7 +32,7 @@ class O_number_value{
         s_original, 
         s_name_unit_matched,
         s_name_unit_base,
-        a_s_name_unit_alterative,
+        a_s_name_unit_alterative_matched,
         n_nano,
         n_micro, 
         n_milli, 
@@ -54,7 +54,7 @@ class O_number_value{
         this.s_original = s_original, 
         this.s_name_unit_matched = s_name_unit_matched
         this.s_name_unit_base = s_name_unit_base
-        this.a_s_name_unit_alterative = a_s_name_unit_alterative, 
+        this.a_s_name_unit_alterative_matched = a_s_name_unit_alterative_matched, 
         this.n_nano = n_nano,
         this.n_micro = n_micro, 
         this.n_milli = n_milli, 
