@@ -67,7 +67,8 @@ import {
     f_render_from_o_webgl_program,
     f_delete_o_webgl_program,
     f_o_data_from_google_sheet,
-    f_a_o_number_value_temperature_from_s_temp
+    f_a_o_number_value_temperature_from_s_temp,
+    f_o_state_webgl_shader_audio_visualization
 } from "./module.js"
 
 
@@ -2233,6 +2234,56 @@ let a_o_test =
             // );
             //readme.md:end
         }),
+
+
+        f_o_test("f_o_state_webgl_shader_audio_visualization", async () => {
+            //readme.md:start
+            //md: # 'f_o_state_webgl_shader_audio_visualization' 
+            //md:  visualizes audio
+            //md: for this it creates a shader program, several parameters can be adjusted
+
+            let a_n_u8__audio_encoded = await(await fetch('./meme_sounds.mp3')).arrayBuffer();
+            console.log(a_n_u8__audio_encoded)
+            // Create AudioContext
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            // Assuming you have your MP3 data in a Uint8Array called `mp3Data`
+            const arrayBuffer = a_n_u8__audio_encoded;
+
+            // Decode the MP3 data into AudioBuffer
+            audioContext.decodeAudioData(arrayBuffer, function(audioBuffer) {
+                // Now we have the decoded data in the `audioBuffer`
+                // Extracting channel 0 data
+                const channel0Data = audioBuffer.getChannelData(0);
+
+                let o_state = f_o_state_webgl_shader_audio_visualization({
+                    a_n_f32_sample : channel0Data,
+                    n_scl_x : 1000,
+                    n_scl_y : 200 , 
+                    n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
+                    n_amp_avgrms: 0.125, // the amplitude of the average rms 
+                    a_n_rgba_color_amp_peaks: [ 
+                        Math.random(),
+                        Math.random(),
+                        Math.random(),
+                        1.
+                    ],
+                    a_n_rgba_color_amp_avg: [ 
+                        Math.random(),
+                        Math.random(),
+                        Math.random(),
+                        1.
+                    ]
+                });
+                document.body.appendChild(o_state.o_canvas);
+            }, function(error) {
+                console.error('Error decoding audio data', error);
+            });
+
+
+            //readme.md:end
+        }),
+        
 
         
 
