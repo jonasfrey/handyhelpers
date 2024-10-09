@@ -1789,11 +1789,47 @@ let f_delete_o_webgl_program = function(
     // Get the attached shaders
     const a_o_shader_attached = o_webgl_program.o_ctx.getAttachedShaders(o_webgl_program.o_shader__program);
 
+
     // Detach and delete each shader
     a_o_shader_attached.forEach(o_shader_attached => {
         o_webgl_program.o_ctx.detachShader(o_webgl_program.o_shader__program, o_shader_attached);
         o_webgl_program.o_ctx.deleteShader(o_shader_attached);
     });
+    // Delete any buffers associated with the program
+    if (o_webgl_program.a_o_buffer) {
+        o_webgl_program.a_o_buffer.forEach(o_buffer => {
+            o_webgl_program.o_ctx.deleteBuffer(o_buffer);
+        });
+    }
+
+    // Delete any textures associated with the program
+    if (o_webgl_program.a_o_texture) {
+        o_webgl_program.a_o_texture.forEach(o_texture => {
+            o_webgl_program.o_ctx.deleteTexture(o_texture);
+        });
+    }
+
+    // Delete any framebuffers (if used)
+    if (o_webgl_program.a_o_framebuffer) {
+        o_webgl_program.a_o_framebuffer.forEach(o_fb => {
+            o_webgl_program.o_ctx.deleteFramebuffer(o_fb);
+        });
+    }
+
+    // Delete any renderbuffers (if used)
+    if (o_webgl_program.a_o_renderbuffer) {
+        o_webgl_program.a_o_renderbuffer.forEach(o_rb => {
+            o_webgl_program.o_ctx.deleteRenderbuffer(o_rb);
+        });
+    }
+
+    // Delete any Vertex Array Objects (VAOs) if used (for WebGL2 or extension in WebGL1)
+    if (o_webgl_program.a_o_vao) {
+        o_webgl_program.a_o_vao.forEach(o_vao => {
+            o_webgl_program.o_ctx.deleteVertexArray(o_vao);
+        });
+    }
+
     // Delete the program
     o_webgl_program.o_ctx.deleteProgram(o_webgl_program.o_shader__program);
 }
