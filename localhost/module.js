@@ -2189,8 +2189,8 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         a_n_f32_audio_sample = null,
         n_ms_start = null, 
         n_ms_end = null,
-        n_scl_x = 300, 
-        n_scl_y = 100, 
+        n_scl_x_canvas = 300, 
+        n_scl_y_canvas = 100, 
         n_cursor_nor = 0.0, 
         n_amp_peaks = 0.25, 
         n_amp_avgrms = 0.125, 
@@ -2212,10 +2212,8 @@ let f_o_state_webgl_shader_audio_visualization = async function(
             o_ufloc__n_sec_time: null,
             o_ufloc__n_cursor_nor: null,
             o_ufloc__n_amp_1: null,
-            o_scl_canvas: {
-                n_x: n_scl_x,
-                n_y: n_scl_y,
-            },
+            n_scl_x_canvas, 
+            n_scl_y_canvas,
             n_ms_audio_start: 0,  
             n_ms_auto_rendering_delta: 0, 
             n_ms_auto_rendering_fps: 0,
@@ -2248,7 +2246,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
                 }
             }, 
             o_array_buffer_encoded_audio_data: null,
-            o_array_buffer_decoded_audio_data: null,
+            o_audio_buffer: null,
             o_audio_context: null,
             
         }, 
@@ -2258,65 +2256,17 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         o_state.o_array_buffer_encoded_audio_data = await(await fetch('./meme_sounds.mp3')).arrayBuffer();
         o_state.o_audio_context = new (window.AudioContext || window.webkitAudioContext)();
         
-        o_state.o_array_buffer_decoded_audio_data = await new Promise((resolve, reject) => {
+        o_state.o_audio_buffer = await new Promise((resolve, reject) => {
             o_state.o_audio_context.decodeAudioData(o_state.o_array_buffer_encoded_audio_data, resolve, reject);
         });
 
-        o_state.a_n_f32_audio_sample = o_state.o_array_buffer_decoded_audio_data.getChannelData(0);
-
-        audioContext.decodeAudioData(arrayBuffer, function(audioBuffer) {
-            // Now we have the decoded data in the `audioBuffer`
-            // Extracting channel 0 data
-            const channel0Data = audioBuffer.getChannelData(0);
-    
-            let o_state = f_o_state_webgl_shader_audio_visualization({
-                a_n_f32_sample_range : channel0Data,
-                n_scl_x : 1000,
-                n_scl_y : 200 , 
-                n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
-                n_amp_avgrms: 0.125, // the amplitude of the average rms 
-                a_n_rgba_color_amp_peaks: [ 
-                    Math.random(),
-                    Math.random(),
-                    Math.random(),
-                    1.
-                ],
-                a_n_rgba_color_amp_avg: [ 
-                    Math.random(),
-                    Math.random(),
-                    Math.random(),
-                    1.
-                ]
-            });
-            document.body.appendChild(o_state.o_canvas);
-        }, function(error) {
-            console.error('Error decoding audio data', error);
-        });
+        o_state.a_n_f32_audio_sample = o_state.o_audio_buffer.getChannelData(0);
     }
-    
-
-
     
 
     o_state.o_canvas = document.createElement('canvas');
     
-    let f_resize = function(){
-        if(o_state.o_webgl_program){
-            // this will resize the canvas and also update 'o_scl_canvas'
-            f_resize_canvas_from_o_webgl_program(
-                o_state.o_webgl_program,
-                o_state.o_scl_canvas.n_x, 
-                o_state.o_scl_canvas.n_y
-            )
-        
-            o_state.o_webgl_program?.o_ctx.uniform2f(o_state.o_ufloc__o_scl_canvas,
-                o_state.o_scl_canvas.n_x, 
-                o_state.o_scl_canvas.n_y
-            );
-        
-            f_render_from_o_webgl_program(o_state.o_webgl_program);
-        }
-    }
+
 
 
 
@@ -2358,6 +2308,17 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         );
         
         o_state.n_ms_auto_rendering_fps = o_state.n_ms_auto_rendering_delta / 1000;
+
+        f_resize_canvas_from_o_webgl_program(
+            o_state.o_webgl_program,
+            o_state.n_scl_x_canvas, 
+            o_state.n_scl_y_canvas
+        )
+    
+        o_state.o_webgl_program?.o_ctx.uniform2f(o_state.o_ufloc__o_scl_canvas,
+            o_state.n_scl_x_canvas, 
+            o_state.n_scl_y_canvas
+        );
 
         o_state.n_ms_auto_rendering_last = n_ms;
         console.log(o_state)
@@ -2451,7 +2412,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
     gl.bindTexture(gl.TEXTURE_2D, texture);
     
     let n_scl_x_texture = 1920;
-    let n_scl_y_texture = Math.ceil((o_state.o_scl_canvas.n_x)/n_scl_x_texture);
+    let n_scl_y_texture = Math.ceil((n_scl_x_canvas)/n_scl_x_texture);
 
     let a_n_u8_audio_data_new = new Uint8Array(n_scl_x_texture*n_scl_y_texture*4);
     // we take at max n_scl_x*n_scl_y samples and put them into a 2d textrue.
@@ -2467,7 +2428,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
     let n_f32_sum = 0.;
     let n_f32_count = 0.;
     let n_idx_a_n_u8_audio_data_new = 0;
-    let n_samples_per_subsample = a_n_f32_sample.length / (a_n_u8_audio_data_new.length/4);
+    let n_samples_per_subsample = o_state.a_n_f32_audio_sample.length / (a_n_u8_audio_data_new.length/4);
     let n_samples_per_subsample_floor = Math.floor(n_samples_per_subsample);
     // original length 10443406
     // new array length 1920*1080 = 
@@ -2486,7 +2447,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         n_f32_min = 1.;
         n_f32_max = -1.;
         for(let n_idx2 = n_idx_start;n_idx2 <n_idx_end;n_idx2+=1){
-            let n_f32 = a_n_f32_sample[n_idx2];
+            let n_f32 = o_state.a_n_f32_audio_sample[n_idx2];
             n_f32_sum += n_f32*n_f32;
             n_f32_count += 1.;
             n_f32_min = Math.min(n_f32_min, n_f32);
@@ -2494,7 +2455,6 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         }
         n_f32_range = n_f32_max-n_f32_min;
         let n_f32_avgrms = Math.sqrt(n_f32_sum / n_f32_count);
-        // let n_f32 = a_n_f32_sample[n_idx_start];
         let n_u8_min = Math.floor((n_f32_min + 1) * 127.5);
         let n_u8_max = Math.floor((n_f32_max + 1) * 127.5);
         let n_u8_avgrms = Math.floor((n_f32_avgrms + 1) * 127.5);
@@ -2520,7 +2480,6 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         0
     );  // 0 corresponds to TEXTURE0
 
-    f_resize()
     o_state.f_render();
     return o_state;
 }

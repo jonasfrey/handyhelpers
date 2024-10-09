@@ -2242,45 +2242,49 @@ let a_o_test =
             //md:  visualizes audio
             //md: for this it creates a shader program, several parameters can be adjusted
 
-            let a_n_u8__audio_encoded = await(await fetch('./meme_sounds.mp3')).arrayBuffer();
-            console.log(a_n_u8__audio_encoded)
-            // Create AudioContext
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            let o_state = await f_o_state_webgl_shader_audio_visualization({
+                s_path_or_url_audio_file : './meme_sounds.mp3',
+                n_scl_x_canvas : 1000,
+                n_scl_y_canvas : 200 , 
+                n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
+                n_amp_avgrms: 0.125, // the amplitude of the average rms 
+                a_n_rgba_color_amp_peaks: [ 
+                    Math.random(),
+                    Math.random(),
+                    Math.random(),
+                    1.
+                ],
+                a_n_rgba_color_amp_avg: [ 
+                    Math.random(),
+                    Math.random(),
+                    Math.random(),
+                    1.
+                ]
+            });
+            window.onresize = function(){
+                o_state.n_scl_x_canvas = window.innerWidth;
+                o_state.f_render();
+            }
+            window.onmousemove = function(o_e){
+                let n_y_nor = o_e.clientY/ window.innerHeight;
+                o_state.n_amp_peaks = n_y_nor;
+                o_state.n_amp_avgrms = n_y_nor*0.5;
+                o_state.f_render();
+            }
 
-            // Assuming you have your MP3 data in a Uint8Array called `mp3Data`
-            const arrayBuffer = a_n_u8__audio_encoded;
-
-            // Decode the MP3 data into AudioBuffer
-            audioContext.decodeAudioData(arrayBuffer, function(audioBuffer) {
-                // Now we have the decoded data in the `audioBuffer`
-                // Extracting channel 0 data
-                const channel0Data = audioBuffer.getChannelData(0);
-
-                let o_state = f_o_state_webgl_shader_audio_visualization({
-                    a_n_f32_sample : channel0Data,
-                    n_scl_x : 1000,
-                    n_scl_y : 200 , 
-                    n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
-                    n_amp_avgrms: 0.125, // the amplitude of the average rms 
-                    a_n_rgba_color_amp_peaks: [ 
-                        Math.random(),
-                        Math.random(),
-                        Math.random(),
-                        1.
-                    ],
-                    a_n_rgba_color_amp_avg: [ 
-                        Math.random(),
-                        Math.random(),
-                        Math.random(),
-                        1.
-                    ]
-                });
-                document.body.appendChild(o_state.o_canvas);
-            }, function(error) {
-                console.error('Error decoding audio data', error);
+            const n_sec_duration = o_state.o_audio_buffer.duration; // Duration in seconds
+            const n_samples_per_second_samplerate = o_state.o_audio_buffer.sampleRate; // Samples per second
+            const n_samples_total = o_state.o_audio_buffer.length; // Total number of samples
+            const n_num_of_channels = o_state.o_audio_buffer.numberOfChannels; // Number of audio channels
+            // const a_n_f32 = o_state.o_audio_buffer.getChannelData(0); // PCM data for channel 0
+            console.log({
+                n_sec_duration,
+                n_samples_per_second_samplerate,
+                n_samples_total,
+                n_num_of_channels,
             });
 
-
+            document.body.appendChild(o_state.o_canvas);
             //readme.md:end
         }),
         
