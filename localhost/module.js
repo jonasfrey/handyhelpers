@@ -347,7 +347,7 @@ let f_a_a_v__from_a_v__f_b = function(
     return a_a_v
 }
 let f_b_denojs = function(){
-    return 'Deno' in window
+    return 'Deno' in globalThis
 }
 
 let f_o_nvidia_smi_help_info = async function(){
@@ -535,7 +535,7 @@ let f_o_meminfo__from_s_proc_meminfo = function(
 let f_o_meminfo = async function(){
     let s_path = '/proc/meminfo'
     let s = '';
-    let n = window.performance.now();
+    let n = globalThis.performance.now();
     try {
         s = await Deno.readTextFile(s_path);
     } catch (error) {
@@ -777,13 +777,13 @@ let f_o_cpu_stats = async function(
 ){
     let s_path = '/proc/stat'
     let s_proc_stat = '';
-    let n = window.performance.now();
+    let n = globalThis.performance.now();
     try {
         s_proc_stat = await Deno.readTextFile(s_path);
     } catch (error) {
         throw Error(`could not read text file '${s_path}'`)
     }
-    // console.log(window.performance.now()-n)
+    // console.log(globalThis.performance.now()-n)
     // console.log(s_proc_stat.split('\n'));
     return f_o_cpu_stats__from_s_proc_stat(
         s_proc_stat
@@ -927,7 +927,7 @@ let f_download_file__from_s_url = async function(
             // {type:'image/jpeg'}
             // {type:f_s_mime_type_from_s_name_file(s_name_file)}
         );
-        let o_blob_url = window.URL.createObjectURL(o_blob);
+        let o_blob_url = globalThis.URL.createObjectURL(o_blob);
         // Create an anchor link element and set the blob URL as its href
         const a = await f_o_html_element__from_s_tag('a');
         a.href = o_blob_url;
@@ -937,7 +937,7 @@ let f_download_file__from_s_url = async function(
         a.click();
         // Clean up: remove the link from the DOM and revoke the blob URL
         document.body.removeChild(a);
-        window.URL.revokeObjectURL(o_blob_url);
+        globalThis.URL.revokeObjectURL(o_blob_url);
     }
     return true
 }
@@ -1072,14 +1072,14 @@ let f_a_n_u8__from_o_reader = async function(
     )=>{}
 ){
 
-    let n_ms__now = window.performance.now()
-    let n_ms__last = window.performance.now() 
-    let n_ms__since_last_read = window.performance.now() 
+    let n_ms__now = globalThis.performance.now()
+    let n_ms__last = globalThis.performance.now() 
+    let n_ms__since_last_read = globalThis.performance.now() 
 
     let a_a_n_u8 = []
     let n_len_a_n_u8__read_merged = 0;
     while(true){
-        n_ms__now = window.performance.now()
+        n_ms__now = globalThis.performance.now()
         n_ms__since_last_read = Math.abs(n_ms__last - n_ms__now);
         const {done: b_done, value} = await o_readble_stream_reader.read();
         if(b_done){
@@ -1442,7 +1442,7 @@ let f_v_s_type_from_array = function(a_v){
 
 
 let f_s_uuidv4 = function() {
-    if(!('crypto' in window)){
+    if(!('crypto' in globalThis)){
         console.warn('the crypto global property is not available in this JS runtime, https://developer.mozilla.org/en-US/docs/Web/API/crypto_property')
 
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
@@ -1668,9 +1668,9 @@ let f_o_shader_info = function(
     o_shader_info.o_shader = o_ctx.createShader(o_ctx[`${s_type.toUpperCase()}_SHADER`])
     o_ctx.shaderSource(o_shader_info.o_shader, s_code_shader);
     o_shader_info.n_ts_ms_start_compile  = new Date().getTime()
-    let n_ms = window.performance.now()
+    let n_ms = globalThis.performance.now()
     o_ctx.compileShader(o_shader_info.o_shader);
-    o_shader_info.n_ms_duration_compile = window.performance.now()-n_ms;
+    o_shader_info.n_ms_duration_compile = globalThis.performance.now()-n_ms;
     o_shader_info.a_o_shader_error = f_a_o_shader_error(
         s_code_shader,
         o_shader_info.o_shader,
@@ -2254,7 +2254,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
     if(s_path_or_url_audio_file){
         
         o_state.o_array_buffer_encoded_audio_data = await(await fetch('./meme_sounds.mp3')).arrayBuffer();
-        o_state.o_audio_context = new (window.AudioContext || window.webkitAudioContext)();
+        o_state.o_audio_context = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
         
         o_state.o_audio_buffer = await new Promise((resolve, reject) => {
             o_state.o_audio_context.decodeAudioData(o_state.o_array_buffer_encoded_audio_data, resolve, reject);
@@ -2266,8 +2266,6 @@ let f_o_state_webgl_shader_audio_visualization = async function(
 
     o_state.o_canvas = document.createElement('canvas');
     
-
-
 
 
     o_state.f_render = function(){
@@ -2302,7 +2300,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
             o_state.n_amp_avgrms
         );
     
-        let n_ms = window.performance.now()
+        let n_ms = globalThis.performance.now()
         o_state.n_ms_auto_rendering_delta = Math.abs(
             o_state.n_ms_auto_rendering_last - n_ms
         );

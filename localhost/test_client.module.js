@@ -454,10 +454,10 @@ let a_o_test =
         f_o_test("f_sleep_ms", async () => {
             //readme.md:start
             //md: ## f_sleep_ms
-            let n_ms = window.performance.now();
+            let n_ms = globalThis.performance.now();
             await f_sleep_ms(333);
             f_assert_equals(
-                (window.performance.now() - n_ms) >= 333, 
+                (globalThis.performance.now() - n_ms) >= 333, 
                 true
             )
             //readme.md:end
@@ -548,7 +548,7 @@ let a_o_test =
             //readme.md:start
             //md: ## f_b_deno
             //md: check if script is running with https://deno.com/
-            f_assert_equals(f_b_denojs(), ("Deno" in window))
+            f_assert_equals(f_b_denojs(), ("Deno" in globalThis))
             //readme.md:end
         }),
         f_o_test("f_o_html_element__from_s_tag", async () => {
@@ -622,8 +622,8 @@ let a_o_test =
             //md: ## Overwrite / 'Monkey-Patch' the fetch function
             //md: replace the original fetch function, with a custom fetch function, for example to change some headers
             //md: this can be used in combination with `f_o_resp__fetch_cached`, `f_download_file__from_s_url`
-            let f_fetch_original = window.fetch
-            window.fetch = async function(){
+            let f_fetch_original = globalThis.fetch
+            globalThis.fetch = async function(){
                 let a_v_arg = Array.from(arguments);
                 let s_url = a_v_arg?.[0];
                 if(s_url?.includes('httbin_non_existing_lol.org')){
@@ -667,7 +667,7 @@ let a_o_test =
             f_assert_equals(o_data.b_from_disk, true)
 
             // restore the original function 
-            window.fetch = f_fetch_original
+            globalThis.fetch = f_fetch_original
 
             // test the restored function
             var o_data = await (await fetch('https://httpbin.org/headers')).json();
@@ -698,7 +698,7 @@ let a_o_test =
             //readme.md:start
             
             //md: ## f_s_hashed
-            //md: hash a string, using the window.crypto.subtle API, available functions at the moment are 
+            //md: hash a string, using the globalThis.crypto.subtle API, available functions at the moment are 
             //md: 'sha-1', 'sha-256', 'sha-384', 'sha-512'
 
             f_assert_equals(
@@ -749,12 +749,12 @@ let a_o_test =
                 ].join('\n')
             )
             let n_ms_duration = 1000;
-            let n_ms_window_performance_now = window.performance.now();
+            let n_ms_window_performance_now = globalThis.performance.now();
             let f_print = async function(){
         
-                let n = window.performance.now();
+                let n = globalThis.performance.now();
                 var o_cpu_stats__diff = await f_o_cpu_stats__diff();
-                // console.log(`ms:${window.performance.now()-n}`)
+                // console.log(`ms:${globalThis.performance.now()-n}`)
                 // console.log()
                 
                 let s_sep = '.';
@@ -771,7 +771,7 @@ let a_o_test =
                 ).join('')
                 console.log(s)
                 await f_sleep_ms(1000/60);
-                if(Math.abs(window.performance.now() - n_ms_window_performance_now) < n_ms_duration){
+                if(Math.abs(globalThis.performance.now() - n_ms_window_performance_now) < n_ms_duration){
                     f_print();
                 }
             }
@@ -873,10 +873,10 @@ let a_o_test =
             
 
             let n_ms_duration = 4000;
-            let n_ms_window_performance_now = window.performance.now();
+            let n_ms_window_performance_now = globalThis.performance.now();
             let a_a_n_u8 = []
             let f_print = async function(){
-                let n_ms_diff_abs_nor = Math.abs(window.performance.now() - n_ms_window_performance_now) / n_ms_duration;
+                let n_ms_diff_abs_nor = Math.abs(globalThis.performance.now() - n_ms_window_performance_now) / n_ms_duration;
                 if(n_ms_diff_abs_nor > 0.5){
                     a_a_n_u8 = [] // de-allocate ? 
                 }else{
@@ -884,7 +884,7 @@ let a_o_test =
                 }
                 
                 // allocate some memory to see usage
-                let n = window.performance.now();
+                let n = globalThis.performance.now();
                 let o = await f_o_meminfo()
                 // console.log(o.o_meminfo_property_MemFree)
 
@@ -961,10 +961,10 @@ let a_o_test =
             o_nvidia_smi_info['memory.used']
 
             let n_ms_duration = 200000;
-            let n_ms_window_performance_now = window.performance.now();
+            let n_ms_window_performance_now = globalThis.performance.now();
             let a_a_n_u8 = []
             let f_print = async function(){
-                let n_ms_diff_abs_nor = Math.abs(window.performance.now() - n_ms_window_performance_now) / n_ms_duration;
+                let n_ms_diff_abs_nor = Math.abs(globalThis.performance.now() - n_ms_window_performance_now) / n_ms_duration;
                 if(n_ms_diff_abs_nor > 0.5){
                     a_a_n_u8 = [] // de-allocate ? 
                 }else{
@@ -972,7 +972,7 @@ let a_o_test =
                 }
                 
                 // allocate some memory to see usage
-                let n = window.performance.now();
+                let n = globalThis.performance.now();
                 let n_max = 80;
                 let o_nvidia_smi_info = await f_o_nvidia_smi_info(
                     a_o_metric
@@ -1663,12 +1663,12 @@ let a_o_test =
                 }`
             )
             document.body.appendChild(o_canvas);
-            window.addEventListener('resize', ()=>{
+            globalThis.addEventListener('resize', ()=>{
                 // this will resize the canvas and also update 'o_scl_canvas'
                 f_resize_canvas_from_o_webgl_program(
                     o_webgl_program,
-                    window.innerWidth, 
-                    window.innerHeight
+                    globalThis.innerWidth, 
+                    globalThis.innerHeight
                 )
                 f_render_from_o_webgl_program(o_webgl_program);
 
@@ -1840,7 +1840,7 @@ let a_o_test =
                 }
                 // ------------- performance measuring: end
 
-                o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, window.performance.now());
+                o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, globalThis.performance.now());
 
                 // it is important to update each texture binding on each render call
                 let n_idx_texture = 0;
@@ -2001,8 +2001,8 @@ let a_o_test =
                 // this will resize the canvas and also update 'o_scl_canvas'
                 f_resize_canvas_from_o_webgl_program(
                     o_webgl_program,
-                    window.innerWidth, 
-                    window.innerHeight
+                    globalThis.innerWidth, 
+                    globalThis.innerHeight
                 )
                 f_setup_texture_and_framebuffer(a_o_texture[0], a_o_framebuffer[0]);
                 f_setup_texture_and_framebuffer(a_o_texture[1], a_o_framebuffer[1]);
@@ -2010,7 +2010,7 @@ let a_o_test =
                 f_randomize_texture_data(a_o_texture[1]);
 
             }
-            window.addEventListener('resize', ()=>{
+            globalThis.addEventListener('resize', ()=>{
                 f_resize();
                 f_render_from_o_webgl_program_custom(o_webgl_program);
 
@@ -2120,8 +2120,8 @@ let a_o_test =
                     n_ms_count= 0;
                 }
                 // ------------- performance measuring: end
-                o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, window.performance.now());
-                // console.log(window.performance.now())
+                o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, globalThis.performance.now());
+                // console.log(globalThis.performance.now())
 
                 f_render_from_o_webgl_program_custom(o_webgl_program);
 
@@ -2261,12 +2261,12 @@ let a_o_test =
                     1.
                 ]
             });
-            window.onresize = function(){
-                o_state.n_scl_x_canvas = window.innerWidth;
+            globalThis.onresize = function(){
+                o_state.n_scl_x_canvas = globalThis.innerWidth;
                 o_state.f_render();
             }
-            window.onmousemove = function(o_e){
-                let n_y_nor = o_e.clientY/ window.innerHeight;
+            globalThis.onmousemove = function(o_e){
+                let n_y_nor = o_e.clientY/ globalThis.innerHeight;
                 o_state.n_amp_peaks = n_y_nor;
                 o_state.n_amp_avgrms = n_y_nor*0.5;
                 o_state.f_render();

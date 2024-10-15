@@ -243,8 +243,8 @@
         }
 
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.width = globalThis.innerWidth;
+            canvas.height = globalThis.innerHeight;
             setupTextureAndFramebuffer(textures[0], framebuffers[0]);
             setupTextureAndFramebuffer(textures[1], framebuffers[1]);
             initializeTexture();
@@ -252,7 +252,7 @@
             gl.viewport(0, 0, canvas.width, canvas.height);
         }
 
-        window.addEventListener('resize', resizeCanvas);
+        globalThis.addEventListener('resize', resizeCanvas);
         resizeCanvas();
         n_raf = requestAnimationFrame(render);
     </script>

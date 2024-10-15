@@ -223,7 +223,7 @@ class O_cpu_stats{
         this.a_o_cpu_stats = [];
         this.s_proc_stat = s_proc_stat,
         this.n_ts_ms = new Date().getTime()
-        this.n_ms_window_performance_now = window.performance.now()
+        this.n_ms_window_performance_now = globalThis.performance.now()
         this.n_conf_clk_tck = n_conf_clk_tck,
         this.n_total_context_switches_across_all_cpus = n_total_context_switches_across_all_cpus,
         this.n_ts_ms_ut__booted = n_ts_ms_ut__booted, 
@@ -293,7 +293,7 @@ class O_meminfo{
     constructor(
     ){
         this.n_ts_ms = new Date().getTime()
-        this.n_window_performance_now = window.performance.now();
+        this.n_window_performance_now = globalThis.performance.now();
         this.o_meminfo_property_MemTotal = 
         new O_meminfo_property(
             'MemTotal',
