@@ -2296,7 +2296,7 @@ let a_o_test =
                 n_amp_avgrms: 0.125, // the amplitude of the average rms 
             });
             document.body.appendChild(o_state2.o_canvas);
-
+            //md: ![audio1](./audio1.png)
 
             //md:  ### load from decoded audio data / samples
             let n_seconds = 10;
@@ -2306,6 +2306,8 @@ let a_o_test =
                 let n_idx_nor = parseInt(n_idx)/n_samples;
                 return Math.sin(n_idx_nor*440);
             });
+            //md: ![audio1](./audio2.png)
+
             let o_state3 = await f_o_state_webgl_shader_audio_visualization({
                 a_n_f32_audio_sample,
                 n_scl_x_canvas : 1000,
@@ -2315,6 +2317,8 @@ let a_o_test =
             });
             document.body.appendChild(o_state3.o_canvas);
             console.log(o_state3.o_canvas)
+            //md: ![audio1](./audio3.png)
+            
             //readme.md:end
         }),
         
