@@ -2285,6 +2285,36 @@ let a_o_test =
             });
 
             document.body.appendChild(o_state.o_canvas);
+
+            //md:  ### load from encoded audio data
+            let o_array_buffer_encoded_audio_data = await(await fetch('./meme_sounds.mp3')).arrayBuffer();
+            let o_state2 = await f_o_state_webgl_shader_audio_visualization({
+                o_array_buffer_encoded_audio_data,
+                n_scl_x_canvas : 1000,
+                n_scl_y_canvas : 200 , 
+                n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
+                n_amp_avgrms: 0.125, // the amplitude of the average rms 
+            });
+            document.body.appendChild(o_state2.o_canvas);
+
+
+            //md:  ### load from decoded audio data / samples
+            let n_seconds = 10;
+            let n_khz = 48000;
+            let n_samples = n_seconds*n_khz;
+            let a_n_f32_audio_sample = new Float32Array(n_samples).fill(0).map((n, n_idx)=>{
+                let n_idx_nor = parseInt(n_idx)/n_samples;
+                return Math.sin(n_idx_nor*440);
+            });
+            let o_state3 = await f_o_state_webgl_shader_audio_visualization({
+                a_n_f32_audio_sample,
+                n_scl_x_canvas : 1000,
+                n_scl_y_canvas : 200 , 
+                n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
+                n_amp_avgrms: 0.125, // the amplitude of the average rms 
+            });
+            document.body.appendChild(o_state3.o_canvas);
+            console.log(o_state3.o_canvas)
             //readme.md:end
         }),
         

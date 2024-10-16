@@ -2186,6 +2186,7 @@ let f_o_google_sheet_data_from_o_resp_data = function(o_resp_data){
 let f_o_state_webgl_shader_audio_visualization = async function(
     {
         s_path_or_url_audio_file = null,
+        o_array_buffer_encoded_audio_data = null,
         a_n_f32_audio_sample = null,
         n_ms_start = null, 
         n_ms_end = null,
@@ -2202,9 +2203,10 @@ let f_o_state_webgl_shader_audio_visualization = async function(
     let o_state = Object.assign(
         {
             s_path_or_url_audio_file,
+            o_array_buffer_encoded_audio_data,
+            a_n_f32_audio_sample,
             n_ms_start,
             n_ms_end,
-            a_n_f32_audio_sample,
             o_canvas: null,
             o_ufloc__o_scl_canvas: null,
             o_ufloc__o_date: null,
@@ -2245,7 +2247,6 @@ let f_o_state_webgl_shader_audio_visualization = async function(
                     o_state.f_start_auto_rendering();
                 }
             }, 
-            o_array_buffer_encoded_audio_data: null,
             o_audio_buffer: null,
             o_audio_context: null,
             
@@ -2253,20 +2254,42 @@ let f_o_state_webgl_shader_audio_visualization = async function(
     )
     if(s_path_or_url_audio_file){
         
-        o_state.o_array_buffer_encoded_audio_data = await(await fetch('./meme_sounds.mp3')).arrayBuffer();
+        o_state.o_array_buffer_encoded_audio_data = await(await fetch(s_path_or_url_audio_file)).arrayBuffer();
         o_state.o_audio_context = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
         
         o_state.o_audio_buffer = await new Promise((resolve, reject) => {
             o_state.o_audio_context.decodeAudioData(o_state.o_array_buffer_encoded_audio_data, resolve, reject);
         });
 
-        o_state.a_n_f32_audio_sample = o_state.o_audio_buffer.getChannelData(0);
     }
     
+    if(
+        s_path_or_url_audio_file != null 
+    ){
+        o_array_buffer_encoded_audio_data = await(await fetch(s_path_or_url_audio_file)).arrayBuffer();
+    }
+
+    if(
+        o_array_buffer_encoded_audio_data != null 
+    ){
+        
+        o_state.o_array_buffer_encoded_audio_data = o_array_buffer_encoded_audio_data
+        o_state.o_audio_context = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
+    
+        o_state.o_audio_buffer = await new Promise((resolve, reject) => {
+            o_state.o_audio_context.decodeAudioData(o_state.o_array_buffer_encoded_audio_data, resolve, reject);
+        });
+        o_state.a_n_f32_audio_sample = o_state.o_audio_buffer.getChannelData(0);
+    }
+
+    if(
+        a_n_f32_audio_sample != null 
+    ){
+        o_state.a_n_f32_audio_sample = a_n_f32_audio_sample
+    }
 
     o_state.o_canvas = document.createElement('canvas');
     
-
 
     o_state.f_render = function(){
         let o_date = new Date();
