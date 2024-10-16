@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Oct 16 2024 09:10:32 GMT+0200 (Central European Summer Time)","n_ts_created":1729062632915} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Oct 16 2024 09:13:59 GMT+0200 (Central European Summer Time)","n_ts_created":1729062839279} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1983,9 +1983,8 @@ for this it creates a shader program, several parameters can be adjusted
                 n_amp_avgrms: 0.125, // the amplitude of the average rms 
             });
             document.body.appendChild(o_state2.o_canvas);
-
-
 ```
+![audio1](./localhost/audio1.png)
 ### load from decoded audio data / samples
 ```javascript
             let n_seconds = 10;
@@ -1995,6 +1994,9 @@ for this it creates a shader program, several parameters can be adjusted
                 let n_idx_nor = parseInt(n_idx)/n_samples;
                 return Math.sin(n_idx_nor*440);
             });
+```
+![audio1](./localhost/audio2.png)
+```javascript
             let o_state3 = await f_o_state_webgl_shader_audio_visualization({
                 a_n_f32_audio_sample,
                 n_scl_x_canvas : 1000,
@@ -2005,3 +2007,4 @@ for this it creates a shader program, several parameters can be adjusted
             document.body.appendChild(o_state3.o_canvas);
             console.log(o_state3.o_canvas)
 ```
+![audio1](./localhost/audio3.png)
