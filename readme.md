@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Mon Sep 16 2024 11:41:41 GMT+0200 (Central European Summer Time)","n_ts_created":1726479701257} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Oct 16 2024 08:38:31 GMT+0200 (Central European Summer Time)","n_ts_created":1729060711248} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -310,10 +310,10 @@ adds a value to an array at the beginning or at the end and shifts all items +1 
 ```
 ## f_sleep_ms
 ```javascript
-            let n_ms = window.performance.now();
+            let n_ms = globalThis.performance.now();
             await f_sleep_ms(333);
             f_assert_equals(
-                (window.performance.now() - n_ms) >= 333, 
+                (globalThis.performance.now() - n_ms) >= 333, 
                 true
             )
 ```
@@ -363,7 +363,7 @@ makes a fetch but caches the response meta (status, statusText, headers) and dat
 ## f_b_deno
 check if script is running with https://deno.com/
 ```javascript
-            f_assert_equals(f_b_denojs(), ("Deno" in window))
+            f_assert_equals(f_b_denojs(), ("Deno" in globalThis))
 ```
 ## f_o_html_element__from_s_tag
 returns a html element
@@ -422,8 +422,8 @@ one can also print the download percentage
 replace the original fetch function, with a custom fetch function, for example to change some headers
 this can be used in combination with `f_o_resp__fetch_cached`, `f_download_file__from_s_url`
 ```javascript
-            let f_fetch_original = window.fetch
-            window.fetch = async function(){
+            let f_fetch_original = globalThis.fetch
+            globalThis.fetch = async function(){
                 let a_v_arg = Array.from(arguments);
                 let s_url = a_v_arg?.[0];
                 if(s_url?.includes('httbin_non_existing_lol.org')){
@@ -467,7 +467,7 @@ this can be used in combination with `f_o_resp__fetch_cached`, `f_download_file_
             f_assert_equals(o_data.b_from_disk, true)
 
             // restore the original function 
-            window.fetch = f_fetch_original
+            globalThis.fetch = f_fetch_original
 
             // test the restored function
             var o_data = await (await fetch('https://httpbin.org/headers')).json();
@@ -490,7 +490,7 @@ a handy function to directly get a js object html document from a url, works in 
             
 ```
 ## f_s_hashed
-hash a string, using the window.crypto.subtle API, available functions at the moment are
+hash a string, using the globalThis.crypto.subtle API, available functions at the moment are
 'sha-1', 'sha-256', 'sha-384', 'sha-512'
 ```javascript
             f_assert_equals(
@@ -538,12 +538,12 @@ this will parse /proc/stat so we have to await it
                 ].join('\n')
             )
             let n_ms_duration = 1000;
-            let n_ms_window_performance_now = window.performance.now();
+            let n_ms_window_performance_now = globalThis.performance.now();
             let f_print = async function(){
         
-                let n = window.performance.now();
+                let n = globalThis.performance.now();
                 var o_cpu_stats__diff = await f_o_cpu_stats__diff();
-                // console.log(`ms:${window.performance.now()-n}`)
+                // console.log(`ms:${globalThis.performance.now()-n}`)
                 // console.log()
                 
                 let s_sep = '.';
@@ -560,7 +560,7 @@ this will parse /proc/stat so we have to await it
                 ).join('')
                 console.log(s)
                 await f_sleep_ms(1000/60);
-                if(Math.abs(window.performance.now() - n_ms_window_performance_now) < n_ms_duration){
+                if(Math.abs(globalThis.performance.now() - n_ms_window_performance_now) < n_ms_duration){
                     f_print();
                 }
             }
@@ -648,10 +648,10 @@ linux only , get info about the RAM usage
             
 
             let n_ms_duration = 4000;
-            let n_ms_window_performance_now = window.performance.now();
+            let n_ms_window_performance_now = globalThis.performance.now();
             let a_a_n_u8 = []
             let f_print = async function(){
-                let n_ms_diff_abs_nor = Math.abs(window.performance.now() - n_ms_window_performance_now) / n_ms_duration;
+                let n_ms_diff_abs_nor = Math.abs(globalThis.performance.now() - n_ms_window_performance_now) / n_ms_duration;
                 if(n_ms_diff_abs_nor > 0.5){
                     a_a_n_u8 = [] // de-allocate ? 
                 }else{
@@ -659,7 +659,7 @@ linux only , get info about the RAM usage
                 }
                 
                 // allocate some memory to see usage
-                let n = window.performance.now();
+                let n = globalThis.performance.now();
                 let o = await f_o_meminfo()
                 // console.log(o.o_meminfo_property_MemFree)
 
@@ -732,10 +732,10 @@ to get all available properties
             o_nvidia_smi_info['memory.used']
 
             let n_ms_duration = 200000;
-            let n_ms_window_performance_now = window.performance.now();
+            let n_ms_window_performance_now = globalThis.performance.now();
             let a_a_n_u8 = []
             let f_print = async function(){
-                let n_ms_diff_abs_nor = Math.abs(window.performance.now() - n_ms_window_performance_now) / n_ms_duration;
+                let n_ms_diff_abs_nor = Math.abs(globalThis.performance.now() - n_ms_window_performance_now) / n_ms_duration;
                 if(n_ms_diff_abs_nor > 0.5){
                     a_a_n_u8 = [] // de-allocate ? 
                 }else{
@@ -743,7 +743,7 @@ to get all available properties
                 }
                 
                 // allocate some memory to see usage
-                let n = window.performance.now();
+                let n = globalThis.performance.now();
                 let n_max = 80;
                 let o_nvidia_smi_info = await f_o_nvidia_smi_info(
                     a_o_metric
@@ -775,7 +775,7 @@ to get all available properties
             // Test Case: Megabits (Mb) to bytes
             let o = f_o_number_value__from_s_input("123.443 [Mb]");
             f_assert_equals(o.n, 123443000);  // Megabits to bits
-        
+            console.log(o)
             // Test Case: Mebibytes (MiB) to mebibytes
             o = f_o_number_value__from_s_input(" 908 MiB ");
             f_assert_equals(o.n_mebi, 908);
@@ -1361,12 +1361,12 @@ some simple helper functions to create a webgl programm, using GLSL shader code 
                 }`
             )
             document.body.appendChild(o_canvas);
-            window.addEventListener('resize', ()=>{
+            globalThis.addEventListener('resize', ()=>{
                 // this will resize the canvas and also update 'o_scl_canvas'
                 f_resize_canvas_from_o_webgl_program(
                     o_webgl_program,
-                    window.innerWidth, 
-                    window.innerHeight
+                    globalThis.innerWidth, 
+                    globalThis.innerHeight
                 )
                 f_render_from_o_webgl_program(o_webgl_program);
 
@@ -1538,7 +1538,7 @@ some simple helper functions to create a webgl programm, using GLSL shader code 
                 }
                 // ------------- performance measuring: end
 
-                o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, window.performance.now());
+                o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, globalThis.performance.now());
 
                 // it is important to update each texture binding on each render call
                 let n_idx_texture = 0;
@@ -1695,8 +1695,8 @@ which is needed for an automata for example
                 // this will resize the canvas and also update 'o_scl_canvas'
                 f_resize_canvas_from_o_webgl_program(
                     o_webgl_program,
-                    window.innerWidth, 
-                    window.innerHeight
+                    globalThis.innerWidth, 
+                    globalThis.innerHeight
                 )
                 f_setup_texture_and_framebuffer(a_o_texture[0], a_o_framebuffer[0]);
                 f_setup_texture_and_framebuffer(a_o_texture[1], a_o_framebuffer[1]);
@@ -1704,7 +1704,7 @@ which is needed for an automata for example
                 f_randomize_texture_data(a_o_texture[1]);
 
             }
-            window.addEventListener('resize', ()=>{
+            globalThis.addEventListener('resize', ()=>{
                 f_resize();
                 f_render_from_o_webgl_program_custom(o_webgl_program);
 
@@ -1814,8 +1814,8 @@ which is needed for an automata for example
                     n_ms_count= 0;
                 }
                 // ------------- performance measuring: end
-                o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, window.performance.now());
-                // console.log(window.performance.now())
+                o_webgl_program?.o_ctx.uniform1f(o_ufloc__n_ms_time, globalThis.performance.now());
+                // console.log(globalThis.performance.now())
 
                 f_render_from_o_webgl_program_custom(o_webgl_program);
 
@@ -1922,4 +1922,52 @@ so that stuff can be accessed by 'o.a_o[20].s_name', for example
             //     [1, 0.4980392156862745, 0.24705882352941178, 1],
             //     f_o_data_from_google_sheet('#ff7f3f'), 
             // );
+```
+# 'f_o_state_webgl_shader_audio_visualization'
+visualizes audio
+for this it creates a shader program, several parameters can be adjusted
+```javascript
+            let o_state = await f_o_state_webgl_shader_audio_visualization({
+                s_path_or_url_audio_file : './meme_sounds.mp3',
+                n_scl_x_canvas : 1000,
+                n_scl_y_canvas : 200 , 
+                n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
+                n_amp_avgrms: 0.125, // the amplitude of the average rms 
+                a_n_rgba_color_amp_peaks: [ 
+                    Math.random(),
+                    Math.random(),
+                    Math.random(),
+                    1.
+                ],
+                a_n_rgba_color_amp_avg: [ 
+                    Math.random(),
+                    Math.random(),
+                    Math.random(),
+                    1.
+                ]
+            });
+            globalThis.onresize = function(){
+                o_state.n_scl_x_canvas = globalThis.innerWidth;
+                o_state.f_render();
+            }
+            globalThis.onmousemove = function(o_e){
+                let n_y_nor = o_e.clientY/ globalThis.innerHeight;
+                o_state.n_amp_peaks = n_y_nor;
+                o_state.n_amp_avgrms = n_y_nor*0.5;
+                o_state.f_render();
+            }
+
+            const n_sec_duration = o_state.o_audio_buffer.duration; // Duration in seconds
+            const n_samples_per_second_samplerate = o_state.o_audio_buffer.sampleRate; // Samples per second
+            const n_samples_total = o_state.o_audio_buffer.length; // Total number of samples
+            const n_num_of_channels = o_state.o_audio_buffer.numberOfChannels; // Number of audio channels
+            // const a_n_f32 = o_state.o_audio_buffer.getChannelData(0); // PCM data for channel 0
+            console.log({
+                n_sec_duration,
+                n_samples_per_second_samplerate,
+                n_samples_total,
+                n_num_of_channels,
+            });
+
+            document.body.appendChild(o_state.o_canvas);
 ```
