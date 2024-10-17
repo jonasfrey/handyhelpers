@@ -2267,8 +2267,12 @@ let a_o_test =
             }
             globalThis.onmousemove = function(o_e){
                 let n_y_nor = o_e.clientY/ globalThis.innerHeight;
+                let n_x_nor = o_e.clientX/ globalThis.innerWidth;
+
                 o_state.n_amp_peaks = n_y_nor;
                 o_state.n_amp_avgrms = n_y_nor*0.5;
+                o_state.n_nor_start = 0.0
+                o_state.n_nor_end = n_x_nor;
                 o_state.f_render();
             }
 
@@ -2294,6 +2298,12 @@ let a_o_test =
                 n_scl_y_canvas : 200 , 
                 n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
                 n_amp_avgrms: 0.125, // the amplitude of the average rms 
+                a_n_rgba_color_amp_peaks: [ 
+                    1., 0., 0., 1.
+                ],
+                a_n_rgba_color_amp_avg: [ 
+                    0., 0., 1., 1.,
+                ]
             });
             document.body.appendChild(o_state2.o_canvas);
             //md: ![audio1](./localhost/audio1.png)
@@ -2317,8 +2327,34 @@ let a_o_test =
             });
             document.body.appendChild(o_state3.o_canvas);
             console.log(o_state3.o_canvas)
+            globalThis.o_state3 = o_state3
             //md: ![audio1](./localhost/audio3.png)
-            
+
+
+            //md: ### update the 'view/zoom' into the samples
+            //md: if we use a url to a audio file we will have the duration of the audio file 
+            //md: with this we then can render from second 5. to second 10. for example. 
+            let n_sec_start = 5.; 
+            let n_sec_end = 10.;
+            o_state2.n_nor_start = n_sec_start/o_state.o_audio_buffer.duration;
+            o_state2.n_nor_end = n_sec_end/o_state.o_audio_buffer.duration;
+            o_state2.f_render();
+        
+            //md: ### playhead / cursor 
+            //md: we can visualize a cursor / playhead by doing this
+            o_state2.b_show_playhead = true; 
+            o_state2.n_nor_playhead = 0.5 // attention: this is normalized by the current n_nor_start and n_nor_end, and not 'globally' 
+            o_state2.f_render();
+
+            //md: ### delete/free webgl resources
+            //md: finally we can free up the webgl resources to prevent memory leaks
+            globalThis.onclick = function(){
+                alert('webgl stuff has been deleted / free"d up')
+                o_state.f_delete_webgl_stuff();
+                o_state2.f_delete_webgl_stuff();
+                o_state3.f_delete_webgl_stuff();
+            }
+
             //readme.md:end
         }),
         

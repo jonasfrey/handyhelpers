@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Wed Oct 16 2024 09:13:59 GMT+0200 (Central European Summer Time)","n_ts_created":1729062839279} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Oct 17 2024 12:28:38 GMT+0200 (Central European Summer Time)","n_ts_created":1729160918980} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -1952,8 +1952,12 @@ for this it creates a shader program, several parameters can be adjusted
             }
             globalThis.onmousemove = function(o_e){
                 let n_y_nor = o_e.clientY/ globalThis.innerHeight;
+                let n_x_nor = o_e.clientX/ globalThis.innerWidth;
+
                 o_state.n_amp_peaks = n_y_nor;
                 o_state.n_amp_avgrms = n_y_nor*0.5;
+                o_state.n_nor_start = 0.0
+                o_state.n_nor_end = n_x_nor;
                 o_state.f_render();
             }
 
@@ -1981,6 +1985,12 @@ for this it creates a shader program, several parameters can be adjusted
                 n_scl_y_canvas : 200 , 
                 n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
                 n_amp_avgrms: 0.125, // the amplitude of the average rms 
+                a_n_rgba_color_amp_peaks: [ 
+                    1., 0., 0., 1.
+                ],
+                a_n_rgba_color_amp_avg: [ 
+                    0., 0., 1., 1.,
+                ]
             });
             document.body.appendChild(o_state2.o_canvas);
 ```
@@ -2006,5 +2016,36 @@ for this it creates a shader program, several parameters can be adjusted
             });
             document.body.appendChild(o_state3.o_canvas);
             console.log(o_state3.o_canvas)
+            globalThis.o_state3 = o_state3
 ```
 ![audio1](./localhost/audio3.png)
+### update the 'view/zoom' into the samples
+if we use a url to a audio file we will have the duration of the audio file
+with this we then can render from second 5. to second 10. for example.
+```javascript
+            let n_sec_start = 5.; 
+            let n_sec_end = 10.;
+            o_state2.n_nor_start = n_sec_start/o_state.o_audio_buffer.duration;
+            o_state2.n_nor_end = n_sec_end/o_state.o_audio_buffer.duration;
+            o_state2.f_render();
+        
+```
+### playhead / cursor
+we can visualize a cursor / playhead by doing this
+```javascript
+            o_state2.b_show_playhead = true; 
+            o_state2.n_nor_playhead = 0.5 // attention: this is normalized by the current n_nor_start and n_nor_end, and not 'globally' 
+            o_state2.f_render();
+
+```
+### delete/free webgl resources
+finally we can free up the webgl resources to prevent memory leaks
+```javascript
+            globalThis.onclick = function(){
+                alert('webgl stuff has been deleted / free"d up')
+                o_state.f_delete_webgl_stuff();
+                o_state2.f_delete_webgl_stuff();
+                o_state3.f_delete_webgl_stuff();
+            }
+
+```

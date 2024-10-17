@@ -2188,11 +2188,11 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         s_path_or_url_audio_file = null,
         o_array_buffer_encoded_audio_data = null,
         a_n_f32_audio_sample = null,
-        n_ms_start = null, 
-        n_ms_end = null,
+        n_nor_start = 0.0, 
+        n_nor_end = 1.0,
+        n_nor_playhead = null,
         n_scl_x_canvas = 300, 
         n_scl_y_canvas = 100, 
-        n_cursor_nor = 0.0, 
         n_amp_peaks = 0.25, 
         n_amp_avgrms = 0.125, 
         a_n_rgba_color_amp_peaks = [1., 0., 0., 1. ],
@@ -2205,14 +2205,17 @@ let f_o_state_webgl_shader_audio_visualization = async function(
             s_path_or_url_audio_file,
             o_array_buffer_encoded_audio_data,
             a_n_f32_audio_sample,
-            n_ms_start,
-            n_ms_end,
+            n_nor_start,
+            n_nor_start__last:n_nor_start, 
+            n_nor_end,
+            n_nor_end__last:n_nor_end,
+            n_nor_playhead,
             o_canvas: null,
             o_ufloc__o_scl_canvas: null,
             o_ufloc__o_date: null,
             o_ufloc__o_trn_mouse: null,
             o_ufloc__n_sec_time: null,
-            o_ufloc__n_cursor_nor: null,
+            o_ufloc__n_nor_playhead: null,
             o_ufloc__n_amp_1: null,
             n_scl_x_canvas, 
             n_scl_y_canvas,
@@ -2221,7 +2224,6 @@ let f_o_state_webgl_shader_audio_visualization = async function(
             n_ms_auto_rendering_fps: 0,
             n_ms_auto_rendering_last : 0,
             n_ms_update_time_delta_max : 1000,
-            n_cursor_nor,
             n_amp_peaks,
             n_amp_avgrms,
             n_id_raf : 0,
@@ -2252,21 +2254,11 @@ let f_o_state_webgl_shader_audio_visualization = async function(
             
         }, 
     )
-    if(s_path_or_url_audio_file){
-        
-        o_state.o_array_buffer_encoded_audio_data = await(await fetch(s_path_or_url_audio_file)).arrayBuffer();
-        o_state.o_audio_context = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
-        
-        o_state.o_audio_buffer = await new Promise((resolve, reject) => {
-            o_state.o_audio_context.decodeAudioData(o_state.o_array_buffer_encoded_audio_data, resolve, reject);
-        });
 
-    }
-    
     if(
         s_path_or_url_audio_file != null 
     ){
-        o_array_buffer_encoded_audio_data = await(await fetch(s_path_or_url_audio_file)).arrayBuffer();
+        o_array_buffer_encoded_audio_data = await(await fetch(s_path_or_url_audio_file)).arrayBuffer();   
     }
 
     if(
@@ -2280,6 +2272,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
             o_state.o_audio_context.decodeAudioData(o_state.o_array_buffer_encoded_audio_data, resolve, reject);
         });
         o_state.a_n_f32_audio_sample = o_state.o_audio_buffer.getChannelData(0);
+        console.log(o_state.o_audio_buffer)
     }
 
     if(
@@ -2290,8 +2283,28 @@ let f_o_state_webgl_shader_audio_visualization = async function(
 
     o_state.o_canvas = document.createElement('canvas');
     
+    o_state.f_delete_webgl_stuff = function(){
+        o_state.o_webgl_program.o_ctx.deleteTexture(o_state.o_texture);
+        f_delete_o_webgl_program(o_state.o_webgl_program)
+    }
 
     o_state.f_render = function(){
+        if(
+            o_state.n_nor_start__last != o_state.n_nor_start
+            ||
+            o_state.n_nor_end__last != o_state.n_nor_end
+            ){
+                o_state.f_update_texture_data();
+        }
+        if(
+            o_state.n_nor_start > 1. || o_state.n_nor_start < 0.
+            || o_state.n_nor_end > 1. || o_state.n_nor_end < 0.
+        ){
+            throw Error(`n_nor_start or n_nor_end must be a normalized number between 0.0 and 1.1: current values are ${JSON.stringify({
+                n_nor_start: o_state.n_nor_start,
+                n_nor_end: o_state.n_nor_end,
+            })}`)
+        }
         let o_date = new Date();
         let n_sec_of_the_day_because_utc_timestamp_does_not_fit_into_f32_value = (o_date.getTime()/1000.)%(60*60*24)
         // n_sec_of_the_day_because_utc_timestamp_does_not_fit_into_f32_value = (60*60*24)-1 //test
@@ -2313,8 +2326,14 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         o_state.o_webgl_program?.o_ctx.uniform1f( o_state.o_ufloc__n_sec_time,
             n_sec_of_the_day_because_utc_timestamp_does_not_fit_into_f32_value
         );
-        o_state.o_webgl_program?.o_ctx.uniform1f( o_state.o_ufloc__n_cursor_nor,
-            o_state.n_cursor_nor
+        o_state.o_webgl_program?.o_ctx.uniform1f( o_state.o_ufloc__b_show_playhead,
+            o_state.b_show_playhead
+        );
+        o_state.o_webgl_program?.o_ctx.uniform1f( o_state.o_ufloc__b_show_playhead,
+            (o_state.n_nor_playhead != null) ? 1 : 0
+        );
+        o_state.o_webgl_program?.o_ctx.uniform1f( o_state.o_ufloc__n_nor_playhead,
+            o_state.n_nor_playhead
         );
         o_state.o_webgl_program?.o_ctx.uniform1f( o_state.o_ufloc__n_amp_peaks,
             o_state.n_amp_peaks
@@ -2342,7 +2361,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         );
 
         o_state.n_ms_auto_rendering_last = n_ms;
-        console.log(o_state)
+
         f_render_from_o_webgl_program(o_state.o_webgl_program);
     }
 
@@ -2373,7 +2392,8 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         uniform float n_sec_time;
         uniform vec2 o_scl_canvas;
         uniform vec4 o_date;
-        uniform float n_cursor_nor;
+        uniform float b_show_playhead;
+        uniform float n_nor_playhead;
         uniform float n_amp_peaks;
         uniform float n_amp_avgrms;
     
@@ -2411,9 +2431,20 @@ let f_o_state_webgl_shader_audio_visualization = async function(
             vec4 o_wave_col_peaks = n_y_peaks*o_col_peaks;
             vec4 o_wave_col_avgrms = n_y_avgrms*o_col_avgrms;
 
-            fragColor = o_wave_col_peaks;
-            fragColor *= (1.-n_y_avgrms);
-            fragColor += o_wave_col_avgrms;
+            vec4 o_col_wave = o_wave_col_peaks;
+            o_col_wave *= (1.-n_y_avgrms);
+            o_col_wave += o_wave_col_avgrms;
+            fragColor = o_col_wave;
+
+            if(b_show_playhead == 1.0){
+                
+                float n_d_playhead = abs(o_trn2.x - n_nor_playhead);
+                float n_d_playhead_thin = smoothstep(0.0, (1./o_scl_canvas.x   )*1., n_d_playhead);
+                n_d_playhead = smoothstep(0.0, (1./o_scl_canvas.x   )*10., n_d_playhead);
+                fragColor *= n_d_playhead;
+                fragColor += (1.-n_d_playhead)*vec4(1.-o_col_wave.rgb, fragColor.a);
+                fragColor += (1.-n_d_playhead_thin);//*vec4(.1,0.,0., 0.1);
+            }
         }
         `
     )
@@ -2424,82 +2455,167 @@ let f_o_state_webgl_shader_audio_visualization = async function(
     // o_state.o_ufloc__o_date = o_state.o_webgl_program?.o_ctx.getUniformLocation(o_state.o_webgl_program?.o_shader__program, 'o_date');
     // o_state.o_ufloc__o_trn_mouse = o_state.o_webgl_program?.o_ctx.getUniformLocation(o_state.o_webgl_program?.o_shader__program, 'o_trn_mouse');
     o_state.o_ufloc__n_sec_time = o_state.o_webgl_program?.o_ctx.getUniformLocation(o_state.o_webgl_program?.o_shader__program, 'n_sec_time');
-    o_state.o_ufloc__n_cursor_nor = o_state.o_webgl_program?.o_ctx.getUniformLocation(o_state.o_webgl_program?.o_shader__program, 'n_cursor_nor');
+    o_state.o_ufloc__b_show_playhead = o_state.o_webgl_program?.o_ctx.getUniformLocation(o_state.o_webgl_program?.o_shader__program, 'b_show_playhead');
+    o_state.o_ufloc__n_nor_playhead = o_state.o_webgl_program?.o_ctx.getUniformLocation(o_state.o_webgl_program?.o_shader__program, 'n_nor_playhead');
     o_state.o_ufloc__n_amp_peaks = o_state.o_webgl_program?.o_ctx.getUniformLocation(o_state.o_webgl_program?.o_shader__program, 'n_amp_peaks');
     o_state.o_ufloc__n_amp_avgrms = o_state.o_webgl_program?.o_ctx.getUniformLocation(o_state.o_webgl_program?.o_shader__program, 'n_amp_avgrms');
-
-    let gl = o_state.o_webgl_program.o_ctx;
-    let texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    
-    let n_scl_x_texture = 1920;
-    let n_scl_y_texture = Math.ceil((n_scl_x_canvas)/n_scl_x_texture);
-
-    let a_n_u8_audio_data_new = new Uint8Array(n_scl_x_texture*n_scl_y_texture*4);
-    // we take at max n_scl_x*n_scl_y samples and put them into a 2d textrue.
-
-    o_state.o_ufloc__o_scl_audio_texture_channel0 = o_state.o_webgl_program?.o_ctx.getUniformLocation(
-        o_state.o_webgl_program?.o_shader__program, 'o_scl_audio_texture_channel0');
-
-    o_state.o_webgl_program?.o_ctx.uniform2f(o_state.o_ufloc__o_scl_audio_texture_channel0,
-        n_scl_x_texture, 
-        n_scl_y_texture
-    );
-
-    let n_f32_sum = 0.;
-    let n_f32_count = 0.;
-    let n_idx_a_n_u8_audio_data_new = 0;
-    let n_samples_per_subsample = o_state.a_n_f32_audio_sample.length / (a_n_u8_audio_data_new.length/4);
-    let n_samples_per_subsample_floor = Math.floor(n_samples_per_subsample);
-    // original length 10443406
-    // new array length 1920*1080 = 
-    // samples per new sample = 10443406÷(1920×1080) = 5.036364776
-    let n_f32_range = 0.;
-    let n_f32_min = 0.;
-    let n_f32_max = 0.;
-    for(let n = 0; n < a_n_u8_audio_data_new.length; n+=1){
-
-        let n_nor = n / a_n_u8_audio_data_new.length;
-        const n_idx_start = Math.floor(n * n_samples_per_subsample);
-        const n_idx_end = Math.floor((n + 1) * n_samples_per_subsample);
-        n_f32_sum = 0.;
-        n_f32_count = 0.;
-
-        n_f32_min = 1.;
-        n_f32_max = -1.;
-        for(let n_idx2 = n_idx_start;n_idx2 <n_idx_end;n_idx2+=1){
-            let n_f32 = o_state.a_n_f32_audio_sample[n_idx2];
-            n_f32_sum += n_f32*n_f32;
-            n_f32_count += 1.;
-            n_f32_min = Math.min(n_f32_min, n_f32);
-            n_f32_max = Math.max(n_f32_max, n_f32);
-        }
-        n_f32_range = n_f32_max-n_f32_min;
-        let n_f32_avgrms = Math.sqrt(n_f32_sum / n_f32_count);
-        let n_u8_min = Math.floor((n_f32_min + 1) * 127.5);
-        let n_u8_max = Math.floor((n_f32_max + 1) * 127.5);
-        let n_u8_avgrms = Math.floor((n_f32_avgrms + 1) * 127.5);
-        // n_u8 = parseInt((n_f32_range/2.)*255);
-        a_n_u8_audio_data_new[n*4.+0] = n_u8_min;
-        a_n_u8_audio_data_new[n*4.+1] = n_u8_max;
-        a_n_u8_audio_data_new[n*4.+2] = n_u8_avgrms;
-        // a_n_u8_audio_data_new[n*4.+3] = n_u8;
-
-    }
-    console.log({a_n_u8_audio_data_new})
-
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, n_scl_x_texture, n_scl_y_texture, 0, gl.RGBA, gl.UNSIGNED_BYTE, a_n_u8_audio_data_new);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-
     o_state.o_ufloc__o_audio_texture_channel0 = o_state.o_webgl_program.o_ctx.getUniformLocation(
         o_state.o_webgl_program.o_shader__program,
         'o_audio_texture_channel0'
     );
-    o_state.o_webgl_program.o_ctx.uniform1i(
-        o_state.o_ufloc__o_audio_texture_channel0,
-        0
-    );  // 0 corresponds to TEXTURE0
+    o_state.o_ufloc__o_scl_audio_texture_channel0 = o_state.o_webgl_program?.o_ctx.getUniformLocation(
+        o_state.o_webgl_program?.o_shader__program, 'o_scl_audio_texture_channel0');
+
+    o_state.o_texture = o_state.o_webgl_program?.o_ctx.createTexture();
+
+    o_state.f_update_texture_data = function() {
+        let gl = o_state.o_webgl_program.o_ctx;
+    
+        let n_scl_x_texture = 1920;
+        let n_scl_y_texture = Math.ceil((o_state.n_scl_x_canvas) / n_scl_x_texture);
+    
+        // Calculate the start and end indices
+        let n_idx_start = Math.floor(o_state.n_nor_start * o_state.a_n_f32_audio_sample.length);
+        let n_idx_end = Math.floor(o_state.n_nor_end * o_state.a_n_f32_audio_sample.length);
+        n_idx_end = Math.min(n_idx_end, o_state.a_n_f32_audio_sample.length);
+    
+        // Adjust the number of samples to process
+        let n_total_samples = n_idx_end - n_idx_start;
+        let n_total_pixels = n_scl_x_texture * n_scl_y_texture;
+    
+        let a_n_u8_audio_data_new = new Uint8Array(n_total_pixels * 4);
+    
+        let n_samples_per_subsample = n_total_samples / n_total_pixels;
+    
+        for (let n = 0; n < n_total_pixels; n += 1) {
+            const n_idx_start2 = n_idx_start + Math.floor(n * n_samples_per_subsample);
+            const n_idx_end2 = n_idx_start + Math.floor((n + 1) * n_samples_per_subsample);
+    
+            let n_f32_sum = 0.;
+            let n_f32_count = 0.;
+    
+            let n_f32_min = 1.;
+            let n_f32_max = -1.;
+    
+            for (let n_idx2 = n_idx_start2; n_idx2 < n_idx_end2; n_idx2 += 1) {
+                if (n_idx2 >= n_idx_end) break;
+                let n_f32 = o_state.a_n_f32_audio_sample[n_idx2];
+                n_f32_sum += n_f32 * n_f32;
+                n_f32_count += 1.;
+                n_f32_min = Math.min(n_f32_min, n_f32);
+                n_f32_max = Math.max(n_f32_max, n_f32);
+            }
+    
+            let n_f32_avgrms = Math.sqrt(n_f32_sum / n_f32_count);
+            let n_u8_min = Math.floor((n_f32_min + 1) * 127.5);
+            let n_u8_max = Math.floor((n_f32_max + 1) * 127.5);
+            let n_u8_avgrms = Math.floor((n_f32_avgrms + 1) * 127.5);
+    
+            a_n_u8_audio_data_new[n * 4 + 0] = n_u8_min;
+            a_n_u8_audio_data_new[n * 4 + 1] = n_u8_max;
+            a_n_u8_audio_data_new[n * 4 + 2] = n_u8_avgrms;
+            a_n_u8_audio_data_new[n * 4 + 3] = 255;  // Alpha channel
+        }
+        console.log({a_n_u8_audio_data_new,a_n_f32_audio_sample:o_state.a_n_f32_audio_sample})
+
+        // Bind and update the texture
+        gl.activeTexture(gl.TEXTURE0); // Activate texture unit 0
+        gl.bindTexture(gl.TEXTURE_2D, o_state.o_texture);
+        gl.texImage2D(
+            gl.TEXTURE_2D, 0, gl.RGBA, n_scl_x_texture, n_scl_y_texture, 0,
+            gl.RGBA, gl.UNSIGNED_BYTE, a_n_u8_audio_data_new
+        );
+    
+        // Set texture parameters
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+        // Update uniforms
+        gl.uniform2f(o_state.o_ufloc__o_scl_audio_texture_channel0, n_scl_x_texture, n_scl_y_texture);
+        gl.uniform1i(o_state.o_ufloc__o_audio_texture_channel0, 0); // Texture unit 0
+    
+        // Update last known values
+        o_state.n_nor_start__last = o_state.n_nor_start;
+        o_state.n_nor_end__last = o_state.n_nor_end;
+    };
+    // o_state.f_update_texture_data = function(){
+    //        /// 
+
+    // let gl = o_state.o_webgl_program.o_ctx;
+    // let texture = gl.createTexture();
+    // gl.bindTexture(gl.TEXTURE_2D, texture);
+    
+    // let n_scl_x_texture = 1920;
+    // let n_scl_y_texture = Math.ceil((n_scl_x_canvas)/n_scl_x_texture);
+
+    // let a_n_u8_audio_data_new = new Uint8Array(n_scl_x_texture*n_scl_y_texture*4);
+    // // we take at max n_scl_x*n_scl_y samples and put them into a 2d textrue.
+
+    // o_state.o_ufloc__o_scl_audio_texture_channel0 = o_state.o_webgl_program?.o_ctx.getUniformLocation(
+    //     o_state.o_webgl_program?.o_shader__program, 'o_scl_audio_texture_channel0');
+
+    // o_state.o_webgl_program?.o_ctx.uniform2f(o_state.o_ufloc__o_scl_audio_texture_channel0,
+    //     n_scl_x_texture, 
+    //     n_scl_y_texture
+    // );
+
+    // let n_f32_sum = 0.;
+    // let n_f32_count = 0.;
+    // let n_idx_a_n_u8_audio_data_new = 0;
+    // let n_samples_per_subsample = o_state.a_n_f32_audio_sample.length / (a_n_u8_audio_data_new.length/4);
+    // let n_samples_per_subsample_floor = Math.floor(n_samples_per_subsample);
+    // // original length 10443406
+    // // new array length 1920*1080 = 
+    // // samples per new sample = 10443406÷(1920×1080) = 5.036364776
+    // let n_f32_range = 0.;
+    // let n_f32_min = 0.;
+    // let n_f32_max = 0.;
+    // for(let n = 0; n < a_n_u8_audio_data_new.length; n+=1){
+
+    //     let n_nor = n / a_n_u8_audio_data_new.length;
+    //     const n_idx_start = Math.floor(n * n_samples_per_subsample);
+    //     const n_idx_end = Math.floor((n + 1) * n_samples_per_subsample);
+    //     n_f32_sum = 0.;
+    //     n_f32_count = 0.;
+
+    //     n_f32_min = 1.;
+    //     n_f32_max = -1.;
+    //     for(let n_idx2 = n_idx_start;n_idx2 <n_idx_end;n_idx2+=1){
+    //         let n_f32 = o_state.a_n_f32_audio_sample[n_idx2];
+    //         n_f32_sum += n_f32*n_f32;
+    //         n_f32_count += 1.;
+    //         n_f32_min = Math.min(n_f32_min, n_f32);
+    //         n_f32_max = Math.max(n_f32_max, n_f32);
+    //     }
+    //     n_f32_range = n_f32_max-n_f32_min;
+    //     let n_f32_avgrms = Math.sqrt(n_f32_sum / n_f32_count);
+    //     let n_u8_min = Math.floor((n_f32_min + 1) * 127.5);
+    //     let n_u8_max = Math.floor((n_f32_max + 1) * 127.5);
+    //     let n_u8_avgrms = Math.floor((n_f32_avgrms + 1) * 127.5);
+    //     // n_u8 = parseInt((n_f32_range/2.)*255);
+    //     a_n_u8_audio_data_new[n*4.+0] = n_u8_min;
+    //     a_n_u8_audio_data_new[n*4.+1] = n_u8_max;
+    //     a_n_u8_audio_data_new[n*4.+2] = n_u8_avgrms;
+    //     // a_n_u8_audio_data_new[n*4.+3] = n_u8;
+
+    // }
+    // console.log({a_n_u8_audio_data_new})
+
+    // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, n_scl_x_texture, n_scl_y_texture, 0, gl.RGBA, gl.UNSIGNED_BYTE, a_n_u8_audio_data_new);
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    // o_state.o_ufloc__o_audio_texture_channel0 = o_state.o_webgl_program.o_ctx.getUniformLocation(
+    //     o_state.o_webgl_program.o_shader__program,
+    //     'o_audio_texture_channel0'
+    // );
+    // o_state.o_webgl_program.o_ctx.uniform1i(
+    //     o_state.o_ufloc__o_audio_texture_channel0,
+    //     0
+    // );  // 0 corresponds to TEXTURE0
+    // }
+
+    o_state.f_update_texture_data();
 
     o_state.f_render();
     return o_state;
