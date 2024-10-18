@@ -2516,7 +2516,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
             a_n_u8_audio_data_new[n * 4 + 2] = n_u8_avgrms;
             a_n_u8_audio_data_new[n * 4 + 3] = 255;  // Alpha channel
         }
-        console.log({a_n_u8_audio_data_new,a_n_f32_audio_sample:o_state.a_n_f32_audio_sample})
+        // console.log({a_n_u8_audio_data_new,a_n_f32_audio_sample:o_state.a_n_f32_audio_sample})
 
         // Bind and update the texture
         gl.activeTexture(gl.TEXTURE0); // Activate texture unit 0
