@@ -2187,6 +2187,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
     {
         s_path_or_url_audio_file = null,
         o_array_buffer_encoded_audio_data = null,
+        o_audio_buffer_decoded = null,
         a_n_f32_audio_sample = null,
         n_nor_start = 0.0, 
         n_nor_end = 1.0,
@@ -2249,7 +2250,7 @@ let f_o_state_webgl_shader_audio_visualization = async function(
                     o_state.f_start_auto_rendering();
                 }
             }, 
-            o_audio_buffer: null,
+            o_audio_buffer_decoded,
             o_audio_context: null,
             
         }, 
@@ -2260,6 +2261,9 @@ let f_o_state_webgl_shader_audio_visualization = async function(
     ){
         o_array_buffer_encoded_audio_data = await(await fetch(s_path_or_url_audio_file)).arrayBuffer();   
     }
+    if(o_audio_buffer_decoded != null){
+        o_state.o_audio_buffer_decoded = o_audio_buffer_decoded
+    }
 
     if(
         o_array_buffer_encoded_audio_data != null 
@@ -2268,17 +2272,18 @@ let f_o_state_webgl_shader_audio_visualization = async function(
         o_state.o_array_buffer_encoded_audio_data = o_array_buffer_encoded_audio_data
         o_state.o_audio_context = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
     
-        o_state.o_audio_buffer = await new Promise((resolve, reject) => {
+        o_state.o_audio_buffer_decoded = await new Promise((resolve, reject) => {
             o_state.o_audio_context.decodeAudioData(o_state.o_array_buffer_encoded_audio_data, resolve, reject);
         });
-        o_state.a_n_f32_audio_sample = o_state.o_audio_buffer.getChannelData(0);
-        console.log(o_state.o_audio_buffer)
+
     }
 
     if(
         a_n_f32_audio_sample != null 
     ){
         o_state.a_n_f32_audio_sample = a_n_f32_audio_sample
+    }else{
+        o_state.a_n_f32_audio_sample = o_state.o_audio_buffer_decoded.getChannelData(0);
     }
 
     o_state.o_canvas = document.createElement('canvas');

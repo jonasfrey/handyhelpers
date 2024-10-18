@@ -2276,17 +2276,18 @@ let a_o_test =
                 o_state.f_render();
             }
 
-            const n_sec_duration = o_state.o_audio_buffer.duration; // Duration in seconds
-            const n_samples_per_second_samplerate = o_state.o_audio_buffer.sampleRate; // Samples per second
-            const n_samples_total = o_state.o_audio_buffer.length; // Total number of samples
-            const n_num_of_channels = o_state.o_audio_buffer.numberOfChannels; // Number of audio channels
-            // const a_n_f32 = o_state.o_audio_buffer.getChannelData(0); // PCM data for channel 0
+            const n_sec_duration = o_state.o_audio_buffer_decoded.duration; // Duration in seconds
+            const n_samples_per_second_samplerate = o_state.o_audio_buffer_decoded.sampleRate; // Samples per second
+            const n_samples_total = o_state.o_audio_buffer_decoded.length; // Total number of samples
+            const n_num_of_channels = o_state.o_audio_buffer_decoded.numberOfChannels; // Number of audio channels
+            // const a_n_f32 = o_state.o_audio_buffer_decoded.getChannelData(0); // PCM data for channel 0
             console.log({
                 n_sec_duration,
                 n_samples_per_second_samplerate,
                 n_samples_total,
                 n_num_of_channels,
             });
+            //md: ![audio1](./localhost/audio1.png)
 
             document.body.appendChild(o_state.o_canvas);
 
@@ -2306,9 +2307,38 @@ let a_o_test =
                 ]
             });
             document.body.appendChild(o_state2.o_canvas);
-            //md: ![audio1](./localhost/audio1.png)
+            //md: ![audio1](./localhost/audio2.png)
 
-            //md:  ### load from decoded audio data / samples
+            //md:  ### load from decoded audio data 
+            //md: if you use for example Tonejs you can use the already decoded buffer 
+            const o_player = await new Tone.Player().toDestination();
+
+
+            var buffer = await new Tone.Buffer("./meme_sounds.mp3", async function(){
+                //the buffer is now available.
+                o_player.buffer = buffer.get();
+                globalThis.o_player = o_player
+                let o_state3 = await f_o_state_webgl_shader_audio_visualization({
+                    o_audio_buffer_decoded: o_player.buffer,
+                    n_scl_x_canvas : 1000,
+                    n_scl_y_canvas : 200 , 
+                    n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
+                    n_amp_avgrms: 0.125, // the amplitude of the average rms 
+                    a_n_rgba_color_amp_peaks: [ 
+                        1., 0., 1., 1.
+                    ],
+                    a_n_rgba_color_amp_avg: [ 
+                        0., 1., 1., 1.,
+                    ]
+                });
+                document.body.appendChild(o_state3.o_canvas);
+
+            },()=>{alert('asdfo')});
+            await buffer.loaded; // Wait until the buffer is fully loaded
+            //md: ![audio1](./localhost/audio3.png)
+
+
+            //md:  ### load from raw audio data / samples
             let n_seconds = 10;
             let n_khz = 48000;
             let n_samples = n_seconds*n_khz;
@@ -2316,19 +2346,18 @@ let a_o_test =
                 let n_idx_nor = parseInt(n_idx)/n_samples;
                 return Math.sin(n_idx_nor*440);
             });
-            //md: ![audio1](./localhost/audio2.png)
 
-            let o_state3 = await f_o_state_webgl_shader_audio_visualization({
+            let o_state4 = await f_o_state_webgl_shader_audio_visualization({
                 a_n_f32_audio_sample,
                 n_scl_x_canvas : 1000,
                 n_scl_y_canvas : 200 , 
                 n_amp_peaks: 0.3, // the amplitude of the max and min peaks of the wave image 
                 n_amp_avgrms: 0.125, // the amplitude of the average rms 
             });
-            document.body.appendChild(o_state3.o_canvas);
-            console.log(o_state3.o_canvas)
-            globalThis.o_state3 = o_state3
-            //md: ![audio1](./localhost/audio3.png)
+            document.body.appendChild(o_state4.o_canvas);
+            console.log(o_state4.o_canvas)
+            globalThis.o_state4 = o_state4
+            //md: ![audio1](./localhost/audio4.png)
 
 
             //md: ### update the 'view/zoom' into the samples
@@ -2336,8 +2365,8 @@ let a_o_test =
             //md: with this we then can render from second 5. to second 10. for example. 
             let n_sec_start = 5.; 
             let n_sec_end = 10.;
-            o_state2.n_nor_start = n_sec_start/o_state.o_audio_buffer.duration;
-            o_state2.n_nor_end = n_sec_end/o_state.o_audio_buffer.duration;
+            o_state2.n_nor_start = n_sec_start/o_state.o_audio_buffer_decoded.duration;
+            o_state2.n_nor_end = n_sec_end/o_state.o_audio_buffer_decoded.duration;
             o_state2.f_render();
         
             //md: ### playhead / cursor 
@@ -2353,6 +2382,7 @@ let a_o_test =
                 o_state.f_delete_webgl_stuff();
                 o_state2.f_delete_webgl_stuff();
                 o_state3.f_delete_webgl_stuff();
+                o_state4.f_delete_webgl_stuff();
             }
 
             //readme.md:end
