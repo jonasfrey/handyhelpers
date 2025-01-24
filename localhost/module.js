@@ -2625,8 +2625,311 @@ let f_o_state_webgl_shader_audio_visualization = async function(
     o_state.f_render();
     return o_state;
 }
+let s_name_attr_prop_sync = 'a_s_prop_sync'; 
+let o_el_global_event = null;
+let f_a_o_element_from_s_prop_path = function(s_prop_path){
+    
+    const a_o_el = document.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_prop_path}"]`);
+    const a_o_el__filtered = Array.from(a_o_el).filter(el => {
+        const a_s = el.getAttribute(s_name_attr_prop_sync).split(',');
+        return a_s.includes(s_prop_path);
+    });
+    return a_o_el__filtered;
+}
+
+let f_a_o_html_object_from_path = function (a_s_prop_path_part) {
+    if (!Array.isArray(a_s_prop_path_part) || a_s_prop_path_part.length === 0) {
+      throw new Error('a_s_prop_path_part must be a non-empty array');
+    }
+  
+    let a_s_prop_path_part2 = [...a_s_prop_path_part]; // Clone the path array to avoid mutating the input
+  
+    let a_o_el_found = [];
+  
+    // Traverse the path from the deepest level upward
+    while (a_s_prop_path_part2.length > 0) {
+      let s_prop_part = a_s_prop_path_part2.pop(); // Get the last property in the path
+  
+      // If it's an array index, find the parent property
+      if (!isNaN(s_prop_part)) {
+        let s_prop_part_parent = a_s_prop_path_part2.pop(); // Get the parent array's name
+        if (s_prop_part_parent) {
+          // Query all elements matching the parent property
+          let a_o_el_parent = f_a_o_element_from_s_prop_path(s_prop_part_parent)
+          a_o_el_parent.forEach(o_el_parent => {
+            // Check if the parent element has the specified index as a child
+            if (o_el_parent.children[s_prop_part]) {
+              a_o_el_found.push(o_el_parent.children[s_prop_part]);
+            }
+          });
+  
+          if (a_o_el_found.length > 0) {
+            return a_o_el_found; // Return all matching objects
+          }
+        }
+      } else {
+        // Handle plain s_prop_part
+        let a_o_el = f_a_o_element_from_s_prop_path(s_prop_part)//document.querySelectorAll(`[s_prop_sync="${property}"]`);
+        if (a_o_el.length > 0) {
+          a_o_el_found.push(...a_o_el);
+          return a_o_el_found; // Return all matching objects
+        }
+      }
+    }
+  
+    // If no objects were found, return an empty array
+    return a_o_el_found;
+};
+let f_proxy_mutation_callback = async function(a_s_path, v_old, v_new){
+
+    // console.log('proxy callback called')
+    let a_o_el = f_a_o_html_object_from_path(a_s_path);
+    // console.log({
+    //     a_s_path,
+    //     a_o_el
+    // })
+    // debugger
+    //document.querySelectorAll(`[s_prop_sync="${a_s_path.join('.')}"]`);
+    // console.log(a_o_el)
+    
+    // if(a_o_el.length == 0){
+    //     // if the path would be for example a_o_person.0 or a_o_person.0.s_name, 
+    //     // an item of the array has been modified
+    //     let a_s_path_tmp = a_s_path;
+    //     while(a_s_path_tmp.length > 0 && a_o_el.length > 0){
+    //         let s = a_s_path_tmp.shift();
+    //         a_o_el = document.querySelectorAll(`[s_prop_sync="${s}"]`);
+    //         for(let o_el of a_o_el){
+    //             let a_o_child = o_el.childNodes[]
+    //         }
+    //     }
+    // }
+    // console.log(path)
+    // debugger
+    for(let o_el of a_o_el){
+        if(o_el == o_el_global_event){
+            continue
+        }
+        if(o_el.value){
+            o_el.value = v_new
+        }
+        if(o_el?.o_meta?.f_s_innerText){
+            let s = o_el.o_meta.f_s_innerText();
+            o_el.innerText = s;
+        }
+        if(o_el?.o_meta?.f_a_o){
+            // console.log(o.o_meta)
+            // debugger
+
+            o_el.innerHTML = ''
+            // console.log(`starting: ${new Date().getTime()}`)
+            // console.log(o_el.o_meta.b_done)
+
+            let a_o_el2 = await o_el?.o_meta?.f_a_o();
+            // while (o_el.firstChild) {
+            //     o_el.removeChild(o_el.firstChild);
+            // }
+            o_el.innerHTML = ''
+
+            // debugger
+            // console.log(a_o_el2)
+            for(let n_idx in a_o_el2){
+                let o_js2 = a_o_el2[n_idx];
+                let o_html2 = await f_o_html_from_o_js(o_js2);
+                o_el.appendChild(o_html2)
+                // console.log('appending child')
+                // console.log(o_html2)
+            }
+            // console.log(`done: ${new Date().getTime()}`)
 
 
+        }
+    }
+
+}
+
+let f_o_html_from_o_js = async function(
+    o_js
+){
+    // debugger
+    let s_tag = 'div';
+    if(o_js.s_tag){
+        s_tag = o_js.s_tag
+    }
+
+    let o_html = await f_o_html_element__from_s_tag(s_tag);
+    for(let s_prop in o_js){
+        let v = o_js[s_prop];
+
+        let s_type_v = typeof v;
+        if(s_type_v == "function"){
+            let f_event_handler = function(){
+                v.call(this, ...arguments, o_js);
+            }
+
+            o_html[s_prop] = f_event_handler
+            if(!o_html.o_meta){
+                o_html.o_meta = {}
+            }
+            o_html.o_meta[s_prop] = v
+           
+        }
+        if(typeof v != 'function'){
+            // some attributes such as 'datalist' do only have a getter
+            try {
+                o_html[s_prop] = v;
+            } catch (error) {
+                console.warn(error)
+            }
+            try {
+                o_html.setAttribute(s_prop, v);
+            } catch (error) {
+                console.warn(error)
+            }
+        }
+    }
+    if(o_js?.f_s_innerText){
+        o_html.innerText = o_js?.f_s_innerText()
+    }
+    if(o_js?.f_s_innerHTML){
+        o_html.innerText = o_js?.f_s_innerHTML()
+    }
+    if(o_js?.f_a_o){
+        let a_o = await o_js?.f_a_o();
+        for(let o_js2 of a_o){
+            let o_html2 = await f_o_html_from_o_js(o_js2);
+            o_html.appendChild(o_html2)
+        }
+    }
+    return o_html;
+}
+
+let f_set_by_path_with_type = function(obj, s_prop_path, value) {
+    const a_s_prop_path_part = s_prop_path.split('.');
+    let o_current = obj;
+  
+    // Traverse to the parent of the target property
+    for (let i = 0; i < a_s_prop_path_part.length - 1; i++) {
+      const s_prop_path_part = a_s_prop_path_part[i];
+      if (o_current && typeof o_current === 'object' && s_prop_path_part in o_current) {
+        o_current = o_current[s_prop_path_part]; // Move deeper into the object
+      } else {
+        throw new Error(`Invalid s_prop_path: ${s_prop_path}`); // If any part of the path is invalid, throw an error
+      }
+    }
+  
+    // Get the target property name (last part of the path)
+    const s_prop_path_part_target = a_s_prop_path_part[a_s_prop_path_part.length - 1];
+  
+    // Check if the target property exists
+    if (o_current && typeof o_current === 'object' && s_prop_path_part_target in o_current) {
+      const v_current = o_current[s_prop_path_part_target];
+      const s_type_current = typeof v_current;
+  
+      // Convert the new value to the same type as the current value
+      let v_new;
+      switch (s_type_current) {
+        case 'number':
+          v_new = Number(value);
+          if (isNaN(v_new)) {
+            throw new Error(`Cannot convert "${value}" to a number.`);
+          }
+          break;
+        case 'string':
+          v_new = String(value);
+          break;
+        case 'boolean':
+          v_new = Boolean(value);
+          break;
+        default:
+          throw new Error(`Unsupported type: ${v_current}`);
+      }
+  
+      // Set the new value
+      o_current[s_prop_path_part_target] = v_new;
+      console.log(`Value set successfully at path "${s_prop_path}". New value:`, v_new);
+    } else {
+      throw new Error(`Property at path "${s_prop_path}" does not exist.`);
+    }
+  }
+
+  let f_handle_input_change = function(o_ev, o_state) {
+    o_el_global_event = o_ev.target;
+
+    // console.log(`Event "${event.type}" triggered on:`, event.target);
+    let a_s_prop_sync = o_ev.target.getAttribute('a_s_prop_sync')?.split(',');
+    if(a_s_prop_sync){
+        for(let s_prop_sync of a_s_prop_sync){
+            let a_s = s_prop_sync.split('.');
+            let value;
+            // Check if the input is a checkbox
+            if (o_ev.target.type === 'checkbox') {
+                value = o_ev.target.checked; // Use the checked property for checkboxes
+            } else {
+                value = o_ev.target.value; // Use the value property for other input types
+            }
+            f_set_by_path_with_type(o_state, s_prop_sync,value)
+        }
+    }
+
+    // console.log('Input value changed:', o_ev.target.value);
+  }
+
+function f_o_proxified(obj, a_s_prop_path_part = []) {
+    let a_f_callback = Promise.resolve();
+  
+    const f_callback_wrapped = (a_s_propname, v_old, v_new) => {
+      a_f_callback = a_f_callback.then(() => f_proxy_mutation_callback(a_s_propname, v_old, v_new));
+      return a_f_callback;
+    };
+  
+    function f_o_proxy_object(o_target, a_s_prop_path_part) {
+      const o_proxy = new Proxy(o_target, {
+        get(o_target, s_prop, o_receiver) {
+        //   // Handle the custom `_f_set_directly` method
+        //   if (s_prop === '_f_set_directly') {
+        //     return (s_prop, value) => {
+        //       Reflect.set(o_target, s_prop, value);
+        //     };
+        //   }
+  
+          const value = Reflect.get(o_target, s_prop, o_receiver);
+          if (typeof value === 'object' && value !== null) {
+            // Create proxy for nested objects/arrays, including the path to this property
+            return f_o_proxy_object(value, [...a_s_prop_path_part, s_prop]);
+          }
+          return value;
+        },
+        set(o_target, s_prop, value, o_receiver) {
+          const v_old = Reflect.get(o_target, s_prop, o_receiver);
+          const result = Reflect.set(o_target, s_prop, value, o_receiver);
+          f_callback_wrapped([...a_s_prop_path_part, s_prop], v_old, value);
+          return result;
+        },
+        deleteProperty(o_target, s_prop) {
+          const v_old = Reflect.get(o_target, s_prop);
+          const result = Reflect.deleteProperty(o_target, s_prop);
+          f_callback_wrapped([...a_s_prop_path_part, s_prop], v_old, undefined);
+          return result;
+        }
+      });
+  
+      return o_proxy;
+    }
+  
+    let o_proxy = f_o_proxy_object(obj, a_s_prop_path_part);
+  
+    // Attach the event listener to the document or a parent element
+    document.addEventListener('input', (o_ev) => {
+        // Check if the event target is an input, textarea, or select
+        if (o_ev.target.matches('input, textarea, select')) {
+            console.log(o_ev);
+            f_handle_input_change(o_ev, o_proxy);
+        }
+    });
+    
+    return o_proxy;
+}
 
 export {
     f_o_empty_recursive,
@@ -2690,6 +2993,8 @@ export {
     f_render_from_o_webgl_program, 
     f_o_data_from_google_sheet,
     f_o_google_sheet_data_from_o_resp_data, 
-    f_o_state_webgl_shader_audio_visualization
+    f_o_state_webgl_shader_audio_visualization,
+    f_o_proxified,
+    f_o_html_from_o_js
 }
 
