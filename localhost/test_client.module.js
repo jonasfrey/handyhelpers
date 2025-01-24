@@ -2427,6 +2427,18 @@ let a_o_test =
                     ['gretchen', 'gretel']
                 )
             ]
+            let f_callback_beforevaluechange = function(a_s_path, v_old, v_new){
+                let s_path = a_s_path.join('.');
+                if(s_path == 'a_o_person.0.s_name'){
+                    console.log('name of first person will be changed')
+                }
+            }
+            let f_callback_aftervaluechange = function(a_s_path, v_old, v_new){
+                let s_path = a_s_path.join('.');
+                if(s_path == 'a_o_person.0.s_name'){
+                    console.log('name of first person has been changed')
+                }
+            }
             // first we define our data in a state object
             let o_state = f_o_proxified(
                 {
@@ -2439,7 +2451,9 @@ let a_o_test =
                     b_test: true, 
                     f_test:()=>{return 'test function executed succesfully'},
                     a_o: [{n:1},{n:2}], 
-                }
+                }, 
+                f_callback_beforevaluechange,
+                f_callback_aftervaluechange
             )
             
             window.o_state = o_state

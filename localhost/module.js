@@ -2680,8 +2680,11 @@ let f_a_o_html_object_from_path = function (a_s_prop_path_part) {
     // If no objects were found, return an empty array
     return a_o_el_found;
 };
-let f_proxy_mutation_callback = async function(a_s_path, v_old, v_new){
+let f_proxy_mutation_callback = async function(a_s_path, v_old, v_new, f_callback_beforevaluechange, f_callback_aftervaluechange){
 
+    if(f_callback_beforevaluechange){
+        await f_callback_beforevaluechange(a_s_path, v_old, v_new)
+    }
     // console.log('proxy callback called')
     let a_o_el = f_a_o_html_object_from_path(a_s_path);
     // console.log({
@@ -2745,6 +2748,10 @@ let f_proxy_mutation_callback = async function(a_s_path, v_old, v_new){
 
         }
     }
+    if(f_callback_aftervaluechange){
+        await f_callback_aftervaluechange(a_s_path, v_old, v_new)
+    }
+
 
 }
 
@@ -2875,11 +2882,11 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
     // console.log('Input value changed:', o_ev.target.value);
   }
 
-function f_o_proxified(obj, a_s_prop_path_part = []) {
+function f_o_proxified(obj, f_callback_beforevaluechange, f_callback_aftervaluechange, a_s_prop_path_part = []) {
     let a_f_callback = Promise.resolve();
   
     const f_callback_wrapped = (a_s_propname, v_old, v_new) => {
-      a_f_callback = a_f_callback.then(() => f_proxy_mutation_callback(a_s_propname, v_old, v_new));
+      a_f_callback = a_f_callback.then(() => f_proxy_mutation_callback(a_s_propname, v_old, v_new, f_callback_beforevaluechange, f_callback_aftervaluechange));
       return a_f_callback;
     };
   
