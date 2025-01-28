@@ -2389,6 +2389,34 @@ let a_o_test =
 
             //readme.md:end
         }),
+        f_o_test("f_o_proxified", async () => {
+            // first we define our data in a state object
+            let o_state = f_o_proxified(
+                {
+                    a_o_person: [{s_name:'hans'}, {s_name: 'gretel'}],
+                    n_test: 1, 
+                    n_1: 0.2, 
+                    n_2: 0.5,
+                    s_test: "test", 
+                    b_test: true, 
+                    f_test:()=>{return 'test function executed succesfully'},
+                    a_o: [{n:1},{n:2}], 
+                }, 
+                (a_s_path, v_old, v_new)=>{console.log('before change'); console.log(a_s_path, v_old, v_new)},
+                (a_s_path, v_old, v_new)=>{console.log('after change'); console.log(a_s_path, v_old, v_new)}
+            );
+            // array manipulation
+            o_state.a_o_person.push({s_name: 'regula'});
+            o_state.a_o_person.push({s_name: 'regina'});
+            o_state.a_o_person.push({s_name: 'ruedi'});
+            o_state.a_o_person.splice(2, 1); // Removes 1 element at index 2
+
+            o_state.a_o_person.pop();// remove last item
+
+            let o = o_state.a_o_person[2];
+            o.s_name = 'ludolf' // change by reference 
+
+        }),
         
         f_o_test("f_flat_frontend_framework", async () => {
             //readme.md:start
@@ -2412,7 +2440,7 @@ let a_o_test =
             }
             let a_o_person = [
                 new O_person(
-                    'hans', 
+                    'hans person_idx_0', 
                     10, 
                     true, 
                     ['hansi', 'haenschen', 'haensel'],
@@ -2421,7 +2449,7 @@ let a_o_test =
                     }
                 ),
                 new O_person(
-                    'greta', 
+                    'greta person_idx_1', 
                     10, 
                     false, 
                     ['gretchen', 'gretel']
@@ -2474,6 +2502,31 @@ let a_o_test =
                                 innerText: "section 1"
                             },
                             {
+                                s_tag: "hr"
+                            },      
+                            {
+                                f_a_o: ()=>[
+                                    {
+                                        innerText: "First person",
+                                    },
+                                    {
+                                        a_s_prop_sync: ['a_o_person.0.s_name'],
+                                        s_tag: 'input'
+                                        // f_s_innerText: ()=>`name ${a_o_person[0].s_name}`
+                                    },
+                                    {
+                                        f_s_innerText: ()=>`age ${a_o_person[0].n_age}`
+                                    },
+                                    {
+                                        f_s_innerText: ()=>`gender male ${a_o_person[0].b_male}`
+                                    }, 
+                                    {
+                                        s_tag: "hr"
+                                    }
+                                ], 
+                                a_s_prop_sync: ['a_o_person.0']
+                            },
+                            {
                                 style: "background:red",
                                 f_a_o: async ()=>{
                                     await f_sleep_ms(111);
@@ -2501,6 +2554,9 @@ let a_o_test =
                             },
                             {
                                 f_a_o: ()=>{
+                                    console.log('o_state.a_o_person');
+                                    console.log(o_state.a_o_person);
+                                    console.log(o_state.a_o_person.map(o=>{return o.s_name}));
                                     return o_state.a_o_person.map(o=>{
                                         return {
                                             style: `background: rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.5)`,
@@ -2582,11 +2638,11 @@ let a_o_test =
             document.body.appendChild(o)
             
             o_state.a_o_person.push(
-                new O_person('ludolf', 20)
+                new O_person('ludolf person_idx_2', 20)
             )
             o_state.a_o_person.push(
                 new O_person(
-                    'ueli', 
+                    'ueli person_idx_3', 
                     10, 
                     false, 
                     ['ul']
@@ -2594,29 +2650,35 @@ let a_o_test =
             )
             o_state.a_o_person[0].s_name = `${o_state.a_o_person[0].s_name}_new`
             o_state.a_o_person[1].s_name = `${o_state.a_o_person[1].s_name}_new`
-            o_state.a_o_person[2] = {s_name: 'lol'}
-            // let o_tmp = o_state.a_o_person[1];
-            // o_tmp.s_name = 'kkl'
+            o_state.a_o_person[1] = {s_name: 'person idx_2 lol'}
+
+            // // array manipulation
+            o_state.a_o_person.push({s_name: 'regula person_idx_4', n_age: 20, b_male:false, a_s_short_name:['regle']});
+            o_state.a_o_person.push({s_name: 'regina person_idx_5', n_age: 20, b_male:false, a_s_short_name:['regne']});
+            o_state.a_o_person.push({s_name: 'ruedi person_idx_6', n_age: 20, b_male:true, a_s_short_name:['rud']});
+            o_state.a_o_person.splice(2, 1); // Removes 1 element at index 2 // removes  lol therefore
+
+            // o_state.a_o_person.pop();// remove last item // removes ruadi
+
+            // let o_tmp = o_state.a_o_person[2];
+            // o_tmp.s_name = o_tmp.s_name+'ludolf' // change by reference // changes ueli to ludolf
+
+            // console.log('pop1')
             // o_state.a_o_person.pop()
-            console.log(o_state.a_o_person)
-            console.log(o_state.a_o_person)
-            console.log(o_state.a_o_person)
-            
-            window.setTimeout(()=>{
-                console.log('pop1')
-                o_state.a_o_person.pop()
-                console.log('pop2')
-                o_state.a_o_person.pop()
-                console.log('pop3')
-                o_state.a_o_person.pop()
+            // window.setTimeout(()=>{
+
+            //         // console.log('pop2')
+            //         // o_state.a_o_person.pop()
+            //         // console.log('pop3')
+            //         // o_state.a_o_person.pop()
                 
-                console.log(o_state.a_o_person)
-                // window.setTimeout(()=>{
-                //     o_state.a_o_person.pop()
-                //     // o_state.a_o_person.pop()
+            //     // console.log(o_state.a_o_person)
+            //     // window.setTimeout(()=>{
+            //     //     o_state.a_o_person.pop()
+            //     //     // o_state.a_o_person.pop()
                 
-                // },1)
-            },111)
+            //     // },1)
+            // },2111)
         }),
 
 

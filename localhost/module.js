@@ -860,7 +860,7 @@ let f_s_name_file__from_s_url = function(s_url){
     return s_url.split('/').pop().split('?').shift().split('#').shift()
 }
 
-let f_download_video_denojs = async function(s_url, s_prefix_file=''){
+let f_download_file_denojs = async function(s_url, s_prefix_file=''){
 
     let s_name_file = f_s_name_file_from_s_url(s_url);
     
@@ -2627,137 +2627,154 @@ let f_o_state_webgl_shader_audio_visualization = async function(
 }
 let s_name_attr_prop_sync = 'a_s_prop_sync'; 
 let o_el_global_event = null;
-let f_a_o_element_from_s_prop_path = function(s_prop_path){
+
+
+let f_update_element_to_match = function(o_el_to_copy_attributes_from, o_el_to_update) {
+
+    // Copy all attributes from the new element to the existing element
+    for (const attr of o_el_to_copy_attributes_from.attributes) {
+        o_el_to_update.setAttribute(attr.name, attr.value);
+    }
     
-    const a_o_el = document.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_prop_path}"]`);
-    const a_o_el__filtered = Array.from(a_o_el).filter(el => {
-        const a_s = el.getAttribute(s_name_attr_prop_sync).split(',');
-        return a_s.includes(s_prop_path);
-    });
-    return a_o_el__filtered;
+    // Remove any attributes on the existing element that are not on the new element
+    for (const attr of o_el_to_update.attributes) {
+        if (!o_el_to_copy_attributes_from.hasAttribute(attr.name)) {
+        o_el_to_update.removeAttribute(attr.name);
+        }
+    }
+    
+    // Replace the inner content of the existing element with the new element's content
+    o_el_to_update.innerHTML = o_el_to_copy_attributes_from.innerHTML;
+    
+    // If you need to copy other properties (e.g., event listeners), you can do so here
+    // Example: existingElement.onclick = newElement.onclick;
+
 }
+function f_b_numeric(str) {
+    if (typeof str != "string") return false // we only process strings!  
+    return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+           !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+  }
+let f_proxy_mutation_callback = async function(
+    v_target,
+    a_s_path,
+    v_old,
+    v_new,
+    a_n_idx_array_item_removed = [],
+    n_idx_array_item_added,
+    n_idx_array_item_modified,
+    signal
+){
 
-let f_a_o_html_object_from_path = function (a_s_prop_path_part) {
-    if (!Array.isArray(a_s_prop_path_part) || a_s_prop_path_part.length === 0) {
-      throw new Error('a_s_prop_path_part must be a non-empty array');
-    }
-  
-    let a_s_prop_path_part2 = [...a_s_prop_path_part]; // Clone the path array to avoid mutating the input
-  
-    let a_o_el_found = [];
-  
-    // Traverse the path from the deepest level upward
-    while (a_s_prop_path_part2.length > 0) {
-      let s_prop_part = a_s_prop_path_part2.pop(); // Get the last property in the path
-  
-      // If it's an array index, find the parent property
-      if (!isNaN(s_prop_part)) {
-        let s_prop_part_parent = a_s_prop_path_part2.pop(); // Get the parent array's name
-        if (s_prop_part_parent) {
-          // Query all elements matching the parent property
-          let a_o_el_parent = f_a_o_element_from_s_prop_path(s_prop_part_parent)
-          a_o_el_parent.forEach(o_el_parent => {
-            // Check if the parent element has the specified index as a child
-            if (o_el_parent.children[s_prop_part]) {
-              a_o_el_found.push(o_el_parent.children[s_prop_part]);
-            }
-          });
-  
-          if (a_o_el_found.length > 0) {
-            return a_o_el_found; // Return all matching objects
-          }
-        }
-      } else {
-        // Handle plain s_prop_part
-        let a_o_el = f_a_o_element_from_s_prop_path(s_prop_part)//document.querySelectorAll(`[s_prop_sync="${property}"]`);
-        if (a_o_el.length > 0) {
-          a_o_el_found.push(...a_o_el);
-          return a_o_el_found; // Return all matching objects
-        }
-      }
-    }
-  
-    // If no objects were found, return an empty array
-    return a_o_el_found;
-};
-let f_proxy_mutation_callback = async function(a_s_path, v_old, v_new, f_callback_beforevaluechange, f_callback_aftervaluechange){
+    return new Promise(async (
+        f_res, 
+        f_rej
+    )=>{
+        signal.addEventListener('abort', () => {
+            return f_rej(new DOMException('Aborted', 'AbortError'));
+        });
 
-    if(f_callback_beforevaluechange){
-        await f_callback_beforevaluechange(a_s_path, v_old, v_new)
-    }
-    // console.log('proxy callback called')
-    let a_o_el = f_a_o_html_object_from_path(a_s_path);
-    // console.log({
-    //     a_s_path,
-    //     a_o_el
-    // })
-    // debugger
-    //document.querySelectorAll(`[s_prop_sync="${a_s_path.join('.')}"]`);
-    // console.log(a_o_el)
+        console.log('v_new')
+        console.log(v_new)
+        console.log('v_target')
+        console.log(v_target)
+        // console.log('n_idx_array_item_removed')
+        // console.log(n_idx_array_item_removed)
     
-    // if(a_o_el.length == 0){
-    //     // if the path would be for example a_o_person.0 or a_o_person.0.s_name, 
-    //     // an item of the array has been modified
-    //     let a_s_path_tmp = a_s_path;
-    //     while(a_s_path_tmp.length > 0 && a_o_el.length > 0){
-    //         let s = a_s_path_tmp.shift();
-    //         a_o_el = document.querySelectorAll(`[s_prop_sync="${s}"]`);
-    //         for(let o_el of a_o_el){
-    //             let a_o_child = o_el.childNodes[]
-    //         }
-    //     }
-    // }
-    // console.log(path)
-    // debugger
-    for(let o_el of a_o_el){
-        if(o_el == o_el_global_event){
-            continue
+        console.log('a_n_idx_array_item_removed')
+        console.log(a_n_idx_array_item_removed)
+    
+        // console.log('a_s_path');
+        // console.log(a_s_path);
+    
+        // console.log('proxy callback called')
+        //recursively search for all elements that could be 
+        // <a_s_prop_sync='a_o_person.0.s_name,'...>
+        // <a_s_prop_sync='a_o_person.0,'...>
+        // <a_s_prop_sync='a_o_person,'...>
+        let a_s_path_tmp = [...a_s_path];
+        let a_o_el = [];
+        while(a_s_path_tmp.length > 0){
+            let s_path = a_s_path_tmp.join('.');
+            const a_o_el2 = document.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_path}"]`);
+            const a_o_el__filtered = Array.from(a_o_el2).filter(el => {
+                const a_s = el.getAttribute(s_name_attr_prop_sync).split(',');
+                return a_s.includes(s_path) && el != o_el_global_event;
+            });
+            a_o_el.push(...a_o_el__filtered)
+            a_s_path_tmp.pop();
         }
-        if(o_el.value){
-            o_el.value = v_new
-        }
-        if(o_el?.o_meta?.f_s_innerText){
-            let s = o_el.o_meta.f_s_innerText();
-            o_el.innerText = s;
-        }
-        if(o_el?.o_meta?.f_a_o){
-            // console.log(o.o_meta)
-            // debugger
-
-            o_el.innerHTML = ''
-            // console.log(`starting: ${new Date().getTime()}`)
-            // console.log(o_el.o_meta.b_done)
-
-            let a_o_el2 = await o_el?.o_meta?.f_a_o();
-            // while (o_el.firstChild) {
-            //     o_el.removeChild(o_el.firstChild);
-            // }
-            o_el.innerHTML = ''
-
-            // debugger
-            // console.log(a_o_el2)
-            for(let n_idx in a_o_el2){
-                let o_js2 = a_o_el2[n_idx];
-                let o_html2 = await f_o_html_from_o_js(o_js2);
-                o_el.appendChild(o_html2)
-                // console.log('appending child')
-                // console.log(o_html2)
+        // console.log(o_el_global_event)
+        // console.log('a_o_el')
+        // console.log(a_o_el)
+        
+    
+        for(let o_el of a_o_el){
+            if(o_el == o_el_global_event){
+                continue
             }
-            // console.log(`done: ${new Date().getTime()}`)
-
-
+            if(o_el.value){
+                o_el.value = v_new
+            }
+            if(o_el?.o_meta?.f_s_innerText){
+                let s = o_el.o_meta.f_s_innerText();
+                o_el.innerText = s;
+            }
+            if(o_el?.o_meta?.f_a_o){
+                // console.log(o.o_meta)
+                // debugger
+    
+                // console.log(`starting: ${new Date().getTime()}`)
+                // console.log(o_el.o_meta.b_done)
+    
+                let a_o_js = await o_el?.o_meta?.f_a_o();
+                if(a_n_idx_array_item_removed.length > 0){
+                    for(let n_idx of a_n_idx_array_item_removed){
+                        o_el.removeChild(o_el.children[n_idx]);
+                    }
+                }
+                if(Number.isInteger(n_idx_array_item_added) && !Number.isInteger(n_idx_array_item_modified)){
+                    let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item_added]);
+                    o_el.insertBefore(o_el2, o_el.childNodes[n_idx_array_item_added+1]);
+                }
+                if(Number.isInteger(n_idx_array_item_modified) && !Number.isInteger(n_idx_array_item_added)){
+                    let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item_modified]);
+                    f_update_element_to_match(
+                        o_el2,
+                        o_el.childNodes[n_idx_array_item_modified]
+                    )
+                }
+                if(
+                    Array.isArray(v_target)
+                    &&
+                    !(a_n_idx_array_item_removed.length = 0)
+                    &&
+                    !Number.isInteger(n_idx_array_item_added)
+                    &&
+                    !Number.isInteger(n_idx_array_item_modified)
+                    ){
+                        o_el.innerHTML = ''
+                        for(let n_idx in a_o_js){
+                            let o_js2 = a_o_js[n_idx];
+                            let o_html2 = await f_o_html_from_o_js(o_js2);
+                            o_el.appendChild(o_html2)
+                            // console.log('appending child')
+                            // console.log(o_html2)
+                        }
+                }
+    
+    
+    
+    
+            }
         }
-    }
-    if(f_callback_aftervaluechange){
-        await f_callback_aftervaluechange(a_s_path, v_old, v_new)
-    }
-
-
+        return f_res(true);
+    });
 }
 
 let f_o_html_from_o_js = async function(
     o_js
-){
+    ){
     // debugger
     let s_tag = 'div';
     if(o_js.s_tag){
@@ -2795,6 +2812,7 @@ let f_o_html_from_o_js = async function(
             }
         }
     }
+    
     if(o_js?.f_s_innerText){
         o_html.innerText = o_js?.f_s_innerText()
     }
@@ -2804,6 +2822,7 @@ let f_o_html_from_o_js = async function(
     if(o_js?.f_a_o){
         let a_o = await o_js?.f_a_o();
         for(let o_js2 of a_o){
+            let n_idx = a_o.indexOf(o_js2);
             let o_html2 = await f_o_html_from_o_js(o_js2);
             o_html.appendChild(o_html2)
         }
@@ -2854,7 +2873,7 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
   
       // Set the new value
       o_current[s_prop_path_part_target] = v_new;
-      console.log(`Value set successfully at path "${s_prop_path}". New value:`, v_new);
+    //   console.log(`Value set successfully at path "${s_prop_path}". New value:`, v_new);
     } else {
       throw new Error(`Property at path "${s_prop_path}" does not exist.`);
     }
@@ -2882,60 +2901,157 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
     // console.log('Input value changed:', o_ev.target.value);
   }
 
+
 function f_o_proxified(obj, f_callback_beforevaluechange, f_callback_aftervaluechange, a_s_prop_path_part = []) {
     let a_f_callback = Promise.resolve();
-  
-    const f_callback_wrapped = (a_s_propname, v_old, v_new) => {
-      a_f_callback = a_f_callback.then(() => f_proxy_mutation_callback(a_s_propname, v_old, v_new, f_callback_beforevaluechange, f_callback_aftervaluechange));
-      return a_f_callback;
+    let abortController = new AbortController(); // Create an AbortController for cancellation
+
+    const f_callback_wrapped = (
+        v_target,
+        a_s_propname,
+        v_old,
+        v_new,
+        a_n_idx_array_item_removed = [],
+        n_idx_array_item_added = null, 
+        n_idx_array_item_modified = null
+    ) => {
+
+        // console.log('a_n_idx_array_item_removed')
+        // console.log(a_n_idx_array_item_removed)
+        // Cancel the previous callback if it's still running
+        abortController.abort();
+        abortController = new AbortController(); // Create a new AbortController for the new callback
+
+        const signal = abortController.signal;
+
+        a_f_callback = a_f_callback
+            .then(() => f_proxy_mutation_callback(
+                v_target,
+                a_s_propname,
+                v_old,
+                v_new,
+                a_n_idx_array_item_removed,
+                n_idx_array_item_added,
+                n_idx_array_item_modified,
+                signal // Pass the signal to the callback
+            ))
+            .catch((err) => {
+                if (err.name !== 'AbortError') {
+                    console.error('Callback error:', err);
+                }
+                // Ignore AbortError, as it's expected when the callback is cancelled
+            });
+
+        return a_f_callback;
     };
-  
+
     function f_o_proxy_object(o_target, a_s_prop_path_part) {
-      const o_proxy = new Proxy(o_target, {
-        get(o_target, s_prop, o_receiver) {
-        //   // Handle the custom `_f_set_directly` method
-        //   if (s_prop === '_f_set_directly') {
-        //     return (s_prop, value) => {
-        //       Reflect.set(o_target, s_prop, value);
-        //     };
-        //   }
-  
-          const value = Reflect.get(o_target, s_prop, o_receiver);
-          if (typeof value === 'object' && value !== null) {
-            // Create proxy for nested objects/arrays, including the path to this property
-            return f_o_proxy_object(value, [...a_s_prop_path_part, s_prop]);
-          }
-          return value;
-        },
-        set(o_target, s_prop, value, o_receiver) {
-          const v_old = Reflect.get(o_target, s_prop, o_receiver);
-          const result = Reflect.set(o_target, s_prop, value, o_receiver);
-          f_callback_wrapped([...a_s_prop_path_part, s_prop], v_old, value);
-          return result;
-        },
-        deleteProperty(o_target, s_prop) {
-          const v_old = Reflect.get(o_target, s_prop);
-          const result = Reflect.deleteProperty(o_target, s_prop);
-          f_callback_wrapped([...a_s_prop_path_part, s_prop], v_old, undefined);
-          return result;
-        }
-      });
-  
-      return o_proxy;
+        const o_proxy = new Proxy(o_target, {
+            get(o_target, s_prop, o_receiver) {
+                let a_s_prop_path_part2 = [...a_s_prop_path_part, s_prop];
+                const value = Reflect.get(o_target, s_prop, o_receiver);
+                if (typeof value === 'object' && value !== null) {
+                    // Create proxy for nested objects/arrays, including the path to this property
+                    return f_o_proxy_object(value, a_s_prop_path_part2);
+                }
+                return value;
+            },
+            set(o_target, s_prop, v_new, o_receiver) {
+                let a_s_prop_path_part2 = [...a_s_prop_path_part, s_prop];
+                let a_n_idx_array_item_removed = []
+
+                const v_old = Reflect.get(o_target, s_prop, o_receiver);
+                // Skip triggering callback if the target is an array and the property is 'length'
+                if (Array.isArray(o_target) && s_prop === 'length') {
+                    if (v_new < v_old) {
+                        // Detect element deletions (e.g., from pop, splice, or shift)
+                        // let deletedItems = o_target.slice(v_new, v_old); // Get the deleted elements
+                        // Calculate indices of deleted items
+                        a_n_idx_array_item_removed = Array.from(
+                            { length: v_old - v_new }, // Number of removed items
+                            (_, i) => v_new + i        // Indices of removed items
+                        );
+                        if(a_n_idx_array_item_removed.length == 0){
+                            debugger
+                        }
+                        // Call the callback with the indices of deleted items
+                        f_callback_wrapped(
+                            o_target, 
+                            a_s_prop_path_part2, 
+                            v_old, 
+                            undefined, 
+                            a_n_idx_array_item_removed, 
+                            null
+                        );
+                    }
+                    return Reflect.set(o_target, s_prop, v_new, o_receiver);
+                }
+                if (f_callback_beforevaluechange) {
+                    f_callback_beforevaluechange(a_s_prop_path_part2, v_old, v_new, a_n_idx_array_item_removed);
+                }
+
+                const result = Reflect.set(o_target, s_prop, v_new, o_receiver);
+                if (f_callback_aftervaluechange) {
+                    f_callback_aftervaluechange(a_s_prop_path_part2, v_old, v_new, a_n_idx_array_item_removed);
+                }
+                // Check if the target is an array
+                if (Array.isArray(o_target) && v_old == undefined) {
+                    let n_idx_array_item_added = Number(s_prop); // The index of the new item
+
+                    f_callback_wrapped(o_target, a_s_prop_path_part2, v_old, v_new, a_n_idx_array_item_removed, n_idx_array_item_added);
+                } else {
+
+                    // a_o_person.0.s_name => object with index 0 is being manipulated so 
+                    // 'a_o_person', '0' <--
+                    let s_prop2 = a_s_prop_path_part2?.at(-2);
+                    let n_idx_array_item_modified = Number(s_prop);
+                    
+                    if(isNaN(n_idx_array_item_modified)){
+                        n_idx_array_item_modified = Number(s_prop2)
+                    }
+                    f_callback_wrapped(o_target, a_s_prop_path_part2, v_old, v_new, a_n_idx_array_item_removed, null, n_idx_array_item_modified);
+                }
+
+                return result;
+            },
+            deleteProperty(o_target, s_prop) {
+                let a_s_prop_path_part2 = [...a_s_prop_path_part, s_prop];
+                let a_n_idx_array_item_removed = []
+                const v_old = Reflect.get(o_target, s_prop);
+                if (f_callback_beforevaluechange) {
+                    f_callback_beforevaluechange(a_s_prop_path_part2, v_old, null);
+                }
+                const result = Reflect.deleteProperty(o_target, s_prop);
+                if (f_callback_aftervaluechange) {
+                    f_callback_aftervaluechange(a_s_prop_path_part2, v_old, null);
+                }
+                // Check if the target is an array
+                if (Array.isArray(o_target)) {
+                    const n_idx_array_item_removed = Number(s_prop); // The index of the removed item
+                    f_callback_wrapped(o_target, a_s_prop_path_part2, v_old, a_n_idx_array_item_removed, [n_idx_array_item_removed], null);
+                } else {
+                    f_callback_wrapped(o_target, a_s_prop_path_part2, v_old, a_n_idx_array_item_removed);
+                }
+
+                return result;
+            }
+        });
+
+        return o_proxy;
     }
-  
+
     let o_proxy = f_o_proxy_object(obj, a_s_prop_path_part);
   
     // Attach the event listener to the document or a parent element
     document.addEventListener('input', (o_ev) => {
         // Check if the event target is an input, textarea, or select
         if (o_ev.target.matches('input, textarea, select')) {
-            console.log(o_ev);
             f_handle_input_change(o_ev, o_proxy);
         }
     });
     
     return o_proxy;
+
 }
 
 export {
@@ -3002,6 +3118,7 @@ export {
     f_o_google_sheet_data_from_o_resp_data, 
     f_o_state_webgl_shader_audio_visualization,
     f_o_proxified,
-    f_o_html_from_o_js
+    f_o_html_from_o_js, 
+    f_download_file_denojs
 }
 
