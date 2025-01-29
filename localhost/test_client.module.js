@@ -70,7 +70,8 @@ import {
     f_a_o_number_value_temperature_from_s_temp,
     f_o_state_webgl_shader_audio_visualization,
     f_o_proxified,
-    f_o_html_from_o_js
+    f_o_html_from_o_js,
+    f_o_proxified_and_add_listeners
 } from "./module.js"
 
 
@@ -2401,9 +2402,10 @@ let a_o_test =
                     b_test: true, 
                     f_test:()=>{return 'test function executed succesfully'},
                     a_o: [{n:1},{n:2}], 
-                }, 
+                },
                 (a_s_path, v_old, v_new)=>{console.log('before change'); console.log(a_s_path, v_old, v_new)},
-                (a_s_path, v_old, v_new)=>{console.log('after change'); console.log(a_s_path, v_old, v_new)}
+                (a_s_path, v_old, v_new)=>{console.log('after change'); console.log(a_s_path, v_old, v_new)}, 
+                []
             );
             // array manipulation
             o_state.a_o_person.push({s_name: 'regula'});
@@ -2413,8 +2415,35 @@ let a_o_test =
 
             o_state.a_o_person.pop();// remove last item
 
-            let o = o_state.a_o_person[2];
-            o.s_name = 'ludolf' // change by reference 
+            let o_tmp = o_state.a_o_person[2];
+            o_tmp.s_name = 'ludolf' // change by reference 
+
+            // Example usage:
+            let o = f_o_proxified({ n: 2 });
+            o.n = 3; // Triggers callback
+            o.o_nested = { n: 1 }; // Proxifies nested object and triggers callback
+            o.o_nested.n = 55; // Triggers callback
+            o.a = [1, 2, 3, 4, { n: 9 }]; // Proxifies array and nested objects
+            o.a.push(99); // Triggers callback once with added indices
+            o.a[4] = 3
+            o.a = o.a.filter((n_idx, v)=>{return n_idx < 3})
+            o.a = [1,2,3,4,5,6,7,8,9]
+            let n_idx_start = 3
+            let n_delete_count = 3
+            o.a.splice(
+                n_idx_start,
+                n_delete_count
+            )
+            o.o_nested.n = 4
+            o.a[2] = 2
+
+            o.a = o.a.map(v=>v+2)
+
+            o.a.splice(
+                n_idx_start,
+                n_delete_count
+            )
+            console.log(o)
 
         }),
         
@@ -2468,7 +2497,7 @@ let a_o_test =
                 }
             }
             // first we define our data in a state object
-            let o_state = f_o_proxified(
+            let o_state = f_o_proxified_and_add_listeners(
                 {
                     o_person: a_o_person[0],
                     a_o_person, 
@@ -2624,12 +2653,22 @@ let a_o_test =
                                 }
                             }, 
                             {
-                                s_tag: 'label', 
                                 f_s_innerText: ()=>{
-                                    return JSON.stringify(o_state.a_o_person);
+                                    return JSON.stringify(o_state.a_o_person, null, 4);
                                 }, 
                                 a_s_prop_sync: "a_o_person"
+                            }, 
+                            {
+                                f_s_innerText: ()=>{
+                                    return JSON.stringify(o_state.a_o_person.map(o=>o?.s_name), null, 4);
+                                }, 
+                                a_s_prop_sync: ["a_o_person"]
+                            }, 
+                            {
+                                s_tag: "input", 
+                                a_s_prop_sync: ['a_o_person.0.s_name']
                             }
+                        
                         ]
                     }
                 }
@@ -2652,33 +2691,33 @@ let a_o_test =
             o_state.a_o_person[1].s_name = `${o_state.a_o_person[1].s_name}_new`
             o_state.a_o_person[1] = {s_name: 'person idx_2 lol'}
 
-            // // array manipulation
+            // array manipulation
             o_state.a_o_person.push({s_name: 'regula person_idx_4', n_age: 20, b_male:false, a_s_short_name:['regle']});
             o_state.a_o_person.push({s_name: 'regina person_idx_5', n_age: 20, b_male:false, a_s_short_name:['regne']});
             o_state.a_o_person.push({s_name: 'ruedi person_idx_6', n_age: 20, b_male:true, a_s_short_name:['rud']});
             o_state.a_o_person.splice(2, 1); // Removes 1 element at index 2 // removes  lol therefore
 
-            // o_state.a_o_person.pop();// remove last item // removes ruadi
+            o_state.a_o_person.pop();// remove last item // removes ruadi
 
-            // let o_tmp = o_state.a_o_person[2];
-            // o_tmp.s_name = o_tmp.s_name+'ludolf' // change by reference // changes ueli to ludolf
+            o_state.a_o_person[2].s_name = o_state.a_o_person[2].s_name+'n3wcrypt1cn4m3'
+            let o_tmp = o_state.a_o_person[2];
+            o_tmp.s_name = o_tmp.s_name+'_n3wcrypt1cn4m3' // change by reference // changes ueli to ludolf
+            console.log('pop1')
+            o_state.a_o_person.pop()
+            window.setTimeout(()=>{
 
-            // console.log('pop1')
-            // o_state.a_o_person.pop()
-            // window.setTimeout(()=>{
-
-            //         // console.log('pop2')
-            //         // o_state.a_o_person.pop()
-            //         // console.log('pop3')
-            //         // o_state.a_o_person.pop()
+                    console.log('pop2')
+                    o_state.a_o_person.pop()
+                    console.log('pop3')
+                    o_state.a_o_person.pop()
                 
-            //     // console.log(o_state.a_o_person)
-            //     // window.setTimeout(()=>{
-            //     //     o_state.a_o_person.pop()
-            //     //     // o_state.a_o_person.pop()
+                // console.log(o_state.a_o_person)
+                // window.setTimeout(()=>{
+                //     o_state.a_o_person.pop()
+                //     // o_state.a_o_person.pop()
                 
-            //     // },1)
-            // },2111)
+                // },1)
+            },2111)
         }),
 
 
