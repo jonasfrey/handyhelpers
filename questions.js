@@ -28,7 +28,7 @@ onew.s = 'test' // trigger 'callback' with 'a.3.s'
 // now a problem that i can think of would be this. 
 // i want to be able to initialize an object and have its reference like this 
 
-let o_test = {n: 5}; // o is now the reference 
+let o_test = {n: 5}; // o_test is now the reference 
 //then i want to push it to an array of the proxy object 
 o.a.push(o_test);
 

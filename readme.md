@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Fri Jan 24 2025 11:46:14 GMT+0100 (Central European Standard Time)","n_ts_created":1737715574914} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Mon Feb 03 2025 14:20:27 GMT+0100 (Central European Standard Time)","n_ts_created":1738588827048} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -2099,7 +2099,7 @@ a minimal / lightweight / small / flat frontend framework
             }
             let a_o_person = [
                 new O_person(
-                    'hans', 
+                    'hans person_idx_0', 
                     10, 
                     true, 
                     ['hansi', 'haenschen', 'haensel'],
@@ -2108,7 +2108,7 @@ a minimal / lightweight / small / flat frontend framework
                     }
                 ),
                 new O_person(
-                    'greta', 
+                    'greta person_idx_1', 
                     10, 
                     false, 
                     ['gretchen', 'gretel']
@@ -2126,8 +2126,10 @@ a minimal / lightweight / small / flat frontend framework
                     console.log('name of first person has been changed')
                 }
             }
+            let o_div = document.createElement('div');
+            document.body.appendChild(o_div);
             // first we define our data in a state object
-            let o_state = f_o_proxified(
+            let o_state = f_o_proxified_and_add_listeners(
                 {
                     o_person: a_o_person[0],
                     a_o_person, 
@@ -2140,7 +2142,8 @@ a minimal / lightweight / small / flat frontend framework
                     a_o: [{n:1},{n:2}], 
                 }, 
                 f_callback_beforevaluechange,
-                f_callback_aftervaluechange
+                f_callback_aftervaluechange, 
+                o_div
             )
             
             window.o_state = o_state
@@ -2152,6 +2155,7 @@ a minimal / lightweight / small / flat frontend framework
                     },n_ms)
                 })
             }
+            // then we build the html 
             let o = await f_o_html_from_o_js(
                 {
                     class: "test",
@@ -2161,11 +2165,36 @@ a minimal / lightweight / small / flat frontend framework
                                 innerText: "section 1"
                             },
                             {
+                                s_tag: "hr"
+                            },      
+                            {
+                                f_a_o: ()=>[
+                                    {
+                                        innerText: "First person",
+                                    },
+                                    {
+                                        a_s_prop_sync: ['a_o_person.0.s_name'],
+                                        s_tag: 'input'
+                                        // f_s_innerText: ()=>`name ${a_o_person[0].s_name}`
+                                    },
+                                    {
+                                        f_s_innerText: ()=>`age ${a_o_person[0].n_age}`
+                                    },
+                                    {
+                                        f_s_innerText: ()=>`gender male ${a_o_person[0].b_male}`
+                                    }, 
+                                    {
+                                        s_tag: "hr"
+                                    }
+                                ], 
+                                a_s_prop_sync: ['a_o_person.0']
+                            },
+                            {
                                 style: "background:red",
                                 f_a_o: async ()=>{
                                     await f_sleep_ms(111);
-            
                                     return o_state.a_o_person.map(o=>{
+                                        
                                         return {
                                             f_a_o:()=>[
                                                 {
@@ -2188,6 +2217,9 @@ a minimal / lightweight / small / flat frontend framework
                             },
                             {
                                 f_a_o: ()=>{
+                                    console.log('o_state.a_o_person');
+                                    console.log(o_state.a_o_person);
+                                    console.log(o_state.a_o_person.map(o=>{return o.s_name}));
                                     return o_state.a_o_person.map(o=>{
                                         return {
                                             style: `background: rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.5)`,
@@ -2255,25 +2287,35 @@ a minimal / lightweight / small / flat frontend framework
                                 }
                             }, 
                             {
-                                s_tag: 'label', 
                                 f_s_innerText: ()=>{
-                                    return JSON.stringify(o_state.a_o_person);
+                                    return JSON.stringify(o_state.a_o_person, null, 4);
                                 }, 
                                 a_s_prop_sync: "a_o_person"
+                            }, 
+                            {
+                                f_s_innerText: ()=>{
+                                    return JSON.stringify(o_state.a_o_person.map(o=>o?.s_name), null, 4);
+                                }, 
+                                a_s_prop_sync: ["a_o_person"]
+                            }, 
+                            {
+                                s_tag: "input", 
+                                a_s_prop_sync: ['a_o_person.0.s_name']
                             }
+                        
                         ]
                     }
-                }
+                }, 
+                o_state
             )
-            console.log(o);
-            document.body.appendChild(o)
+            o_div.appendChild(o);
             
             o_state.a_o_person.push(
-                new O_person('ludolf', 20)
+                new O_person('ludolf person_idx_2', 20)
             )
             o_state.a_o_person.push(
                 new O_person(
-                    'ueli', 
+                    'ueli person_idx_3', 
                     10, 
                     false, 
                     ['ul']
@@ -2281,30 +2323,60 @@ a minimal / lightweight / small / flat frontend framework
             )
             o_state.a_o_person[0].s_name = `${o_state.a_o_person[0].s_name}_new`
             o_state.a_o_person[1].s_name = `${o_state.a_o_person[1].s_name}_new`
-            o_state.a_o_person[2] = {s_name: 'lol'}
-            // let o_tmp = o_state.a_o_person[1];
-            // o_tmp.s_name = 'kkl'
-            // o_state.a_o_person.pop()
-            console.log(o_state.a_o_person)
-            console.log(o_state.a_o_person)
-            console.log(o_state.a_o_person)
-            
+            o_state.a_o_person[1] = {s_name: 'person idx_2 lol'}
+
+            // array manipulation
+            o_state.a_o_person.push({s_name: 'regula person_idx_4', n_age: 20, b_male:false, a_s_short_name:['regle']});
+            o_state.a_o_person.push({s_name: 'regina person_idx_5', n_age: 20, b_male:false, a_s_short_name:['regne']});
+            o_state.a_o_person.push({s_name: 'ruedi person_idx_6', n_age: 20, b_male:true, a_s_short_name:['rud']});
+            o_state.a_o_person.splice(2, 1); // Removes 1 element at index 2 // removes  lol therefore
+
+            o_state.a_o_person.pop();// remove last item // removes ruadi
+
+            o_state.a_o_person[2].s_name = o_state.a_o_person[2].s_name+'n3wcrypt1cn4m3'
+            let o_tmp = o_state.a_o_person[2];
+            o_tmp.s_name = o_tmp.s_name+'_n3wcrypt1cn4m3' // change by reference // changes ueli to ludolf
+            console.log('pop1')
+            o_state.a_o_person.pop()
             window.setTimeout(()=>{
-                console.log('pop1')
-                o_state.a_o_person.pop()
-                console.log('pop2')
-                o_state.a_o_person.pop()
-                console.log('pop3')
-                o_state.a_o_person.pop()
+
+                    console.log('pop2')
+                    o_state.a_o_person.pop()
+                    console.log('pop3')
+                    o_state.a_o_person.pop()
                 
-                console.log(o_state.a_o_person)
+                // console.log(o_state.a_o_person)
                 // window.setTimeout(()=>{
                 //     o_state.a_o_person.pop()
                 //     // o_state.a_o_person.pop()
                 
                 // },1)
-            },111)
+            },2111)
         }),
+
+        f_o_test("f_flat_frontend_framework_modules", async () => {
+            let o_mod__notifire = await f_o_mod__notifire();
+            document.body.appendChild(
+                o_mod__notifire.o_div
+            )
+            
+            // Create a new <style> element
+            const style = document.createElement('style');
+            style.type = 'text/css';
+            // Add the CSS to the style element
+            style.innerHTML = o_mod__notifire.s_css;
+            // Insert the style element into the document head
+            document.head.appendChild(style);
+
+            console.log(o_mod__notifire.o_div)
+            o_mod__notifire.f_message_error('error :<', 1500)
+            o_mod__notifire.f_message_success('success :>', 3000)
+            o_mod__notifire.f_message_warning('warning :/', 5000)
+            globalThis.o_state = o_mod__notifire.o_state
+            globalThis.o_mod__notifire = o_mod__notifire
+        })
+
+        
 
 
         
