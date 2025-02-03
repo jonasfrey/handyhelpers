@@ -2486,12 +2486,16 @@ let a_o_test =
                 )
             ]
             let f_callback_beforevaluechange = function(a_s_path, v_old, v_new){
+                console.log('a_s_path')
+                console.log(a_s_path)
                 let s_path = a_s_path.join('.');
                 if(s_path == 'a_o_person.0.s_name'){
                     console.log('name of first person will be changed')
                 }
             }
             let f_callback_aftervaluechange = function(a_s_path, v_old, v_new){
+                console.log('a_s_path')
+                console.log(a_s_path)
                 let s_path = a_s_path.join('.');
                 if(s_path == 'a_o_person.0.s_name'){
                     console.log('name of first person has been changed')

@@ -2843,17 +2843,17 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
    signal, 
    o_div = document
 ){
-   console.log('f_async_callback was called with following params')
-   console.log({
-       v_target,
-       a_s_path,
-       v_old,
-       v_new,
-       a_n_idx_array_item__removed,
-       a_n_idx_array_item__added,
-       n_idx_array_item__modified,
-       signal
-   }); 
+//    console.log('f_async_callback was called with following params')
+//    console.log({
+//        v_target,
+//        a_s_path,
+//        v_old,
+//        v_new,
+//        a_n_idx_array_item__removed,
+//        a_n_idx_array_item__added,
+//        n_idx_array_item__modified,
+//        signal
+//    }); 
 
 
    // console.log('proxy callback called')
@@ -3198,19 +3198,21 @@ const f_o_proxified = function (
            },
            set: function (o_target, s_prop, v_value) {
                const v_old_value = o_target[s_prop];
+               const a_s_full_prop_path = a_s_prop_path_part.concat(s_prop);
+
                const v_new_proxified = f_o_proxified(
                    v_value,
                    f_callback_beforevaluechange,
                    f_callback_aftervaluechange,
                    o_div,
-                   a_s_prop_path_part.concat(s_prop)
+                   a_s_full_prop_path
                );
-               f_callback_beforevaluechange(a_s_prop_path_part, v_old_value, v_new_proxified);
+
+               f_callback_beforevaluechange(a_s_full_prop_path, v_old_value, v_new_proxified);
                const b_success = Reflect.set(o_target, s_prop, v_new_proxified);
-               f_callback_aftervaluechange(a_s_prop_path_part, v_old_value, v_new_proxified);
+               f_callback_aftervaluechange(a_s_full_prop_path, v_old_value, v_new_proxified);
 
                if (b_success) {
-                   const a_s_full_prop_path = a_s_prop_path_part.concat(s_prop);
                    const a_n_idx_array_item__removed = [];
                    const a_n_idx_array_item__added = [];
                    let n_idx_array_item__modified = undefined;
