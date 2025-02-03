@@ -71,7 +71,8 @@ import {
     f_o_state_webgl_shader_audio_visualization,
     f_o_proxified,
     f_o_html_from_o_js,
-    f_o_proxified_and_add_listeners
+    f_o_proxified_and_add_listeners,
+    f_o_mod__notifire,
 } from "./module.js"
 
 
@@ -2496,6 +2497,8 @@ let a_o_test =
                     console.log('name of first person has been changed')
                 }
             }
+            let o_div = document.createElement('div');
+            document.body.appendChild(o_div);
             // first we define our data in a state object
             let o_state = f_o_proxified_and_add_listeners(
                 {
@@ -2510,7 +2513,8 @@ let a_o_test =
                     a_o: [{n:1},{n:2}], 
                 }, 
                 f_callback_beforevaluechange,
-                f_callback_aftervaluechange
+                f_callback_aftervaluechange, 
+                o_div
             )
             
             window.o_state = o_state
@@ -2522,6 +2526,7 @@ let a_o_test =
                     },n_ms)
                 })
             }
+            // then we build the html 
             let o = await f_o_html_from_o_js(
                 {
                     class: "test",
@@ -2559,8 +2564,8 @@ let a_o_test =
                                 style: "background:red",
                                 f_a_o: async ()=>{
                                     await f_sleep_ms(111);
-            
                                     return o_state.a_o_person.map(o=>{
+                                        
                                         return {
                                             f_a_o:()=>[
                                                 {
@@ -2671,10 +2676,10 @@ let a_o_test =
                         
                         ]
                     }
-                }
+                }, 
+                o_state
             )
-            console.log(o);
-            document.body.appendChild(o)
+            o_div.appendChild(o);
             
             o_state.a_o_person.push(
                 new O_person('ludolf person_idx_2', 20)
@@ -2719,6 +2724,29 @@ let a_o_test =
                 // },1)
             },2111)
         }),
+
+        f_o_test("f_flat_frontend_framework_modules", async () => {
+            let o_mod__notifire = await f_o_mod__notifire();
+            document.body.appendChild(
+                o_mod__notifire.o_div
+            )
+            
+            // Create a new <style> element
+            const style = document.createElement('style');
+            style.type = 'text/css';
+            // Add the CSS to the style element
+            style.innerHTML = o_mod__notifire.s_css;
+            // Insert the style element into the document head
+            document.head.appendChild(style);
+
+            console.log(o_mod__notifire.o_div)
+            o_mod__notifire.f_message_error('error :<', 1500)
+            o_mod__notifire.f_message_success('success :>', 3000)
+            o_mod__notifire.f_message_warning('warning :/', 5000)
+            globalThis.o_state = o_mod__notifire.o_state
+            globalThis.o_mod__notifire = o_mod__notifire
+        })
+
 
 
         

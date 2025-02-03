@@ -2656,9 +2656,45 @@ function f_b_numeric(str) {
           !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
  }
 
+ const f_try_to_update_element_from_params = function(
+    o_el_html, 
+    o_state, 
+    s_path
+) {
+    // 1. Check if element is input
+    if (!(o_el_html instanceof HTMLInputElement)) return;
+
+    // 2. Split path into components
+    const a_s_path_part = s_path.split('.');
+    
+    // 3. Get value from state
+    const v_value = f_v_from_path(o_state, a_s_path_part);
+    // 4. Update element based on type
+    if (o_el_html.type === 'checkbox' || o_el_html.type === 'radio') {
+        o_el_html.checked = !!v_value;
+    } else {
+        o_el_html.value = v_value != null ? v_value.toString() : '';
+    }
+};
+
+// Helper function with path traversal
+const f_v_from_path = function(o_state, a_s_path_part) {
+    let o_current = o_state;
+    
+    for (const s_part of a_s_path_part) {
+        if (typeof o_current !== 'object' || o_current === null || !(s_part in o_current)) {
+            return undefined;
+        }
+        o_current = o_current[s_part];
+    }
+    
+    return o_current;
+};
+
 
 let f_o_html_from_o_js = async function(
-   o_js
+   o_js,
+   o_state = {}
    ){
    // debugger
    let s_tag = 'div';
@@ -2708,10 +2744,20 @@ let f_o_html_from_o_js = async function(
        let a_o = await o_js?.f_a_o();
        for(let o_js2 of a_o){
            let n_idx = a_o.indexOf(o_js2);
-           let o_html2 = await f_o_html_from_o_js(o_js2);
+           let o_html2 = await f_o_html_from_o_js(o_js2, o_state);
            o_html.appendChild(o_html2)
        }
    }
+   let s_path = o_js?.[s_name_attr_prop_sync]?.[0];
+   if(s_path){
+    
+       f_try_to_update_element_from_params(
+        o_html, 
+        o_state, 
+        s_path
+       );
+   }
+
    return o_html;
 }
 
@@ -2768,7 +2814,7 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
    o_el_global_event = o_ev.target;
 
    // console.log(`Event "${event.type}" triggered on:`, event.target);
-   let a_s_prop_sync = o_ev.target.getAttribute('a_s_prop_sync')?.split(',');
+   let a_s_prop_sync = o_ev.target.getAttribute(s_name_attr_prop_sync)?.split(',');
    if(a_s_prop_sync){
        for(let s_prop_sync of a_s_prop_sync){
            let a_s = s_prop_sync.split('.');
@@ -2794,7 +2840,8 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
    a_n_idx_array_item__removed,
    a_n_idx_array_item__added,
    n_idx_array_item__modified,
-   signal
+   signal, 
+   o_div = document
 ){
    console.log('f_async_callback was called with following params')
    console.log({
@@ -2818,7 +2865,7 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
    let a_o_el = [];
    while(a_s_path_tmp.length > 0){
        let s_path = a_s_path_tmp.join('.');
-       const a_o_el2 = document.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_path}"]`);
+       const a_o_el2 = o_div.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_path}"]`);
        const a_o_el__filtered = Array.from(a_o_el2).filter(el => {
            const a_s = el.getAttribute(s_name_attr_prop_sync).split(',');
            return a_s.includes(s_path) && el != o_el_global_event;
@@ -2893,6 +2940,7 @@ const f_o_proxified = function (
    v_target, 
    f_callback_beforevaluechange = (a_s_path, v_old, v_new)=>{},
    f_callback_aftervaluechange = (a_s_path, v_old, v_new)=>{},
+   o_div = document,
    a_s_prop_path_part = []
 
 ) {
@@ -3021,7 +3069,7 @@ const f_o_proxified = function (
        v_new_value, 
        a_n_idx_array_item__removed = [], 
        a_n_idx_array_item__added = [], 
-       n_idx_array_item__modified = undefined
+       n_idx_array_item__modified = undefined, 
    ) {
        if (o_pending_async_callback) {
            o_pending_async_callback.f_abort();
@@ -3039,7 +3087,7 @@ const f_o_proxified = function (
                    a_n_idx_array_item__removed,
                    a_n_idx_array_item__added,
                    n_idx_array_item__modified,
-                   o_abort_controller.signal
+                   o_abort_controller.signal, 
                );
            } catch (e_error) {
                if (e_error.name !== 'AbortError') throw e_error;
@@ -3058,7 +3106,7 @@ const f_o_proxified = function (
        o_array_target, 
        s_method_name, 
        a_args, 
-       a_s_prop_path_part
+       a_s_prop_path_part, 
    ) {
        const f_original_method = Array.prototype[s_method_name];
        const a_v_array_old = [...o_array_target];
@@ -3121,19 +3169,19 @@ const f_o_proxified = function (
            a_v_array_new,
            a_n_idx_array_item__removed,
            a_n_idx_array_item__added,
-           n_idx_array_item__modified
+           n_idx_array_item__modified, 
        );
 
        return v_result;
    };
 
-   const f_create_proxy_handler = function (a_s_prop_path_part) {
+   const f_create_proxy_handler = function (a_s_prop_path_part, o_div = document) {
        return {
            get: function (o_target, s_prop) {
                const v_value = Reflect.get(...arguments);
 
                if (Array.isArray(o_target) && a_s_array_methods.includes(s_prop)) {
-                   return (...a_args) => f_wrap_array_method(o_target, s_prop, a_args, a_s_prop_path_part);
+                   return (...a_args) => f_wrap_array_method(o_target, s_prop, a_args, a_s_prop_path_part, o_div);
                }
 
                if (typeof v_value === 'object' && v_value !== null) {
@@ -3141,7 +3189,8 @@ const f_o_proxified = function (
                        v_value,
                        f_callback_beforevaluechange,
                        f_callback_aftervaluechange, 
-                       a_s_prop_path_part.concat(s_prop)
+                       o_div,
+                       a_s_prop_path_part.concat(s_prop), 
                    );
                }
 
@@ -3153,6 +3202,7 @@ const f_o_proxified = function (
                    v_value,
                    f_callback_beforevaluechange,
                    f_callback_aftervaluechange,
+                   o_div,
                    a_s_prop_path_part.concat(s_prop)
                );
                f_callback_beforevaluechange(a_s_prop_path_part, v_old_value, v_new_proxified);
@@ -3181,7 +3231,7 @@ const f_o_proxified = function (
                        v_new_proxified,
                        a_n_idx_array_item__removed,
                        a_n_idx_array_item__added,
-                       n_idx_array_item__modified
+                       n_idx_array_item__modified, 
                    );
                }
 
@@ -3199,20 +3249,74 @@ const f_o_proxified = function (
 
 };
 
+// let f_traverse_nested_object = function(
+//     o_target,
+//     a_s_prop_path_part = [],
+//     f_callback = (a_s_prop_path_part, v_value) => {}
+// ) {
+//     // First call callback for current node
+//     f_callback(a_s_prop_path_part, o_target);
+
+//     // Process object/array children recursively
+//     if (typeof o_target === 'object' && o_target !== null) {
+//         for (const s_key of Object.keys(o_target)) {
+//             const a_s_path_new = [...a_s_prop_path_part, s_key];
+//             const v_child_value = o_target[s_key];
+            
+//             f_traverse_nested_object(
+//                 v_child_value,
+//                 a_s_path_new,
+//                 f_callback
+//             );
+//         }
+//     }
+// };
+// let f_traverse_nested_object_and_initialize_values = function(
+//     o, 
+// ){
+//     f_traverse_nested_object(
+//         o, 
+//         [], 
+//         (a_s_path_tmp, v_value)=>{
+//             let s_path = a_s_path_tmp.join('.')
+//             const a_o_el2 = document.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_path}"]`);
+//             if(s_path == 'a_o_person.0.s_name'){
+//                 debugger
+//             }
+//             const a_o_el__filtered = Array.from(a_o_el2).filter(el => {
+//                 const a_s = el.getAttribute(s_name_attr_prop_sync).split(',');
+//                 return a_s.includes(s_path) && el != o_el_global_event;
+//             });
+//             for(let o_el of a_o_el__filtered){
+//                 if(o_el.value){
+//                     o_el.value = v_value
+//                     console.log('o_el.value');
+//                     console.log(o_el.value);
+//                 }
+//                 if(o_el?.o_meta?.f_s_innerText){
+//                     let s = o_el.o_meta.f_s_innerText();
+//                     o_el.innerText = s;
+//                 }
+//             }
+//         }
+//     )
+// }
 const f_o_proxified_and_add_listeners = function(
     v_target, 
     f_callback_beforevaluechange = (a_s_path, v_old, v_new)=>{},
     f_callback_aftervaluechange = (a_s_path, v_old, v_new)=>{},
-    a_s_prop_path_part = []
+    o_div = document,
+    a_s_prop_path_part = [], 
 ){
     let o_proxy = f_o_proxified(
         v_target, 
         f_callback_beforevaluechange, 
         f_callback_aftervaluechange,
+        o_div,
         a_s_prop_path_part
     )
     // Attach the event listener to the document or a parent element
-    document.addEventListener('input', (o_ev) => {
+    o_div.addEventListener('input', (o_ev) => {
         // Check if the event target is an input, textarea, or select
         if (o_ev.target.matches('input, textarea, select')) {
             f_handle_input_change(o_ev, o_proxy);
@@ -3221,6 +3325,152 @@ const f_o_proxified_and_add_listeners = function(
     return o_proxy;
 }
 
+let  f_s_random_uuid__with_unsecure_fallback = function() {
+    if (globalThis.crypto && globalThis.crypto.randomUUID) {
+        return globalThis.crypto.randomUUID();
+    } else {
+        console.warn("⚠️ Warning: Using a less secure UUID generator. Consider using HTTPS for better security.");
+        return f_s_random_uuid_unsecure();
+    }
+}
+
+let f_s_random_uuid_unsecure = function() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
+
+
+let f_o_mod__notifire = async function(){
+    
+    let s_class_name = `class_${f_s_random_uuid__with_unsecure_fallback()}`;
+    let o_div = document.createElement('div');
+    // first we define our data in a state object
+    let o_state = f_o_proxified_and_add_listeners(
+        {
+            a_o_message: []
+        }, 
+        ()=>{},
+        ()=>{}, 
+        o_div
+    )
+    let s_css = `
+        .o_mod__notifire.${s_class_name}{
+            position:fixed; 
+            top:0;
+            right:0;
+            background: red;
+        }
+        .success label{
+            background: #d4edda; /* Soft green */
+            color: #155724 !important; /* Dark green */
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error label{
+            background: #f8d7da; /* Soft red */
+            color: #721c24 !important; /* Dark red */
+            border: 1px solid #f5c6cb;
+        }
+        
+        .warning label{
+            background: #fff3cd; /* Soft yellow */
+            color: #856404 !important; /* Dark yellow */
+            border: 1px solid #ffeeba;
+        }
+        .o_message{
+            padding: 0.2rem;
+            position:relative;
+        }
+        .bar{
+            position:absolute;
+            height: 1px;
+            top:0;
+            left:0;
+            z-index:0;
+            background: red;
+        }
+        .text{
+            z-index:1;
+            background: transparent;
+        }
+    `
+    let o_html = await f_o_html_from_o_js(
+        {
+            class: `o_mod__notifire ${s_class_name}`,
+            f_a_o: ()=>{
+                return o_state.a_o_message
+                    .map(
+                        o=>{
+                            
+                            return {     
+                                class: [`o_message`,o.s_class].join(' '),          
+                                style: `display: ${(o.b_show) ? 'block': 'none'}`,     
+                                f_a_o: ()=>{
+                                    return [
+                                        {
+                                            class: "text",
+                                            s_tag: "label",
+                                            f_s_innerText:()=>{
+                                                return o.s
+                                            }, 
+                                        }, 
+                                        {
+                                            class: 'bar',
+                                            style: `width:${parseInt((o.n_ms/o.n_ms__max)*100)}%`
+                                        }
+
+                                    ]
+                                }
+                            }
+                        }
+                    )
+            }, 
+            a_s_prop_sync: 'a_o_message'
+        }, 
+        o_state
+    )
+    o_div.appendChild(o_html);
+    let f_push_message = function(
+        s, 
+        n_ms__max,
+        s_class,
+    ){
+        let o_message = {
+            b_show: true, 
+            s: s,
+            s_class, 
+            n_ms:0,
+            n_ms__max, 
+            n_id_interval: 0
+        };
+        o_state.a_o_message.push(o_message)
+        o_message = o_state.a_o_message.at(-1);//get the proxy reference
+
+        let n_ms_interval = 100;
+        // o_message.n_ms = 200;
+        // o_message.n_ms__max = 1000;
+        o_message.n_id_interval = setInterval(()=>{
+            if(o_message.n_ms > o_message.n_ms__max){
+                o_message.b_show = false;
+                clearInterval(o_message.n_id_interval)
+            };
+            o_message.n_ms+=n_ms_interval
+        },n_ms_interval)
+
+    }
+    let o = {
+        o_div, 
+        o_state, 
+        f_message_success: function(s, n_ms__max = 3000){f_push_message(s,n_ms__max, 'success')}, 
+        f_message_error: function(s, n_ms__max = 3000){f_push_message(s,n_ms__max, 'error')}, 
+        f_message_warning: function(s, n_ms__max = 3000){f_push_message(s,n_ms__max, 'warning')}, 
+        s_css
+    }
+    return o;
+}
 
 export {
    f_o_empty_recursive,
@@ -3288,6 +3538,9 @@ export {
    f_o_proxified,
    f_o_proxified_and_add_listeners,
    f_o_html_from_o_js, 
-   f_download_file_denojs
+   f_download_file_denojs, 
+   f_s_random_uuid__with_unsecure_fallback,
+   f_s_random_uuid_unsecure, 
+   f_o_mod__notifire
 }
 
