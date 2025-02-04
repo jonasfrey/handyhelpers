@@ -2704,7 +2704,9 @@ let f_o_html_from_o_js = async function(
    if(o_js?.s_tag){
        s_tag = o_js.s_tag
    }
-
+   if(typeof o_js?[s_name_attr_prop_sync] == 'string'){
+        o_js?[s_name_attr_prop_sync] = [o_js?[s_name_attr_prop_sync]];
+   }
    let o_html = await f_o_html_element__from_s_tag(s_tag);
    for(let s_prop in o_js){
        let v = o_js[s_prop];
@@ -2818,6 +2820,7 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
 
    // console.log(`Event "${event.type}" triggered on:`, event.target);
    let a_s_prop_sync = o_ev.target.getAttribute(s_name_attr_prop_sync)?.split(',');
+
    if(a_s_prop_sync){
        for(let s_prop_sync of a_s_prop_sync){
            let a_s = s_prop_sync.split('.');
@@ -2880,7 +2883,7 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
    // console.log('a_o_el')
    // console.log(a_o_el)
    
-
+   debugger
    for(let o_el of a_o_el){
        if(o_el == o_el_global_event){
            continue

@@ -2643,6 +2643,27 @@ let a_o_test =
                                 type: "number", 
                                 a_s_prop_sync: ['n_1']
                             },
+                            {
+                                s_tag: "input", 
+                                type: "range", 
+                                min: 0, 
+                                max: 1, 
+                                step: 0.01, 
+                                a_s_prop_sync: "n_2",
+                            },
+                            {
+                                s_tag: "input", 
+                                type: "range", 
+                                min: 0, 
+                                max: 1, 
+                                step: 0.01, 
+                                a_s_prop_sync: "n_2",
+                            },
+                            {
+                                s_tag: 'input', 
+                                type: "number", 
+                                a_s_prop_sync: 'n_2'
+                            },
                             { s_tag: "label", innerText: 'name'},
                             {
                                 s_tag: "input", 
