@@ -2883,7 +2883,6 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
    // console.log('a_o_el')
    // console.log(a_o_el)
    
-   debugger
    for(let o_el of a_o_el){
        if(o_el == o_el_global_event){
            continue
