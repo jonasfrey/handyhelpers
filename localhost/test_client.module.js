@@ -2638,6 +2638,11 @@ let a_o_test =
                                 step: 0.01, 
                                 a_s_prop_sync: ["n_1"],
                             },
+                            {
+                                s_tag: 'input', 
+                                type: "number", 
+                                a_s_prop_sync: ['n_1']
+                            },
                             { s_tag: "label", innerText: 'name'},
                             {
                                 s_tag: "input", 

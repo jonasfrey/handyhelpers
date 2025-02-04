@@ -2696,6 +2696,9 @@ let f_o_html_from_o_js = async function(
    o_js,
    o_state = {}
    ){
+    if(o_state == undefined || o_state == null){
+        throw Error('please pass a state object (o_state) to the function "f_o_html_from_o_js" as a second argument ')
+    }
    // debugger
    let s_tag = 'div';
    if(o_js?.s_tag){
