@@ -2704,8 +2704,8 @@ let f_o_html_from_o_js = async function(
    if(o_js?.s_tag){
        s_tag = o_js.s_tag
    }
-   if(typeof o_js?[s_name_attr_prop_sync] == 'string'){
-        o_js?[s_name_attr_prop_sync] = [o_js?[s_name_attr_prop_sync]];
+   if(typeof o_js?.[s_name_attr_prop_sync] == 'string'){
+        o_js[s_name_attr_prop_sync] = [o_js?.[s_name_attr_prop_sync]];
    }
    let o_html = await f_o_html_element__from_s_tag(s_tag);
    for(let s_prop in o_js){
