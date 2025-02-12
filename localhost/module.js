@@ -2917,7 +2917,6 @@ const f_o_proxified = function (
         for(let o_el of a_o_el){
 
             let b_render = o_el?.o_meta?.o_js?.f_b_render?.();
-            console.log(b_render)
             if(b_render === false){
                 // o_el.style.display = 'none';
                 let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js); 
@@ -2925,7 +2924,6 @@ const f_o_proxified = function (
                 continue
             }
             if(b_render === true){
-                o_el.style.display = 'block';
                 let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js); 
                 o_el.replaceWith(o_el2)
                 continue
