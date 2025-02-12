@@ -2754,7 +2754,7 @@ let f_o_html_from_o_js = async function(
        o_html.innerText = o_js?.f_s_innerText()
    }
    if(o_js?.f_s_innerHTML){
-       o_html.innerText = o_js?.f_s_innerHTML()
+       o_html.innerHTML = o_js?.f_s_innerHTML()
    }
    if(o_js?.f_a_o){
        let a_o = await o_js?.f_a_o();
