@@ -2696,6 +2696,8 @@ let f_o_html_from_o_js = async function(
    o_js,
    o_state = {}
    ){
+
+
     if(o_state == undefined || o_state == null){
         throw Error('please pass a state object (o_state) to the function "f_o_html_from_o_js" as a second argument ')
     }
@@ -2719,7 +2721,7 @@ let f_o_html_from_o_js = async function(
 
            o_html[s_prop] = f_event_handler
            if(!o_html.o_meta){
-               o_html.o_meta = {}
+               o_html.o_meta = {o_js}
            }
            o_html.o_meta[s_prop] = v
           
@@ -2763,6 +2765,23 @@ let f_o_html_from_o_js = async function(
        );
    }
 
+   if(!o_html.o_meta){
+    o_html.o_meta = {
+        o_js
+    }
+   }
+   if(o_js?.f_b_render?.() === false){
+        // let o_html2 = document.createComment('b_render')
+        let o_html2 = await f_o_html_element__from_s_tag('div');
+        o_html2.style.display = 'none';
+        // let o_html2 = await f_o_html_element__from_s_tag('div')
+        // // just let the content be empty, but the attributes are still required like 'a_s_prop_sync'
+        // debugger
+        f_update_element_to_match(o_html,o_html2)
+        o_html2.innerHTML = ''
+        o_html2.o_meta = {o_js}
+        return o_html2;
+    }
    return o_html;
 }
 
@@ -2838,108 +2857,7 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
    // console.log('Input value changed:', o_ev.target.value);
  }
 
- let f_async_callback = async function(
-   v_target,
-   a_s_path,
-   v_old,
-   v_new,
-   a_n_idx_array_item__removed,
-   a_n_idx_array_item__added,
-   n_idx_array_item__modified,
-   signal, 
-   o_div = document
-){
-//    console.log('f_async_callback was called with following params')
-//    console.log({
-//        v_target,
-//        a_s_path,
-//        v_old,
-//        v_new,
-//        a_n_idx_array_item__removed,
-//        a_n_idx_array_item__added,
-//        n_idx_array_item__modified,
-//        signal
-//    }); 
 
-
-   // console.log('proxy callback called')
-   //recursively search for all elements that could be 
-   // <a_s_prop_sync='a_o_person.0.s_name,'...>
-   // <a_s_prop_sync='a_o_person.0,'...>
-   // <a_s_prop_sync='a_o_person,'...>
-   let a_s_path_tmp = [...a_s_path];
-   let a_o_el = [];
-   while(a_s_path_tmp.length > 0){
-       let s_path = a_s_path_tmp.join('.');
-       const a_o_el2 = o_div.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_path}"]`);
-       const a_o_el__filtered = Array.from(a_o_el2).filter(el => {
-           const a_s = el.getAttribute(s_name_attr_prop_sync).split(',');
-           return a_s.includes(s_path) && el != o_el_global_event;
-       });
-       a_o_el.push(...a_o_el__filtered)
-       a_s_path_tmp.pop();
-   }
-   // console.log(o_el_global_event)
-   // console.log('a_o_el')
-   // console.log(a_o_el)
-   
-   for(let o_el of a_o_el){
-       if(o_el == o_el_global_event){
-           continue
-       }
-       if(o_el.value){
-           o_el.value = v_new
-       }
-       if(o_el?.o_meta?.f_s_innerText){
-           let s = o_el.o_meta.f_s_innerText();
-           o_el.innerText = s;
-       }
-       if(o_el?.o_meta?.f_a_o){
-           // console.log(o.o_meta)
-           // debugger
-
-           // console.log(`starting: ${new Date().getTime()}`)
-           // console.log(o_el.o_meta.b_done)
-
-           let a_o_js = await o_el?.o_meta?.f_a_o();
-
-           for(let n_idx_array_item__removed of a_n_idx_array_item__removed){
-                o_el.removeChild(o_el.children[n_idx_array_item__removed]);
-           }
-           for(let n_idx_array_item__added of a_n_idx_array_item__added){
-                let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__added]);
-                o_el.insertBefore(o_el2, o_el.childNodes[n_idx_array_item__added+1]);
-           }
-           if(!isNaN(n_idx_array_item__modified)){
-                let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__modified]);
-                f_update_element_to_match(
-                    o_el2,
-                    o_el.childNodes[n_idx_array_item__modified]
-                )
-           }
-           
-           if(
-               Array.isArray(v_old) && Array.isArray(v_new)
-               &&
-               a_n_idx_array_item__removed.length == 0
-               && 
-               a_n_idx_array_item__added.length == 0
-               &&
-               isNaN(n_idx_array_item__modified)
-               ){
-                   o_el.innerHTML = ''
-                   for(let n_idx in a_o_js){
-                       let o_js2 = a_o_js[n_idx];
-                       let o_html2 = await f_o_html_from_o_js(o_js2);
-                       o_el.appendChild(o_html2)
-                       // console.log('appending child')
-                       // console.log(o_html2)
-                   }
-           }
-
-       }
-   }
-}
 
 const f_o_proxified = function (
    v_target, 
@@ -2949,7 +2867,131 @@ const f_o_proxified = function (
    a_s_prop_path_part = []
 
 ) {
+    let o_state_readable = {}
 
+    let f_async_callback = async function(
+        v_target,
+        a_s_path,
+        v_old,
+        v_new,
+        a_n_idx_array_item__removed,
+        a_n_idx_array_item__added,
+        n_idx_array_item__modified,
+        signal, 
+        o_div = document
+     ){
+     //    console.log('f_async_callback was called with following params')
+     //    console.log({
+     //        v_target,
+     //        a_s_path,
+     //        v_old,
+     //        v_new,
+     //        a_n_idx_array_item__removed,
+     //        a_n_idx_array_item__added,
+     //        n_idx_array_item__modified,
+     //        signal
+     //    }); 
+     
+     
+        // console.log('proxy callback called')
+        //recursively search for all elements that could be 
+        // <a_s_prop_sync='a_o_person.0.s_name,'...>
+        // <a_s_prop_sync='a_o_person.0,'...>
+        // <a_s_prop_sync='a_o_person,'...>
+        let a_s_path_tmp = [...a_s_path];
+        let a_o_el = [];
+        while(a_s_path_tmp.length > 0){
+            let s_path = a_s_path_tmp.join('.');
+            const a_o_el2 = o_div.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_path}"]`);
+            const a_o_el__filtered = Array.from(a_o_el2).filter(el => {
+                const a_s = el.getAttribute(s_name_attr_prop_sync).split(',');
+                return a_s.includes(s_path) && el != o_el_global_event;
+            });
+            a_o_el.push(...a_o_el__filtered)
+            a_s_path_tmp.pop();
+        }
+        // console.log(o_el_global_event)
+        // console.log('a_o_el')
+        // console.log(a_o_el)
+        
+        for(let o_el of a_o_el){
+
+            let b_render = o_el?.o_meta?.o_js?.f_b_render?.();
+            console.log(b_render)
+            if(b_render === false){
+                // o_el.style.display = 'none';
+                let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js); 
+                o_el.replaceWith(o_el2)
+                continue
+            }
+            if(b_render === true){
+                o_el.style.display = 'block';
+                let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js); 
+                o_el.replaceWith(o_el2)
+                continue
+            }
+            if(o_el == o_el_global_event){
+                continue
+            }
+            if(o_el.value){
+                o_el.value = v_new
+            }
+            if(o_el?.o_meta?.f_s_innerText){
+                let s = o_el.o_meta.f_s_innerText();
+                o_el.innerText = s;
+            }
+            if(o_el?.o_meta?.f_a_o){
+                // console.log(o.o_meta)
+                // debugger
+     
+                // console.log(`starting: ${new Date().getTime()}`)
+                // console.log(o_el.o_meta.b_done)
+     
+                let a_o_js = await o_el?.o_meta?.f_a_o();
+                console.log('a_o_js')
+                console.log(a_o_js)
+     
+                for(let n_idx_array_item__removed of a_n_idx_array_item__removed){
+                     o_el.removeChild(o_el.children[n_idx_array_item__removed]);
+                }
+                for(let n_idx_array_item__added of a_n_idx_array_item__added){
+                     let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__added]);
+                     o_el.insertBefore(o_el2, o_el.childNodes[n_idx_array_item__added+1]);
+                }
+                if(!isNaN(n_idx_array_item__modified)){
+                     let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__modified]);
+                     f_update_element_to_match(
+                         o_el2,
+                         o_el.childNodes[n_idx_array_item__modified]
+                     )
+                }
+                
+                if(
+                     (
+                         Array.isArray(v_old) && Array.isArray(v_new)
+                         &&
+                         a_n_idx_array_item__removed.length == 0
+                         && 
+                         a_n_idx_array_item__added.length == 0
+                         &&
+                         isNaN(n_idx_array_item__modified)
+                     )
+                    ){
+                        o_el.innerHTML = ''
+                        for(let n_idx in a_o_js){
+                            let o_js2 = a_o_js[n_idx];
+                            let o_html2 = await f_o_html_from_o_js(o_js2);
+                            o_el.appendChild(o_html2)
+                            // console.log('appending child')
+                            // console.log(o_html2)
+                        }
+                }
+
+     
+            }
+        }
+     }
+     
    // i want to be able to trigger a async function 'f_async_callback' when a possibly nested object gets manipulated in any way. 
    // the function should receive the following parameters.
    // also if f_async_callback has already called and has not yet ended (can take up to 2 sec) 
@@ -3252,6 +3294,7 @@ const f_o_proxified = function (
    const o_proxy_handler = f_create_proxy_handler(a_s_prop_path_part);
    const o_proxy = new Proxy(v_target, o_proxy_handler);
    o_map_proxies.set(v_target, o_proxy);
+   o_state_readable = o_proxy
    return o_proxy
 
 };

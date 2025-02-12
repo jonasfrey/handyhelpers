@@ -2396,6 +2396,7 @@ let a_o_test =
             let o_state = f_o_proxified(
                 {
                     a_o_person: [{s_name:'hans'}, {s_name: 'gretel'}],
+                    b_show_inputs: false,
                     n_test: 1, 
                     n_1: 0.2, 
                     n_2: 0.5,
@@ -2511,6 +2512,7 @@ let a_o_test =
                     n_test: 1, 
                     n_1: 0.2, 
                     n_2: 0.5,
+                    b_show_inputs: true,
                     s_test: "test", 
                     b_test: true, 
                     f_test:()=>{return 'test function executed succesfully'},
@@ -2537,172 +2539,186 @@ let a_o_test =
                     f_a_o: ()=>{
                         return [
                             {
-                                innerText: "section 1"
+                                s_tag: "button",
+                                f_s_innerText:()=>`${(o_state.b_show_inputs ? 'hide': 'show')}`,
+                                onclick:()=>{
+                                    o_state.b_show_inputs = !o_state.b_show_inputs;
+                                }, 
+                                a_s_prop_sync: 'b_show_inputs',
                             },
                             {
-                                s_tag: "hr"
-                            },      
-                            {
-                                f_a_o: ()=>[
+                                f_b_render: ()=>o_state.b_show_inputs,
+                                f_a_o:()=> [
                                     {
-                                        innerText: "First person",
+                                        innerText: "section 1"
                                     },
-                                    {
-                                        a_s_prop_sync: ['a_o_person.0.s_name'],
-                                        s_tag: 'input'
-                                        // f_s_innerText: ()=>`name ${a_o_person[0].s_name}`
-                                    },
-                                    {
-                                        f_s_innerText: ()=>`age ${a_o_person[0].n_age}`
-                                    },
-                                    {
-                                        f_s_innerText: ()=>`gender male ${a_o_person[0].b_male}`
-                                    }, 
                                     {
                                         s_tag: "hr"
+                                    },      
+                                    {
+                                        f_a_o: ()=>[
+                                            {
+                                                innerText: "First person",
+                                            },
+                                            {
+                                                a_s_prop_sync: ['a_o_person.0.s_name'],
+                                                s_tag: 'input'
+                                                // f_s_innerText: ()=>`name ${a_o_person[0].s_name}`
+                                            },
+                                            {
+                                                f_s_innerText: ()=>`age ${a_o_person[0].n_age}`
+                                            },
+                                            {
+                                                f_s_innerText: ()=>`gender male ${a_o_person[0].b_male}`
+                                            }, 
+                                            {
+                                                s_tag: "hr"
+                                            }
+                                        ], 
+                                        a_s_prop_sync: ['a_o_person.0']
+                                    },
+                                    {
+                                        style: "background:red",
+                                        f_a_o: async ()=>{
+                                            await f_sleep_ms(111);
+                                            return o_state.a_o_person.map(o=>{
+                                                
+                                                return {
+                                                    f_a_o:()=>[
+                                                        {
+                                                            f_s_innerText: ()=>`name is:${o.s_name} random number: ${Math.random()}`
+                                                        },
+                                                        {
+                                                            f_s_innerText:()=>`age is: ${o.n_age}`
+                                                        },
+                                                        {
+                                                            s_tag: 'hr'
+                                                        }
+                                                    ]
+                                                }
+                                            })
+                                        }, 
+                                        a_s_prop_sync: ["a_o_person"]
+                                    },
+                                    {
+                                        innerText: "section 2   "
+                                    },
+                                    {
+                                        f_a_o: ()=>{
+                                            console.log('o_state.a_o_person');
+                                            console.log(o_state.a_o_person);
+                                            console.log(o_state.a_o_person.map(o=>{return o.s_name}));
+                                            return o_state.a_o_person.map(o=>{
+                                                return {
+                                                    style: `background: rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.5)`,
+                                                    f_a_o:()=>[
+                                                        {
+                                                            f_s_innerText: ()=>`name is:${o.s_name} random number: ${Math.random()}`
+                                                        },
+                                                        {
+                                                            f_s_innerText:()=>`age is: ${o.n_age}`
+                                                        },
+                                                        {
+                                                            s_tag: 'hr'
+                                                        }
+                                                    ]
+                                                }
+                                            })
+                                        }, 
+                                        a_s_prop_sync: ["a_o_person"]
+                                    }, 
+                                    {
+                                        s_tag: "label", 
+                                        f_s_innerText: ()=>{
+                                            return `number: ${o_state.n_1.toFixed(2)}`
+                                        },
+                                        a_s_prop_sync: ["n_1"],
+                    
+                                    },
+                                    {
+                                        s_tag: "input", 
+                                        type: "range", 
+                                        min: 0, 
+                                        max: 1, 
+                                        step: 0.01, 
+                                        a_s_prop_sync: ["n_1"],
+                                    },
+                                    {
+                                        s_tag: "input", 
+                                        type: "range", 
+                                        min: 0, 
+                                        max: 1, 
+                                        step: 0.01, 
+                                        a_s_prop_sync: ["n_1"],
+                                    },
+                                    {
+                                        s_tag: 'input', 
+                                        type: "number", 
+                                        a_s_prop_sync: ['n_1']
+                                    },
+                                    {
+                                        s_tag: "input", 
+                                        type: "range", 
+                                        min: 0, 
+                                        max: 1, 
+                                        step: 0.01, 
+                                        a_s_prop_sync: "n_2",
+                                    },
+                                    {
+                                        s_tag: "input", 
+                                        type: "range", 
+                                        min: 0, 
+                                        max: 1, 
+                                        step: 0.01, 
+                                        a_s_prop_sync: "n_2",
+                                    },
+                                    {
+                                        s_tag: 'input', 
+                                        type: "number", 
+                                        a_s_prop_sync: 'n_2'
+                                    },
+                                    { s_tag: "label", innerText: 'name'},
+                                    {
+                                        s_tag: "input", 
+                                        type: "text", 
+                                        a_s_prop_sync: ["s_test"],
+                                    },
+                                    { s_tag: "label",  innerText: 'b_test'},
+                                    {
+                                        s_tag: "input", 
+                                        type: "checkbox", 
+                                        a_s_prop_sync: ["b_test"],
+                                        style:`background: ${(o_state.b_test) ? 'green' : "red"}`
+                                    },
+                                    {
+                                        s_tag: "label",
+                                        a_s_prop_sync: ['s_test', 'b_test'], 
+                                        // s_prop_sync: 'b_test',
+                                        // s_prop_sync: "n_1",
+                    
+                                        f_s_innerText: ()=>{
+                                            return `string is ${o_state.s_test}, and boolean is ${o_state.b_test}`
+                                        }
+                                    }, 
+                                    {
+                                        f_s_innerText: ()=>{
+                                            return JSON.stringify(o_state.a_o_person, null, 4);
+                                        }, 
+                                        a_s_prop_sync: "a_o_person"
+                                    }, 
+                                    {
+                                        f_s_innerText: ()=>{
+                                            return JSON.stringify(o_state.a_o_person.map(o=>o?.s_name), null, 4);
+                                        }, 
+                                        a_s_prop_sync: ["a_o_person"]
+                                    }, 
+                                    {
+                                        s_tag: "input", 
+                                        a_s_prop_sync: ['a_o_person.0.s_name']
                                     }
                                 ], 
-                                a_s_prop_sync: ['a_o_person.0']
+                                a_s_prop_sync: 'b_show_inputs',
                             },
-                            {
-                                style: "background:red",
-                                f_a_o: async ()=>{
-                                    await f_sleep_ms(111);
-                                    return o_state.a_o_person.map(o=>{
-                                        
-                                        return {
-                                            f_a_o:()=>[
-                                                {
-                                                    f_s_innerText: ()=>`name is:${o.s_name} random number: ${Math.random()}`
-                                                },
-                                                {
-                                                    f_s_innerText:()=>`age is: ${o.n_age}`
-                                                },
-                                                {
-                                                    s_tag: 'hr'
-                                                }
-                                            ]
-                                        }
-                                    })
-                                }, 
-                                a_s_prop_sync: ["a_o_person"]
-                            },
-                            {
-                                innerText: "section 2   "
-                            },
-                            {
-                                f_a_o: ()=>{
-                                    console.log('o_state.a_o_person');
-                                    console.log(o_state.a_o_person);
-                                    console.log(o_state.a_o_person.map(o=>{return o.s_name}));
-                                    return o_state.a_o_person.map(o=>{
-                                        return {
-                                            style: `background: rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.5)`,
-                                            f_a_o:()=>[
-                                                {
-                                                    f_s_innerText: ()=>`name is:${o.s_name} random number: ${Math.random()}`
-                                                },
-                                                {
-                                                    f_s_innerText:()=>`age is: ${o.n_age}`
-                                                },
-                                                {
-                                                    s_tag: 'hr'
-                                                }
-                                            ]
-                                        }
-                                    })
-                                }, 
-                                a_s_prop_sync: ["a_o_person"]
-                            }, 
-                            {
-                                s_tag: "label", 
-                                f_s_innerText: ()=>{
-                                    return `number: ${o_state.n_1.toFixed(2)}`
-                                },
-                                a_s_prop_sync: ["n_1"],
-            
-                            },
-                            {
-                                s_tag: "input", 
-                                type: "range", 
-                                min: 0, 
-                                max: 1, 
-                                step: 0.01, 
-                                a_s_prop_sync: ["n_1"],
-                            },
-                            {
-                                s_tag: "input", 
-                                type: "range", 
-                                min: 0, 
-                                max: 1, 
-                                step: 0.01, 
-                                a_s_prop_sync: ["n_1"],
-                            },
-                            {
-                                s_tag: 'input', 
-                                type: "number", 
-                                a_s_prop_sync: ['n_1']
-                            },
-                            {
-                                s_tag: "input", 
-                                type: "range", 
-                                min: 0, 
-                                max: 1, 
-                                step: 0.01, 
-                                a_s_prop_sync: "n_2",
-                            },
-                            {
-                                s_tag: "input", 
-                                type: "range", 
-                                min: 0, 
-                                max: 1, 
-                                step: 0.01, 
-                                a_s_prop_sync: "n_2",
-                            },
-                            {
-                                s_tag: 'input', 
-                                type: "number", 
-                                a_s_prop_sync: 'n_2'
-                            },
-                            { s_tag: "label", innerText: 'name'},
-                            {
-                                s_tag: "input", 
-                                type: "text", 
-                                a_s_prop_sync: ["s_test"],
-                            },
-                            { s_tag: "label",  innerText: 'b_test'},
-                            {
-                                s_tag: "input", 
-                                type: "checkbox", 
-                                a_s_prop_sync: ["b_test"],
-                                style:`background: ${(o_state.b_test) ? 'green' : "red"}`
-                            },
-                            {
-                                s_tag: "label",
-                                a_s_prop_sync: ['s_test', 'b_test'], 
-                                // s_prop_sync: 'b_test',
-                                // s_prop_sync: "n_1",
-            
-                                f_s_innerText: ()=>{
-                                    return `string is ${o_state.s_test}, and boolean is ${o_state.b_test}`
-                                }
-                            }, 
-                            {
-                                f_s_innerText: ()=>{
-                                    return JSON.stringify(o_state.a_o_person, null, 4);
-                                }, 
-                                a_s_prop_sync: "a_o_person"
-                            }, 
-                            {
-                                f_s_innerText: ()=>{
-                                    return JSON.stringify(o_state.a_o_person.map(o=>o?.s_name), null, 4);
-                                }, 
-                                a_s_prop_sync: ["a_o_person"]
-                            }, 
-                            {
-                                s_tag: "input", 
-                                a_s_prop_sync: ['a_o_person.0.s_name']
-                            }
                         
                         ]
                     }
@@ -2754,6 +2770,69 @@ let a_o_test =
                 // },1)
             },2111)
         }),
+        f_o_test("f_flat_frontend_framework_boolean_toggle", async () => {
+            //readme.md:start
+
+            let f_callback_beforevaluechange = function(a_s_path, v_old, v_new){
+                console.log('a_s_path')
+                console.log(a_s_path)
+                let s_path = a_s_path.join('.');
+                if(s_path == 'a_o_person.0.s_name'){
+                    console.log('name of first person will be changed')
+                }
+            }
+            let f_callback_aftervaluechange = function(a_s_path, v_old, v_new){
+                console.log('a_s_path')
+                console.log(a_s_path)
+                let s_path = a_s_path.join('.');
+                if(s_path == 'a_o_person.0.s_name'){
+                    console.log('name of first person has been changed')
+                }
+            }
+            let o_div = document.createElement('div');
+            document.body.appendChild(o_div);
+            // first we define our data in a state object
+            let o_state = f_o_proxified_and_add_listeners(
+                {
+                    b_show: false, 
+                }, 
+                f_callback_beforevaluechange,
+                f_callback_aftervaluechange, 
+                o_div
+            )
+            
+            window.o_state = o_state
+            
+            let f_sleep_ms = async function(n_ms){
+                return new Promise((f_res, f_rej)=>{
+                    setTimeout(()=>{
+                        return f_res(true)
+                    },n_ms)
+                })
+            }
+            // then we build the html 
+            let o = await f_o_html_from_o_js(
+                {
+                    class: "test",
+                    f_b_render:()=>o_state.b_show, 
+                    f_a_o: ()=>{
+                        return [
+                            {
+                                style: 'background: red',
+                                innerText: "hello there"
+                            }
+                        ]
+                    }, 
+                    a_s_prop_sync: ['b_show']
+                }, 
+                o_state
+            )
+            o_div.appendChild(o);
+            setInterval(()=>{
+
+                o_state.b_show = !o_state.b_show; 
+            },1000)
+        }),
 
         f_o_test("f_flat_frontend_framework_modules", async () => {
             let o_mod__notifire = await f_o_mod__notifire();
@@ -2776,6 +2855,8 @@ let a_o_test =
             globalThis.o_state = o_mod__notifire.o_state
             globalThis.o_mod__notifire = o_mod__notifire
         })
+
+
 
         
 
