@@ -2795,6 +2795,7 @@ let a_o_test =
             let o_state = f_o_proxified_and_add_listeners(
                 {
                     b_show: false, 
+                    s_text: "hello"
                 }, 
                 f_callback_beforevaluechange,
                 f_callback_aftervaluechange, 
@@ -2810,6 +2811,7 @@ let a_o_test =
                     },n_ms)
                 })
             }
+            
             // then we build the html 
             let o = await f_o_html_from_o_js(
                 {
@@ -2818,8 +2820,9 @@ let a_o_test =
                     f_a_o: ()=>{
                         return [
                             {
+                                s_tag: "input", 
+                                a_s_prop_sync: "s_text",
                                 style: 'background: red',
-                                innerText: "hello there"
                             }
                         ]
                     }, 

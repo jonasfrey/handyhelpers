@@ -2658,9 +2658,10 @@ function f_b_numeric(str) {
 
  const f_try_to_update_element_from_params = function(
     o_el_html, 
-    o_state, 
+    o_state,
     s_path
 ) {
+    
     // 1. Check if element is input
     if (!(o_el_html instanceof HTMLInputElement)) return;
 
@@ -2712,6 +2713,7 @@ let f_o_html_from_o_js = async function(
    let o_html = await f_o_html_element__from_s_tag(s_tag);
    for(let s_prop in o_js){
        let v = o_js[s_prop];
+       
 
        let s_type_v = typeof v;
        if(s_type_v == "function"){
@@ -2719,26 +2721,33 @@ let f_o_html_from_o_js = async function(
                v.call(this, ...arguments, o_js);
            }
 
+
            o_html[s_prop] = f_event_handler
            if(!o_html.o_meta){
-               o_html.o_meta = {o_js}
+               o_html.o_meta = {o_js, o_state}
            }
            o_html.o_meta[s_prop] = v
           
        }
        if(typeof v != 'function'){
            // some attributes such as 'datalist' do only have a getter
+
+            try {
+                o_html.setAttribute(s_prop, v);
+            } catch (error) {
+                console.warn(error)
+            }
            try {
                o_html[s_prop] = v;
            } catch (error) {
                console.warn(error)
            }
-           try {
-               o_html.setAttribute(s_prop, v);
-           } catch (error) {
-               console.warn(error)
-           }
+
        }
+       if(v == 'hello'){
+        window.o_el = o_html
+       }
+
    }
    
    if(o_js?.f_s_innerText){
@@ -2756,8 +2765,14 @@ let f_o_html_from_o_js = async function(
        }
    }
    let s_path = o_js?.[s_name_attr_prop_sync]?.[0];
+   if(!o_html.o_meta){
+    o_html.o_meta = {
+        o_js, 
+        o_state
+    }
+   }
    if(s_path){
-    
+       let o_state = o_html?.o_meta?.o_state;
        f_try_to_update_element_from_params(
         o_html, 
         o_state, 
@@ -2765,11 +2780,7 @@ let f_o_html_from_o_js = async function(
        );
    }
 
-   if(!o_html.o_meta){
-    o_html.o_meta = {
-        o_js
-    }
-   }
+
    if(o_js?.f_b_render?.() === false){
         // let o_html2 = document.createComment('b_render')
         let o_html2 = await f_o_html_element__from_s_tag('div');
@@ -2779,7 +2790,7 @@ let f_o_html_from_o_js = async function(
         // debugger
         f_update_element_to_match(o_html,o_html2)
         o_html2.innerHTML = ''
-        o_html2.o_meta = {o_js}
+        o_html2.o_meta = {o_js, o_state}
         return o_html2;
     }
    return o_html;
@@ -2919,12 +2930,12 @@ const f_o_proxified = function (
             let b_render = o_el?.o_meta?.o_js?.f_b_render?.();
             if(b_render === false){
                 // o_el.style.display = 'none';
-                let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js); 
+                let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js, o_el?.o_meta?.o_state); 
                 o_el.replaceWith(o_el2)
                 continue
             }
             if(b_render === true){
-                let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js); 
+                let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js, o_el?.o_meta?.o_state); 
                 o_el.replaceWith(o_el2)
                 continue
             }
@@ -2953,11 +2964,11 @@ const f_o_proxified = function (
                      o_el.removeChild(o_el.children[n_idx_array_item__removed]);
                 }
                 for(let n_idx_array_item__added of a_n_idx_array_item__added){
-                     let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__added]);
+                     let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__added], o_el?.o_meta?.o_state);
                      o_el.insertBefore(o_el2, o_el.childNodes[n_idx_array_item__added+1]);
                 }
                 if(!isNaN(n_idx_array_item__modified)){
-                     let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__modified]);
+                     let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__modified], o_el?.o_meta?.o_state);
                      f_update_element_to_match(
                          o_el2,
                          o_el.childNodes[n_idx_array_item__modified]
@@ -2978,7 +2989,7 @@ const f_o_proxified = function (
                         o_el.innerHTML = ''
                         for(let n_idx in a_o_js){
                             let o_js2 = a_o_js[n_idx];
-                            let o_html2 = await f_o_html_from_o_js(o_js2);
+                            let o_html2 = await f_o_html_from_o_js(o_js2, o_el?.o_meta?.o_state);
                             o_el.appendChild(o_html2)
                             // console.log('appending child')
                             // console.log(o_html2)
