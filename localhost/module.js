@@ -2949,6 +2949,10 @@ const f_o_proxified = function (
                 let s = o_el.o_meta.f_s_innerText();
                 o_el.innerText = s;
             }
+            if(o_el?.o_meta?.f_s_innerHTML){
+                let s = o_el.o_meta.f_s_innerHTML();
+                o_el.innerHTML = s;
+            }
             if(o_el?.o_meta?.f_a_o){
                 // console.log(o.o_meta)
                 // debugger
