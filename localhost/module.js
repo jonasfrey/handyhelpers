@@ -3122,46 +3122,6 @@ const f_o_proxified = function (
    const o_map_proxies = new WeakMap();
    let o_pending_async_callback = null;
 
-   const f_trigger_async_callback = function (
-       o_target, 
-       a_s_prop_path_part, 
-       v_old_value, 
-       v_new_value, 
-       a_n_idx_array_item__removed = [], 
-       a_n_idx_array_item__added = [], 
-       n_idx_array_item__modified = undefined, 
-   ) {
-       if (o_pending_async_callback) {
-           o_pending_async_callback.f_abort();
-           o_pending_async_callback = null;
-       }
-
-       const o_abort_controller = new AbortController();
-       const n_timeout_id = setTimeout(async () => {
-           try {
-               await f_async_callback(
-                   o_target,
-                   a_s_prop_path_part,
-                   v_old_value,
-                   v_new_value,
-                   a_n_idx_array_item__removed,
-                   a_n_idx_array_item__added,
-                   n_idx_array_item__modified,
-                   o_abort_controller.signal, 
-               );
-           } catch (e_error) {
-               if (e_error.name !== 'AbortError') throw e_error;
-           }
-       }, 0);
-
-       o_pending_async_callback = {
-           f_abort: () => {
-               clearTimeout(n_timeout_id);
-               o_abort_controller.abort();
-           }
-       };
-   };
-
    const f_wrap_array_method = function (
        o_array_target, 
        s_method_name, 
@@ -3222,7 +3182,7 @@ const f_o_proxified = function (
            }
        }
 
-       f_trigger_async_callback(
+       f_async_callback(
            o_array_target,
            a_s_prop_path_part,
            a_v_array_old,
@@ -3286,7 +3246,7 @@ const f_o_proxified = function (
                         n_idx_array_item__modified = Number(s_prop2)
                     }
 
-                   f_trigger_async_callback(
+                   f_async_callback(
                        o_target,
                        a_s_full_prop_path,
                        v_old_value,
