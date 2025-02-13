@@ -2981,8 +2981,8 @@ const f_o_proxified = function (
                 
                 if(
                      (
-                         Array.isArray(v_old) && Array.isArray(v_new)
-                         &&
+                        //  Array.isArray(v_old) && Array.isArray(v_new)
+                        //  &&
                          a_n_idx_array_item__removed.length == 0
                          && 
                          a_n_idx_array_item__added.length == 0
