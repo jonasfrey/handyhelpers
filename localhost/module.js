@@ -2663,7 +2663,7 @@ function f_b_numeric(str) {
 ) {
     
     // 1. Check if element is input
-    if (!(o_el_html instanceof HTMLInputElement)) return;
+    // if (!(o_el_html instanceof HTMLInputElement)) return;
 
     // 2. Split path into components
     const a_s_path_part = s_path.split('.');
