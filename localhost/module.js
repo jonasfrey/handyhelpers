@@ -2864,6 +2864,7 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
            f_set_by_path_with_type(o_state, s_prop_sync,value)
        }
    }
+   o_el_global_event = null;
 
    // console.log('Input value changed:', o_ev.target.value);
  }
@@ -3271,6 +3272,28 @@ const f_o_proxified = function (
    return o_proxy
 
 };
+let f_v_from_path_dotnotation = function(path, obj) {
+    if(path.trim()==''){return obj}
+    // Split the path by dots to get the individual keys
+    const keys = path.split('.');
+
+    // Iterate through the keys to traverse the object
+    let current = obj;
+    for (const key of keys) {
+        // Check if the current value is an array and the key is a number (array index)
+        if (Array.isArray(current) && !isNaN(key)) {
+            current = current[parseInt(key)]; // Access the array index
+        } else if (current && typeof current === 'object' && key in current) {
+            current = current[key]; // Access the object property
+        } else {
+            // If the key doesn't exist or the path is invalid, return undefined
+            return undefined;
+        }
+    }
+
+    // Return the final value
+    return current;
+}
 
 // let f_traverse_nested_object = function(
 //     o_target,
@@ -3564,6 +3587,7 @@ export {
    f_download_file_denojs, 
    f_s_random_uuid__with_unsecure_fallback,
    f_s_random_uuid_unsecure, 
-   f_o_mod__notifire
+   f_o_mod__notifire,
+   f_v_from_path_dotnotation
 }
 

@@ -73,6 +73,7 @@ import {
     f_o_html_from_o_js,
     f_o_proxified_and_add_listeners,
     f_o_mod__notifire,
+    f_v_from_path_dotnotation
 } from "./module.js"
 
 
@@ -2769,6 +2770,7 @@ let a_o_test =
                 
                 // },1)
             },2111)
+            //readme.md:end
         }),
         f_o_test("f_flat_frontend_framework_boolean_toggle", async () => {
             //readme.md:start
@@ -2835,6 +2837,7 @@ let a_o_test =
 
                 o_state.b_show = !o_state.b_show; 
             },1000)
+            //readme.md:end
         }),
 
         f_o_test("f_flat_frontend_framework_modules", async () => {
@@ -2857,12 +2860,128 @@ let a_o_test =
             o_mod__notifire.f_message_warning('warning :/', 5000)
             globalThis.o_state = o_mod__notifire.o_state
             globalThis.o_mod__notifire = o_mod__notifire
-        })
-
-
+        }),
 
         
 
+        f_o_test("f_flat_frontend_framework_array_values", async () => {
+            //readme.md:start
+
+            let o_div = document.createElement('div');
+            document.body.appendChild(o_div);
+            // first we define our data in a state object
+            let o_state = f_o_proxified_and_add_listeners(
+                {
+                    b_show: true, 
+                    s_text: "hello", 
+                    a_n: [1,2,3,4], 
+                    n: 4,
+                }, 
+                ()=>{},
+                ()=>{}, 
+                o_div
+            )
+            
+            window.o_state = o_state
+            
+            // then we build the html 
+            let o = await f_o_html_from_o_js(
+                {
+                    class: "test",
+                    // f_b_render:()=>o_state.b_show, 
+                    f_a_o: ()=>{
+                        return [
+                            ...o_state.a_n.map((n, n_idx)=>{
+                                return {
+                                    s_tag: 'input', 
+                                    type: 'number',
+                                    a_s_prop_sync: `a_n.${n_idx}`,
+                                }
+                            }), 
+                            {
+                                s_tag: 'input', 
+                                // type: 'number',
+                                a_s_prop_sync: [`n`],
+                            }
+                        ]
+                    }, 
+                    // a_s_prop_sync: ['b_show']
+                }, 
+                o_state
+            )
+            o_div.appendChild(o);
+            //readme.md:end
+   
+        }),
+        f_o_test("f_v_from_path_dotnotation", async () => {
+            //readme.md:start
+            
+            let o = { n: 1, o2: { a_n: [2, 3, { n: 234 }] } };
+
+            // Test 1: Access nested object and array
+            f_assert_equals(
+                f_v_from_path_dotnotation('o2.a_n.2.n', o),
+                o.o2.a_n[2].n // Expected: 234
+            );
+            
+            // Test 2: Access top-level property
+            f_assert_equals(
+                f_v_from_path_dotnotation('n', o),
+                o.n // Expected: 1
+            );
+            
+            // Test 3: Access nested array directly
+            f_assert_equals(
+                f_v_from_path_dotnotation('o2.a_n.1', o),
+                o.o2.a_n[1] // Expected: 3
+            );
+            
+            // Test 4: Access non-existent path (should return undefined)
+            f_assert_equals(
+                f_v_from_path_dotnotation('o2.a_n.5.n', o),
+                undefined // Expected: undefined
+            );
+            
+            // Test 5: Access non-existent property (should return undefined)
+            f_assert_equals(
+                f_v_from_path_dotnotation('o2.non_existent', o),
+                undefined // Expected: undefined
+            );
+            
+            // Test 6: Access nested object without arrays
+            let o2 = { a: { b: { c: 123 } } };
+            f_assert_equals(
+                f_v_from_path_dotnotation('a.b.c', o2),
+                o2.a.b.c // Expected: 123
+            );
+            
+            // Test 7: Access empty path (should return the object itself)
+            f_assert_equals(
+                f_v_from_path_dotnotation('', o),
+                o // Expected: the entire object
+            );
+            
+            // Test 8: Access invalid path (should return undefined)
+            f_assert_equals(
+                f_v_from_path_dotnotation('invalid.path', o),
+                undefined // Expected: undefined
+            );
+            
+            // Test 9: Access array index out of bounds (should return undefined)
+            f_assert_equals(
+                f_v_from_path_dotnotation('o2.a_n.10', o),
+                undefined // Expected: undefined
+            );
+            
+            // Test 10: Access nested array and object with mixed types
+            let o3 = { a: [1, { b: [2, { c: 3 }] }] };
+            f_assert_equals(
+                f_v_from_path_dotnotation('a.1.b.1.c', o3),
+                o3.a[1].b[1].c // Expected: 3
+            );
+            //readme.md:end
+   
+        }),
 
         
 
