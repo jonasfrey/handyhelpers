@@ -2663,7 +2663,7 @@ function f_b_numeric(str) {
 ) {
     
     // 1. Check if element is input
-    // if (!(o_el_html instanceof HTMLInputElement)) return;
+    // if (!(o_el_html instanceof HTMdLInputElement)) return;
 
     // 2. Split path into components
     const a_s_path_part = s_path.split('.');
@@ -3494,6 +3494,169 @@ let f_o_mod__notifire = async function(){
     }
     return o;
 }
+let f_o_img_cached = async function(s_url, a_o_img=[]){
+    let s_url_absolute = new URL(s_url, window.location.href).href;
+    return new Promise(
+        (f_res, f_rej)=>{
+
+            let o_img__existing = a_o_img.find(
+                o=>{
+                    return o.src == s_url_absolute
+                }
+            )
+            if(o_img__existing){
+                return f_res(o_img__existing);
+            }
+            if(!o_img__existing){
+                // Create a new Image object
+                const o_img = new Image();
+    
+                // Set the src attribute to load the image
+                o_img.src = s_url_absolute;
+    
+                // Optional: Add event listeners for when the image loads or fails
+                o_img.onload = () => {
+                    a_o_img.push(o_img)
+                    return f_res(o_img)
+                    // console.log("Image loaded successfully!");
+                    // You can now append the image to the DOM or use it in other ways
+                };
+    
+                o_img.onerror = (o_err) => {
+                    return f_rej(o_err)
+                    console.error("Failed to load the image.");
+                };
+            }
+        }
+    )
+};
+
+let f_o_mod__image_gallery = async function(
+    o_state
+){
+    
+
+
+    let s_class_name = `class_${f_s_random_uuid__with_unsecure_fallback()}`;
+    let o_div = document.createElement('div');
+    let a_o_img = []
+    Object.assign(
+        o_state, 
+        {
+            n_render_images: 0,
+            a_s_url_image: (o_state.a_s_url_image) ? o_state.a_s_url_image : [
+                //provide an array of image urls here
+                // './images/jonas-frey-1IWoSFH-Oog-unsplash.jpg',
+                // './images/jonas-frey-cqbAPdIs0QA-unsplash.jpg',
+                // './images/jonas-frey-d8AgCj2epJc-unsplash.jpg',
+            ],
+            n_images_per_x: (o_state.n_images_per_x) ? o_state.n_images_per_x : 3,
+            n_scl_x_parent: 0,
+        }, 
+    );
+    o_state = f_o_proxified_and_add_listeners(
+        o_state,
+        ()=>{
+            // debugger
+        },
+        function(){
+            // console.log(...arguments)
+            // debugger
+        }, 
+        o_div
+    )
+
+    let s_css = `
+        .o_mod__image_gallery.${s_class_name}{
+            overflow-y: scroll;
+
+        }
+        .o_mod__image_gallery.${s_class_name} img{
+        }
+        
+    `
+    let f_o_img_info = function(o_img){
+        let n_ratio_x_to_y = o_img.width / o_img.height;
+        let o_el_parent = document.querySelector(`.${s_class_name}`)?.parentElement;
+        let o_bounds = o_el_parent?.getBoundingClientRect();
+        let n_width = (o_bounds?.width) ? o_bounds?.width : 1000;
+        console.log(o_bounds)
+        let n_scl_x = n_width / o_state.n_images_per_x;
+        let n_scl_y = n_scl_x * (1./n_ratio_x_to_y);
+
+        return {
+            n_scl_x, 
+            n_scl_y, 
+            n_ratio_x_to_y
+        }
+    }
+    let f_recalculate_images = function(){
+        for(let n_idx in a_o_img){
+            let o = a_o_img[n_idx];
+            n_idx = parseInt(n_idx);
+            let n_idx_above = n_idx-o_state.n_images_per_x;
+            let n_trn_y = 0;
+            o.o_data = f_o_img_info(o);
+            if(n_idx_above >= 0){
+                let o_img_above = a_o_img[n_idx_above];
+                n_trn_y = o_img_above.o_data.n_trn_y +o_img_above.o_data.n_scl_y;
+            }
+            o.o_data.n_trn_x = (n_idx%o_state.n_images_per_x)*o.o_data.n_scl_x;
+            o.o_data.n_trn_y = n_trn_y;
+            if(n_idx == a_o_img.length-1 && document.querySelector(`.${s_class_name}`)){
+                document.querySelector(`.${s_class_name}`).style.height = o.o_data.n_trn_y+o.o_data.n_trn_y + "px";
+            }
+
+        }
+    }
+    window.onresize = function(){
+        f_recalculate_images();
+        o_state.n_render_images = new Date().getTime()
+
+    }
+    let o_js = {
+        class: `o_mod__image_gallery ${s_class_name}`,
+        f_a_o: async ()=>{
+
+            a_o_img = await Promise.all(
+                o_state.a_s_url_image.map(s=>{
+                    return f_o_img_cached(s,a_o_img);
+                })
+            )
+            f_recalculate_images();
+            return [
+                ...a_o_img.map((o,n_idx)=>{
+                // ...o_state.a_s_url_image.map((s)=>{
+                    return {
+                        s_tag: "img", 
+                        src: o.src,
+                        style: [
+                            `position:absolute`,
+                            `left: ${o.o_data.n_trn_x}px`,
+                            `top: ${o.o_data.n_trn_y}px`,
+                            `width: ${o.o_data.n_scl_x}px`,
+                            `height: ${o.o_data.n_scl_y}px`,
+                        ].join(';')
+                    }
+                })
+            ]
+        },
+        a_s_prop_sync: ['a_s_url_image', 'n_render_images']
+    };
+    let o_html = await f_o_html_from_o_js(
+        o_js,
+        o_state
+    );
+    o_div.appendChild(o_html);
+    let o = {
+        o_div, 
+        o_state, 
+        o_js,
+        s_css
+    }
+    return o;
+}
+
 
 export {
    f_o_empty_recursive,
@@ -3564,6 +3727,8 @@ export {
    f_download_file_denojs, 
    f_s_random_uuid__with_unsecure_fallback,
    f_s_random_uuid_unsecure, 
-   f_o_mod__notifire
+   f_o_mod__notifire, 
+   f_o_mod__image_gallery,
+   f_o_img_cached
 }
 

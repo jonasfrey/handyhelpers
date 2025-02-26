@@ -73,6 +73,8 @@ import {
     f_o_html_from_o_js,
     f_o_proxified_and_add_listeners,
     f_o_mod__notifire,
+    f_o_mod__image_gallery,
+    f_o_img_cached,
 } from "./module.js"
 
 
@@ -2857,14 +2859,103 @@ let a_o_test =
             o_mod__notifire.f_message_warning('warning :/', 5000)
             globalThis.o_state = o_mod__notifire.o_state
             globalThis.o_mod__notifire = o_mod__notifire
-        })
+        }),
 
+        f_o_test("f_o_mod__image_gallery", async () => {
+            //readme.md:start
+            
+            //md: ## f_o_mod__image_gallery
+            //md: module that makes an image gallery
 
+            let f_shuffle_array_by_reference_place = function(array) {
+                for (var i = array.length - 1; i >= 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = array[i];
+                    array[i] = array[j];
+                    array[j] = temp;
+                }
+            }
 
-        
+            let o_div = document.createElement('div');
+            document.body.appendChild(o_div);
+            let a_s_url_image = [
+                './images/jonas-frey-1IWoSFH-Oog-unsplash.jpg',
+                './images/jonas-frey-cqbAPdIs0QA-unsplash.jpg',
+                './images/jonas-frey-d8AgCj2epJc-unsplash.jpg',
+                './images/jonas-frey-HI70Ja1LRiE-unsplash.jpg',
+                './images/jonas-frey-KIq_SpUCnaw-unsplash.jpg',
+                './images/jonas-frey-PFifKbMhwJU-unsplash.jpg',
+                './images/jonas-frey-pWOKLjx0zFI-unsplash.jpg',
+                './images/jonas-frey-VRVbT_i1YP0-unsplash.jpg',
+                './images/jonas-frey-y2y02HYrvKY-unsplash.jpg',
+            ];
+            // first we define our data in a state object
+            let o_state = f_o_proxified_and_add_listeners(
+                {
+                    b_show: false, 
+                    s_text: "hello", 
+                    o_state__o_mod_image_gallery: {
+                        a_s_url_image
+                    }
+                }, 
+                ()=>{},
+                ()=>{}, 
+                o_div
+            );
 
+            let o_mod__image_gallery = await f_o_mod__image_gallery(o_state.o_state__o_mod_image_gallery);
+            
+            // Create a new <style> element
+            const style = document.createElement('style');
+            style.type = 'text/css';
+            // Add the CSS to the style element
+            style.innerHTML = o_mod__image_gallery.s_css;
+            document.head.appendChild(style);
 
-        
+            window.o_state = o_state
+            
+            // then we build the html 
+            let o = await f_o_html_from_o_js(
+                {
+                    class: "test",
+                    f_a_o: ()=>{
+                        return [
+                            {
+                                innerText: "hello"
+                            },
+                            o_mod__image_gallery.o_js
+                        ]
+                    }, 
+                    a_s_prop_sync: ['o_state__o_mod_image_gallery']
+                }, 
+                o_state
+            )
+            o_div.appendChild(o);
+            // o_state.o_state__o_mod_image_gallery.a_s_url_image = ['./images/jonas-frey-1IWoSFH-Oog-unsplash.jpg']
+            window.setTimeout(()=>{
+                // console.log('before shuffle ')
+                // console.log(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+                f_shuffle_array_by_reference_place(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+                console.log(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+            },3000)
+            //readme.md:end
+
+        }),
+        f_o_test("f_o_img_cached", async () => {
+            //readme.md:start
+            //md: ## f_o_img_cached
+            //md: load an image and cache it in an array
+            let a_o_img = [];
+            let o_img = await f_o_img_cached('./deno_logo.jpg',a_o_img);
+            console.log(o_img.width);
+            console.log(o_img.height);
+            document.body.appendChild(o_img);
+            o_img = await f_o_img_cached('./deno_logo.jpg',a_o_img);
+            console.log(a_o_img)
+            console.log(o_img.width);
+            console.log(o_img.height);
+            //readme.md:end
+        }),
 
 
     ]
