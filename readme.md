@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Mon Feb 03 2025 14:20:27 GMT+0100 (Central European Standard Time)","n_ts_created":1738588827048} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Sat Feb 15 2025 13:30:44 GMT+0100 (Central European Standard Time)","n_ts_created":1739622644113} -->
 ![handy helpers logo](./logo_banner.png)
 # Handy Helpers
 this is a collection of useful functions
@@ -2115,12 +2115,16 @@ a minimal / lightweight / small / flat frontend framework
                 )
             ]
             let f_callback_beforevaluechange = function(a_s_path, v_old, v_new){
+                console.log('a_s_path')
+                console.log(a_s_path)
                 let s_path = a_s_path.join('.');
                 if(s_path == 'a_o_person.0.s_name'){
                     console.log('name of first person will be changed')
                 }
             }
             let f_callback_aftervaluechange = function(a_s_path, v_old, v_new){
+                console.log('a_s_path')
+                console.log(a_s_path)
                 let s_path = a_s_path.join('.');
                 if(s_path == 'a_o_person.0.s_name'){
                     console.log('name of first person has been changed')
@@ -2136,6 +2140,7 @@ a minimal / lightweight / small / flat frontend framework
                     n_test: 1, 
                     n_1: 0.2, 
                     n_2: 0.5,
+                    b_show_inputs: true,
                     s_test: "test", 
                     b_test: true, 
                     f_test:()=>{return 'test function executed succesfully'},
@@ -2162,146 +2167,186 @@ a minimal / lightweight / small / flat frontend framework
                     f_a_o: ()=>{
                         return [
                             {
-                                innerText: "section 1"
+                                s_tag: "button",
+                                f_s_innerText:()=>`${(o_state.b_show_inputs ? 'hide': 'show')}`,
+                                onclick:()=>{
+                                    o_state.b_show_inputs = !o_state.b_show_inputs;
+                                }, 
+                                a_s_prop_sync: 'b_show_inputs',
                             },
                             {
-                                s_tag: "hr"
-                            },      
-                            {
-                                f_a_o: ()=>[
+                                f_b_render: ()=>o_state.b_show_inputs,
+                                f_a_o:()=> [
                                     {
-                                        innerText: "First person",
+                                        innerText: "section 1"
                                     },
-                                    {
-                                        a_s_prop_sync: ['a_o_person.0.s_name'],
-                                        s_tag: 'input'
-                                        // f_s_innerText: ()=>`name ${a_o_person[0].s_name}`
-                                    },
-                                    {
-                                        f_s_innerText: ()=>`age ${a_o_person[0].n_age}`
-                                    },
-                                    {
-                                        f_s_innerText: ()=>`gender male ${a_o_person[0].b_male}`
-                                    }, 
                                     {
                                         s_tag: "hr"
+                                    },      
+                                    {
+                                        f_a_o: ()=>[
+                                            {
+                                                innerText: "First person",
+                                            },
+                                            {
+                                                a_s_prop_sync: ['a_o_person.0.s_name'],
+                                                s_tag: 'input'
+                                                // f_s_innerText: ()=>`name ${a_o_person[0].s_name}`
+                                            },
+                                            {
+                                                f_s_innerText: ()=>`age ${a_o_person[0].n_age}`
+                                            },
+                                            {
+                                                f_s_innerText: ()=>`gender male ${a_o_person[0].b_male}`
+                                            }, 
+                                            {
+                                                s_tag: "hr"
+                                            }
+                                        ], 
+                                        a_s_prop_sync: ['a_o_person.0']
+                                    },
+                                    {
+                                        style: "background:red",
+                                        f_a_o: async ()=>{
+                                            await f_sleep_ms(111);
+                                            return o_state.a_o_person.map(o=>{
+                                                
+                                                return {
+                                                    f_a_o:()=>[
+                                                        {
+                                                            f_s_innerText: ()=>`name is:${o.s_name} random number: ${Math.random()}`
+                                                        },
+                                                        {
+                                                            f_s_innerText:()=>`age is: ${o.n_age}`
+                                                        },
+                                                        {
+                                                            s_tag: 'hr'
+                                                        }
+                                                    ]
+                                                }
+                                            })
+                                        }, 
+                                        a_s_prop_sync: ["a_o_person"]
+                                    },
+                                    {
+                                        innerText: "section 2   "
+                                    },
+                                    {
+                                        f_a_o: ()=>{
+                                            console.log('o_state.a_o_person');
+                                            console.log(o_state.a_o_person);
+                                            console.log(o_state.a_o_person.map(o=>{return o.s_name}));
+                                            return o_state.a_o_person.map(o=>{
+                                                return {
+                                                    style: `background: rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.5)`,
+                                                    f_a_o:()=>[
+                                                        {
+                                                            f_s_innerText: ()=>`name is:${o.s_name} random number: ${Math.random()}`
+                                                        },
+                                                        {
+                                                            f_s_innerText:()=>`age is: ${o.n_age}`
+                                                        },
+                                                        {
+                                                            s_tag: 'hr'
+                                                        }
+                                                    ]
+                                                }
+                                            })
+                                        }, 
+                                        a_s_prop_sync: ["a_o_person"]
+                                    }, 
+                                    {
+                                        s_tag: "label", 
+                                        f_s_innerText: ()=>{
+                                            return `number: ${o_state.n_1.toFixed(2)}`
+                                        },
+                                        a_s_prop_sync: ["n_1"],
+                    
+                                    },
+                                    {
+                                        s_tag: "input", 
+                                        type: "range", 
+                                        min: 0, 
+                                        max: 1, 
+                                        step: 0.01, 
+                                        a_s_prop_sync: ["n_1"],
+                                    },
+                                    {
+                                        s_tag: "input", 
+                                        type: "range", 
+                                        min: 0, 
+                                        max: 1, 
+                                        step: 0.01, 
+                                        a_s_prop_sync: ["n_1"],
+                                    },
+                                    {
+                                        s_tag: 'input', 
+                                        type: "number", 
+                                        a_s_prop_sync: ['n_1']
+                                    },
+                                    {
+                                        s_tag: "input", 
+                                        type: "range", 
+                                        min: 0, 
+                                        max: 1, 
+                                        step: 0.01, 
+                                        a_s_prop_sync: "n_2",
+                                    },
+                                    {
+                                        s_tag: "input", 
+                                        type: "range", 
+                                        min: 0, 
+                                        max: 1, 
+                                        step: 0.01, 
+                                        a_s_prop_sync: "n_2",
+                                    },
+                                    {
+                                        s_tag: 'input', 
+                                        type: "number", 
+                                        a_s_prop_sync: 'n_2'
+                                    },
+                                    { s_tag: "label", innerText: 'name'},
+                                    {
+                                        s_tag: "input", 
+                                        type: "text", 
+                                        a_s_prop_sync: ["s_test"],
+                                    },
+                                    { s_tag: "label",  innerText: 'b_test'},
+                                    {
+                                        s_tag: "input", 
+                                        type: "checkbox", 
+                                        a_s_prop_sync: ["b_test"],
+                                        style:`background: ${(o_state.b_test) ? 'green' : "red"}`
+                                    },
+                                    {
+                                        s_tag: "label",
+                                        a_s_prop_sync: ['s_test', 'b_test'], 
+                                        // s_prop_sync: 'b_test',
+                                        // s_prop_sync: "n_1",
+                    
+                                        f_s_innerText: ()=>{
+                                            return `string is ${o_state.s_test}, and boolean is ${o_state.b_test}`
+                                        }
+                                    }, 
+                                    {
+                                        f_s_innerText: ()=>{
+                                            return JSON.stringify(o_state.a_o_person, null, 4);
+                                        }, 
+                                        a_s_prop_sync: "a_o_person"
+                                    }, 
+                                    {
+                                        f_s_innerText: ()=>{
+                                            return JSON.stringify(o_state.a_o_person.map(o=>o?.s_name), null, 4);
+                                        }, 
+                                        a_s_prop_sync: ["a_o_person"]
+                                    }, 
+                                    {
+                                        s_tag: "input", 
+                                        a_s_prop_sync: ['a_o_person.0.s_name']
                                     }
                                 ], 
-                                a_s_prop_sync: ['a_o_person.0']
+                                a_s_prop_sync: 'b_show_inputs',
                             },
-                            {
-                                style: "background:red",
-                                f_a_o: async ()=>{
-                                    await f_sleep_ms(111);
-                                    return o_state.a_o_person.map(o=>{
-                                        
-                                        return {
-                                            f_a_o:()=>[
-                                                {
-                                                    f_s_innerText: ()=>`name is:${o.s_name} random number: ${Math.random()}`
-                                                },
-                                                {
-                                                    f_s_innerText:()=>`age is: ${o.n_age}`
-                                                },
-                                                {
-                                                    s_tag: 'hr'
-                                                }
-                                            ]
-                                        }
-                                    })
-                                }, 
-                                a_s_prop_sync: ["a_o_person"]
-                            },
-                            {
-                                innerText: "section 2   "
-                            },
-                            {
-                                f_a_o: ()=>{
-                                    console.log('o_state.a_o_person');
-                                    console.log(o_state.a_o_person);
-                                    console.log(o_state.a_o_person.map(o=>{return o.s_name}));
-                                    return o_state.a_o_person.map(o=>{
-                                        return {
-                                            style: `background: rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.5)`,
-                                            f_a_o:()=>[
-                                                {
-                                                    f_s_innerText: ()=>`name is:${o.s_name} random number: ${Math.random()}`
-                                                },
-                                                {
-                                                    f_s_innerText:()=>`age is: ${o.n_age}`
-                                                },
-                                                {
-                                                    s_tag: 'hr'
-                                                }
-                                            ]
-                                        }
-                                    })
-                                }, 
-                                a_s_prop_sync: ["a_o_person"]
-                            }, 
-                            {
-                                s_tag: "label", 
-                                f_s_innerText: ()=>{
-                                    return `number: ${o_state.n_1.toFixed(2)}`
-                                },
-                                a_s_prop_sync: ["n_1"],
-            
-                            },
-                            {
-                                s_tag: "input", 
-                                type: "range", 
-                                min: 0, 
-                                max: 1, 
-                                step: 0.01, 
-                                a_s_prop_sync: ["n_1"],
-                            },
-                            {
-                                s_tag: "input", 
-                                type: "range", 
-                                min: 0, 
-                                max: 1, 
-                                step: 0.01, 
-                                a_s_prop_sync: ["n_1"],
-                            },
-                            { s_tag: "label", innerText: 'name'},
-                            {
-                                s_tag: "input", 
-                                type: "text", 
-                                a_s_prop_sync: ["s_test"],
-                            },
-                            { s_tag: "label",  innerText: 'b_test'},
-                            {
-                                s_tag: "input", 
-                                type: "checkbox", 
-                                a_s_prop_sync: ["b_test"],
-                                style:`background: ${(o_state.b_test) ? 'green' : "red"}`
-                            },
-                            {
-                                s_tag: "label",
-                                a_s_prop_sync: ['s_test', 'b_test'], 
-                                // s_prop_sync: 'b_test',
-                                // s_prop_sync: "n_1",
-            
-                                f_s_innerText: ()=>{
-                                    return `string is ${o_state.s_test}, and boolean is ${o_state.b_test}`
-                                }
-                            }, 
-                            {
-                                f_s_innerText: ()=>{
-                                    return JSON.stringify(o_state.a_o_person, null, 4);
-                                }, 
-                                a_s_prop_sync: "a_o_person"
-                            }, 
-                            {
-                                f_s_innerText: ()=>{
-                                    return JSON.stringify(o_state.a_o_person.map(o=>o?.s_name), null, 4);
-                                }, 
-                                a_s_prop_sync: ["a_o_person"]
-                            }, 
-                            {
-                                s_tag: "input", 
-                                a_s_prop_sync: ['a_o_person.0.s_name']
-                            }
                         
                         ]
                     }
@@ -2352,39 +2397,175 @@ a minimal / lightweight / small / flat frontend framework
                 
                 // },1)
             },2111)
-        }),
 
-        f_o_test("f_flat_frontend_framework_modules", async () => {
-            let o_mod__notifire = await f_o_mod__notifire();
-            document.body.appendChild(
-                o_mod__notifire.o_div
+            let f_callback_beforevaluechange = function(a_s_path, v_old, v_new){
+                console.log('a_s_path')
+                console.log(a_s_path)
+                let s_path = a_s_path.join('.');
+                if(s_path == 'a_o_person.0.s_name'){
+                    console.log('name of first person will be changed')
+                }
+            }
+            let f_callback_aftervaluechange = function(a_s_path, v_old, v_new){
+                console.log('a_s_path')
+                console.log(a_s_path)
+                let s_path = a_s_path.join('.');
+                if(s_path == 'a_o_person.0.s_name'){
+                    console.log('name of first person has been changed')
+                }
+            }
+            let o_div = document.createElement('div');
+            document.body.appendChild(o_div);
+            // first we define our data in a state object
+            let o_state = f_o_proxified_and_add_listeners(
+                {
+                    b_show: false, 
+                    s_text: "hello"
+                }, 
+                f_callback_beforevaluechange,
+                f_callback_aftervaluechange, 
+                o_div
             )
             
-            // Create a new <style> element
-            const style = document.createElement('style');
-            style.type = 'text/css';
-            // Add the CSS to the style element
-            style.innerHTML = o_mod__notifire.s_css;
-            // Insert the style element into the document head
-            document.head.appendChild(style);
+            window.o_state = o_state
+            
+            let f_sleep_ms = async function(n_ms){
+                return new Promise((f_res, f_rej)=>{
+                    setTimeout(()=>{
+                        return f_res(true)
+                    },n_ms)
+                })
+            }
+            
+            // then we build the html 
+            let o = await f_o_html_from_o_js(
+                {
+                    class: "test",
+                    f_b_render:()=>o_state.b_show, 
+                    f_a_o: ()=>{
+                        return [
+                            {
+                                s_tag: "input", 
+                                a_s_prop_sync: "s_text",
+                                style: 'background: red',
+                            }
+                        ]
+                    }, 
+                    a_s_prop_sync: ['b_show']
+                }, 
+                o_state
+            )
+            o_div.appendChild(o);
+            setInterval(()=>{
 
-            console.log(o_mod__notifire.o_div)
-            o_mod__notifire.f_message_error('error :<', 1500)
-            o_mod__notifire.f_message_success('success :>', 3000)
-            o_mod__notifire.f_message_warning('warning :/', 5000)
-            globalThis.o_state = o_mod__notifire.o_state
-            globalThis.o_mod__notifire = o_mod__notifire
-        })
+                o_state.b_show = !o_state.b_show; 
+            },1000)
 
-        
+            let o_div = document.createElement('div');
+            document.body.appendChild(o_div);
+            // first we define our data in a state object
+            let o_state = f_o_proxified_and_add_listeners(
+                {
+                    b_show: true, 
+                    s_text: "hello", 
+                    a_n: [1,2,3,4], 
+                    n: 4,
+                }, 
+                ()=>{},
+                ()=>{}, 
+                o_div
+            )
+            
+            window.o_state = o_state
+            
+            // then we build the html 
+            let o = await f_o_html_from_o_js(
+                {
+                    class: "test",
+                    // f_b_render:()=>o_state.b_show, 
+                    f_a_o: ()=>{
+                        return [
+                            ...o_state.a_n.map((n, n_idx)=>{
+                                return {
+                                    s_tag: 'input', 
+                                    type: 'number',
+                                    a_s_prop_sync: `a_n.${n_idx}`,
+                                }
+                            }), 
+                            {
+                                s_tag: 'input', 
+                                // type: 'number',
+                                a_s_prop_sync: [`n`],
+                            }
+                        ]
+                    }, 
+                    // a_s_prop_sync: ['b_show']
+                }, 
+                o_state
+            )
+            o_div.appendChild(o);
+            
+            let o = { n: 1, o2: { a_n: [2, 3, { n: 234 }] } };
 
-
-        
-
-
-    ]
-
-
-
-await f_display_test_selection_or_run_selected_test_and_print_summary(a_o_test);
+            // Test 1: Access nested object and array
+            f_assert_equals(
+                f_v_from_path_dotnotation('o2.a_n.2.n', o),
+                o.o2.a_n[2].n // Expected: 234
+            );
+            
+            // Test 2: Access top-level property
+            f_assert_equals(
+                f_v_from_path_dotnotation('n', o),
+                o.n // Expected: 1
+            );
+            
+            // Test 3: Access nested array directly
+            f_assert_equals(
+                f_v_from_path_dotnotation('o2.a_n.1', o),
+                o.o2.a_n[1] // Expected: 3
+            );
+            
+            // Test 4: Access non-existent path (should return undefined)
+            f_assert_equals(
+                f_v_from_path_dotnotation('o2.a_n.5.n', o),
+                undefined // Expected: undefined
+            );
+            
+            // Test 5: Access non-existent property (should return undefined)
+            f_assert_equals(
+                f_v_from_path_dotnotation('o2.non_existent', o),
+                undefined // Expected: undefined
+            );
+            
+            // Test 6: Access nested object without arrays
+            let o2 = { a: { b: { c: 123 } } };
+            f_assert_equals(
+                f_v_from_path_dotnotation('a.b.c', o2),
+                o2.a.b.c // Expected: 123
+            );
+            
+            // Test 7: Access empty path (should return the object itself)
+            f_assert_equals(
+                f_v_from_path_dotnotation('', o),
+                o // Expected: the entire object
+            );
+            
+            // Test 8: Access invalid path (should return undefined)
+            f_assert_equals(
+                f_v_from_path_dotnotation('invalid.path', o),
+                undefined // Expected: undefined
+            );
+            
+            // Test 9: Access array index out of bounds (should return undefined)
+            f_assert_equals(
+                f_v_from_path_dotnotation('o2.a_n.10', o),
+                undefined // Expected: undefined
+            );
+            
+            // Test 10: Access nested array and object with mixed types
+            let o3 = { a: [1, { b: [2, { c: 3 }] }] };
+            f_assert_equals(
+                f_v_from_path_dotnotation('a.1.b.1.c', o3),
+                o3.a[1].b[1].c // Expected: 3
+            );
 ```
