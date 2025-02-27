@@ -2962,35 +2962,38 @@ const f_o_proxified = function (
                 // console.log(o_el.o_meta.b_done)
      
                 let a_o_js = await o_el?.o_meta?.f_a_o();
-                console.log('a_o_js')
-                console.log(a_o_js)
+                // console.log('a_o_js')
+                // console.log(a_o_js)
      
-                for(let n_idx_array_item__removed of a_n_idx_array_item__removed){
-                     o_el.removeChild(o_el.children[n_idx_array_item__removed]);
-                }
-                for(let n_idx_array_item__added of a_n_idx_array_item__added){
-                     let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__added], o_el?.o_meta?.o_state);
-                     o_el.insertBefore(o_el2, o_el.childNodes[n_idx_array_item__added+1]);
-                }
-                if(!isNaN(n_idx_array_item__modified)){
-                     let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__modified], o_el?.o_meta?.o_state);
-                     f_update_element_to_match(
-                         o_el2,
-                         o_el.childNodes[n_idx_array_item__modified]
-                     )
-                }
+                // we always have to render the full array
+                // since there could also be a 'static' html object in f_a_o that is not part of the array of the proxy. 
+
+                // for(let n_idx_array_item__removed of a_n_idx_array_item__removed){
+                //      o_el.removeChild(o_el.children[n_idx_array_item__removed]);
+                // }
+                // for(let n_idx_array_item__added of a_n_idx_array_item__added){
+                //      let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__added], o_el?.o_meta?.o_state);
+                //      o_el.insertBefore(o_el2, o_el.childNodes[n_idx_array_item__added+1]);
+                // }
+                // if(!isNaN(n_idx_array_item__modified)){
+                //      let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__modified], o_el?.o_meta?.o_state);
+                //      f_update_element_to_match(
+                //          o_el2,
+                //          o_el.childNodes[n_idx_array_item__modified]
+                //      )
+                // }
                 
-                if(
-                     (
-                        //  Array.isArray(v_old) && Array.isArray(v_new)
-                        //  &&
-                         a_n_idx_array_item__removed.length == 0
-                         && 
-                         a_n_idx_array_item__added.length == 0
-                         &&
-                         isNaN(n_idx_array_item__modified)
-                     )
-                    ){
+                // if(
+                //      (
+                //         //  Array.isArray(v_old) && Array.isArray(v_new)
+                //         //  &&
+                //          a_n_idx_array_item__removed.length == 0
+                //          && 
+                //          a_n_idx_array_item__added.length == 0
+                //          &&
+                //          isNaN(n_idx_array_item__modified)
+                //      )
+                //     ){
                         o_el.innerHTML = ''
                         for(let n_idx in a_o_js){
                             let o_js2 = a_o_js[n_idx];
@@ -2999,7 +3002,7 @@ const f_o_proxified = function (
                             // console.log('appending child')
                             // console.log(o_html2)
                         }
-                }
+                // }
 
      
             }

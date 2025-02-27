@@ -73,12 +73,9 @@ import {
     f_o_html_from_o_js,
     f_o_proxified_and_add_listeners,
     f_o_mod__notifire,
-<<<<<<< HEAD
     f_o_mod__image_gallery,
     f_o_img_cached,
-=======
     f_v_from_path_dotnotation
->>>>>>> 56f533e2a18f523b021b88e80ce0fb64aad4eade
 } from "./module.js"
 
 
@@ -2866,7 +2863,6 @@ let a_o_test =
             globalThis.o_state = o_mod__notifire.o_state
             globalThis.o_mod__notifire = o_mod__notifire
         }),
-<<<<<<< HEAD
 
         f_o_test("f_o_mod__image_gallery", async () => {
             //readme.md:start
@@ -2874,16 +2870,15 @@ let a_o_test =
             //md: ## f_o_mod__image_gallery
             //md: module that makes an image gallery
 
-            let f_shuffle_array_by_reference_place = function(array) {
+            let f_a_v_shuffled = function(array) {
                 for (var i = array.length - 1; i >= 0; i--) {
                     var j = Math.floor(Math.random() * (i + 1));
                     var temp = array[i];
                     array[i] = array[j];
                     array[j] = temp;
                 }
+                return array.slice(0);
             }
-=======
->>>>>>> 56f533e2a18f523b021b88e80ce0fb64aad4eade
 
             let o_div = document.createElement('div');
             document.body.appendChild(o_div);
@@ -2912,7 +2907,6 @@ let a_o_test =
                 o_div
             );
 
-<<<<<<< HEAD
             let o_mod__image_gallery = await f_o_mod__image_gallery(o_state.o_state__o_mod_image_gallery);
             
             // Create a new <style> element
@@ -2921,126 +2915,6 @@ let a_o_test =
             // Add the CSS to the style element
             style.innerHTML = o_mod__image_gallery.s_css;
             document.head.appendChild(style);
-=======
-        f_o_test("f_flat_frontend_framework_array_values", async () => {
-            //readme.md:start
-
-            let o_div = document.createElement('div');
-            document.body.appendChild(o_div);
-            // first we define our data in a state object
-            let o_state = f_o_proxified_and_add_listeners(
-                {
-                    b_show: true, 
-                    s_text: "hello", 
-                    a_n: [1,2,3,4], 
-                    n: 4,
-                }, 
-                ()=>{},
-                ()=>{}, 
-                o_div
-            )
-            
-            window.o_state = o_state
-            
-            // then we build the html 
-            let o = await f_o_html_from_o_js(
-                {
-                    class: "test",
-                    // f_b_render:()=>o_state.b_show, 
-                    f_a_o: ()=>{
-                        return [
-                            ...o_state.a_n.map((n, n_idx)=>{
-                                return {
-                                    s_tag: 'input', 
-                                    type: 'number',
-                                    a_s_prop_sync: `a_n.${n_idx}`,
-                                }
-                            }), 
-                            {
-                                s_tag: 'input', 
-                                // type: 'number',
-                                a_s_prop_sync: [`n`],
-                            }
-                        ]
-                    }, 
-                    // a_s_prop_sync: ['b_show']
-                }, 
-                o_state
-            )
-            o_div.appendChild(o);
-            //readme.md:end
-   
-        }),
-        f_o_test("f_v_from_path_dotnotation", async () => {
-            //readme.md:start
-            
-            let o = { n: 1, o2: { a_n: [2, 3, { n: 234 }] } };
-
-            // Test 1: Access nested object and array
-            f_assert_equals(
-                f_v_from_path_dotnotation('o2.a_n.2.n', o),
-                o.o2.a_n[2].n // Expected: 234
-            );
-            
-            // Test 2: Access top-level property
-            f_assert_equals(
-                f_v_from_path_dotnotation('n', o),
-                o.n // Expected: 1
-            );
-            
-            // Test 3: Access nested array directly
-            f_assert_equals(
-                f_v_from_path_dotnotation('o2.a_n.1', o),
-                o.o2.a_n[1] // Expected: 3
-            );
-            
-            // Test 4: Access non-existent path (should return undefined)
-            f_assert_equals(
-                f_v_from_path_dotnotation('o2.a_n.5.n', o),
-                undefined // Expected: undefined
-            );
-            
-            // Test 5: Access non-existent property (should return undefined)
-            f_assert_equals(
-                f_v_from_path_dotnotation('o2.non_existent', o),
-                undefined // Expected: undefined
-            );
-            
-            // Test 6: Access nested object without arrays
-            let o2 = { a: { b: { c: 123 } } };
-            f_assert_equals(
-                f_v_from_path_dotnotation('a.b.c', o2),
-                o2.a.b.c // Expected: 123
-            );
-            
-            // Test 7: Access empty path (should return the object itself)
-            f_assert_equals(
-                f_v_from_path_dotnotation('', o),
-                o // Expected: the entire object
-            );
-            
-            // Test 8: Access invalid path (should return undefined)
-            f_assert_equals(
-                f_v_from_path_dotnotation('invalid.path', o),
-                undefined // Expected: undefined
-            );
-            
-            // Test 9: Access array index out of bounds (should return undefined)
-            f_assert_equals(
-                f_v_from_path_dotnotation('o2.a_n.10', o),
-                undefined // Expected: undefined
-            );
-            
-            // Test 10: Access nested array and object with mixed types
-            let o3 = { a: [1, { b: [2, { c: 3 }] }] };
-            f_assert_equals(
-                f_v_from_path_dotnotation('a.1.b.1.c', o3),
-                o3.a[1].b[1].c // Expected: 3
-            );
-            //readme.md:end
-   
-        }),
->>>>>>> 56f533e2a18f523b021b88e80ce0fb64aad4eade
 
             window.o_state = o_state
             
@@ -3065,7 +2939,7 @@ let a_o_test =
             window.setTimeout(()=>{
                 // console.log('before shuffle ')
                 // console.log(o_state.o_state__o_mod_image_gallery.a_s_url_image)
-                f_shuffle_array_by_reference_place(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+                f_a_v_shuffled(o_state.o_state__o_mod_image_gallery.a_s_url_image)
                 console.log(o_state.o_state__o_mod_image_gallery.a_s_url_image)
             },3000)
             //readme.md:end
@@ -3084,6 +2958,102 @@ let a_o_test =
             console.log(a_o_img)
             console.log(o_img.width);
             console.log(o_img.height);
+            //readme.md:end
+        }),
+
+        f_o_test("f_img_gall", async () => {
+            //readme.md:start
+            
+            let f_a_v_shuffled = function(array) {
+                for (var i = array.length - 1; i >= 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = array[i];
+                    array[i] = array[j];
+                    array[j] = temp;
+                }
+                return array.slice(0);
+            }
+
+            let o_div = document.createElement('div');
+            document.body.appendChild(o_div);
+            let a_s_url_image = [
+                './images/jonas-frey-1IWoSFH-Oog-unsplash.jpg',
+                './images/jonas-frey-d8AgCj2epJc-unsplash.jpg',
+                './images/jonas-frey-cqbAPdIs0QA-unsplash.jpg'
+                // './images/jonas-frey-HI70Ja1LRiE-unsplash.jpg',
+                // './images/jonas-frey-KIq_SpUCnaw-unsplash.jpg',
+                // './images/jonas-frey-PFifKbMhwJU-unsplash.jpg',
+                // './images/jonas-frey-pWOKLjx0zFI-unsplash.jpg',
+                // './images/jonas-frey-VRVbT_i1YP0-unsplash.jpg',
+                // './images/jonas-frey-y2y02HYrvKY-unsplash.jpg',
+            ];
+            // first we define our data in a state object
+            let o_state = f_o_proxified_and_add_listeners(
+                {
+                    b_show: false, 
+                    s_text: "hello",
+                    o_state__o_mod_image_gallery: {
+                        a_s_url_image
+                    }
+                }, 
+                ()=>{},
+                (a, b, c)=>{
+                    console.log(a)
+                }, 
+                o_div
+            );
+
+
+            window.o_state = o_state
+            
+            // then we build the html 
+            let o = await f_o_html_from_o_js(
+                {
+                    class: "test",
+                    f_a_o: ()=>{
+                        return [
+                            {
+                                innerText: "hello"
+                            },
+                            {
+                                f_a_o: ()=>{
+                                    return o_state.o_state__o_mod_image_gallery.a_s_url_image.map(s=>{
+                                        console.log(s)
+                                        return {
+                                            s_tag: "img", 
+                                            src: s, 
+                                            style: 'max-width:100px'
+                                        }
+                                    })
+                                },
+                                a_s_prop_sync: ['o_state__o_mod_image_gallery.a_s_url_image']
+                            }
+                        ]
+                    }, 
+                }, 
+                o_state
+            )
+            o_div.appendChild(o);
+            // o_state.o_state__o_mod_image_gallery.a_s_url_image = ['./images/jonas-frey-1IWoSFH-Oog-unsplash.jpg']
+            let s_tmp = o_state.o_state__o_mod_image_gallery.a_s_url_image[1];
+            window.setTimeout(()=>{
+                // console.log('before shuffle ')
+                // console.log(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+                // f_a_v_shuffled(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+                // console.log(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+                o_state.o_state__o_mod_image_gallery.a_s_url_image[1] = o_state.o_state__o_mod_image_gallery.a_s_url_image[2];
+                // console.log('after shuffle')
+                // console.log(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+            },1000)
+            window.setTimeout(()=>{
+                // console.log('before shuffle ')
+                // console.log(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+                // f_a_v_shuffled(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+                // console.log(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+                o_state.o_state__o_mod_image_gallery.a_s_url_image[2] = s_tmp;
+                // console.log('after shuffle')
+                // console.log(o_state.o_state__o_mod_image_gallery.a_s_url_image)
+            },3000)
             //readme.md:end
         }),
 
