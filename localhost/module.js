@@ -2697,7 +2697,7 @@ let f_o_html_from_o_js = async function(
    o_js,
    o_state = {}
    ){
-
+    o_js = await o_js;
 
     if(o_state == undefined || o_state == null){
         throw Error('please pass a state object (o_state) to the function "f_o_html_from_o_js" as a second argument ')
@@ -2756,14 +2756,18 @@ let f_o_html_from_o_js = async function(
    if(o_js?.f_s_innerHTML){
        o_html.innerHTML = o_js?.f_s_innerHTML()
    }
+   
    if(o_js?.f_a_o){
        let a_o = await o_js?.f_a_o();
+       a_o = await Promise.all(a_o);
        for(let o_js2 of a_o){
            let n_idx = a_o.indexOf(o_js2);
            let o_html2 = await f_o_html_from_o_js(o_js2, o_state);
            o_html.appendChild(o_html2)
+
        }
    }
+
    let s_path = o_js?.[s_name_attr_prop_sync]?.[0];
    if(!o_html.o_meta){
     o_html.o_meta = {
@@ -2793,6 +2797,7 @@ let f_o_html_from_o_js = async function(
         o_html2.o_meta = {o_js, o_state}
         return o_html2;
     }
+
    return o_html;
 }
 
@@ -2869,7 +2874,18 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
    // console.log('Input value changed:', o_ev.target.value);
  }
 
-
+ let s_cancel_msg = 'Cancelled_by_f_cancel_call'
+ let f_o_promise_and_cancelfunction = function(f_executor) {
+    let f_cancel;
+    const o_promise = new Promise((resolve, reject) => {
+      f_cancel = () => {
+        reject(new Error(s_cancel_msg));
+      };
+      f_executor(resolve, reject, f_cancel);
+    });
+    
+    return { o_promise, f_cancel };
+  }
 
 const f_o_proxified = function (
    v_target, 
@@ -2912,6 +2928,9 @@ const f_o_proxified = function (
         // <a_s_prop_sync='a_o_person,'...>
         let a_s_path_tmp = [...a_s_path];
         let a_o_el = [];
+        if(!isNaN(a_s_path_tmp.at(-1))){
+            a_s_path_tmp = a_s_path_tmp.slice(0,-1)
+        }
         while(a_s_path_tmp.length > 0){
             let s_path = a_s_path_tmp.join('.');
             const a_o_el2 = o_div.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_path}"]`);
@@ -2925,87 +2944,123 @@ const f_o_proxified = function (
         // console.log(o_el_global_event)
         // console.log('a_o_el')
         // console.log(a_o_el)
-        
+
         for(let o_el of a_o_el){
+            console.log(`o_el.o_meta.b_rendering: ${o_el.o_meta.b_rendering}`)
+            if(o_el.o_meta?.f_cancel_rendering && o_el.o_meta.b_rendering === true){
+                await o_el.o_meta?.f_cancel_rendering();
+                o_el.o_meta.b_rendering = false;
+            }else{
+                let o = f_o_promise_and_cancelfunction(
+                    async (f_resolve, f_reject, f_onCancel)=>{
 
-            let b_render = o_el?.o_meta?.o_js?.f_b_render?.();
-            if(b_render === false){
-                // o_el.style.display = 'none';
-                let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js, o_el?.o_meta?.o_state); 
-                o_el.replaceWith(o_el2)
-                continue
-            }
-            if(b_render === true){
-                let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js, o_el?.o_meta?.o_state); 
-                o_el.replaceWith(o_el2)
-                continue
-            }
-            if(o_el == o_el_global_event){
-                continue
-            }
-            if(o_el.value){
-                o_el.value = v_new
-            }
-            if(o_el?.o_meta?.f_s_innerText){
-                let s = o_el.o_meta.f_s_innerText();
-                o_el.innerText = s;
-            }
-            if(o_el?.o_meta?.f_s_innerHTML){
-                let s = o_el.o_meta.f_s_innerHTML();
-                o_el.innerHTML = s;
-            }
-            if(o_el?.o_meta?.f_a_o){
-                // console.log(o.o_meta)
-                // debugger
-     
-                // console.log(`starting: ${new Date().getTime()}`)
-                // console.log(o_el.o_meta.b_done)
-     
-                let a_o_js = await o_el?.o_meta?.f_a_o();
-                // console.log('a_o_js')
-                // console.log(a_o_js)
-     
-                // we always have to render the full array
-                // since there could also be a 'static' html object in f_a_o that is not part of the array of the proxy. 
-
-                // for(let n_idx_array_item__removed of a_n_idx_array_item__removed){
-                //      o_el.removeChild(o_el.children[n_idx_array_item__removed]);
-                // }
-                // for(let n_idx_array_item__added of a_n_idx_array_item__added){
-                //      let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__added], o_el?.o_meta?.o_state);
-                //      o_el.insertBefore(o_el2, o_el.childNodes[n_idx_array_item__added+1]);
-                // }
-                // if(!isNaN(n_idx_array_item__modified)){
-                //      let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__modified], o_el?.o_meta?.o_state);
-                //      f_update_element_to_match(
-                //          o_el2,
-                //          o_el.childNodes[n_idx_array_item__modified]
-                //      )
-                // }
-                
-                // if(
-                //      (
-                //         //  Array.isArray(v_old) && Array.isArray(v_new)
-                //         //  &&
-                //          a_n_idx_array_item__removed.length == 0
-                //          && 
-                //          a_n_idx_array_item__added.length == 0
-                //          &&
-                //          isNaN(n_idx_array_item__modified)
-                //      )
-                //     ){
-                        o_el.innerHTML = ''
-                        for(let n_idx in a_o_js){
-                            let o_js2 = a_o_js[n_idx];
-                            let o_html2 = await f_o_html_from_o_js(o_js2, o_el?.o_meta?.o_state);
-                            o_el.appendChild(o_html2)
-                            // console.log('appending child')
-                            // console.log(o_html2)
+                        o_el.o_meta.b_rendering = true;
+                        let b_render = o_el?.o_meta?.o_js?.f_b_render?.();
+                        if(b_render === false){
+                            // o_el.style.display = 'none';
+                            let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js, o_el?.o_meta?.o_state); 
+                            o_el.replaceWith(o_el2)
+                            f_resolve(true);
                         }
-                // }
+                        if(b_render === true){
+                            let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js, o_el?.o_meta?.o_state); 
+                            o_el.replaceWith(o_el2)
+                            f_resolve(true);
+                            
+                        }
+                        if(o_el == o_el_global_event){
+                            f_resolve(true);
+                            
+                        }
+                        if(o_el.value){
+                            o_el.value = v_new
+                        }
+                        if(o_el?.o_meta?.f_s_innerText){
+                            let s = o_el.o_meta.f_s_innerText();
+                            o_el.innerText = s;
+                        }
+                        if(o_el?.o_meta?.f_s_innerHTML){
+                            let s = o_el.o_meta.f_s_innerHTML();
+                            o_el.innerHTML = s;
+                        }
+                        if(o_el?.o_meta?.f_a_o){
+                            // console.log(o.o_meta)
+                            // debugger
+                 
+                            // console.log(`starting: ${new Date().getTime()}`)
+                            // console.log(o_el.o_meta.b_done)
+                 
+                            let a_o_js = await o_el?.o_meta?.f_a_o();
+                            // console.log('a_o_js')
+                            // console.log(a_o_js)
+                 
+                            // we always have to render the full array
+                            // since there could also be a 'static' html object in f_a_o that is not part of the array of the proxy. 
+            
+                            // for(let n_idx_array_item__removed of a_n_idx_array_item__removed){
+                            //      o_el.removeChild(o_el.children[n_idx_array_item__removed]);
+                            // }
+                            // for(let n_idx_array_item__added of a_n_idx_array_item__added){
+                            //      let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__added], o_el?.o_meta?.o_state);
+                            //      o_el.insertBefore(o_el2, o_el.childNodes[n_idx_array_item__added+1]);
+                            // }
+                            // if(!isNaN(n_idx_array_item__modified)){
+                            //      let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__modified], o_el?.o_meta?.o_state);
+                            //      f_update_element_to_match(
+                            //          o_el2,
+                            //          o_el.childNodes[n_idx_array_item__modified]
+                            //      )
+                            // }
+                            
+                            // if(
+                            //      (
+                            //         //  Array.isArray(v_old) && Array.isArray(v_new)
+                            //         //  &&
+                            //          a_n_idx_array_item__removed.length == 0
+                            //          && 
+                            //          a_n_idx_array_item__added.length == 0
+                            //          &&
+                            //          isNaN(n_idx_array_item__modified)
+                            //      )
+                            //     ){
+                                    o_el.innerHTML = ''
+                                    for(let n_idx in a_o_js){
+                                        let o_js2 = a_o_js[n_idx];
+                                        let o_html2 = await f_o_html_from_o_js(o_js2, o_el?.o_meta?.o_state);
+                                        o_el.appendChild(o_html2)
+                                        if(o_js2?.f_after_render){
+                                            await o_js2?.f_after_render();
+                                        }
+                                        // console.log('appending child')
+                                        // console.log(o_html2)
+                                    }
+                            // }
+            
+                 
+                        }
+                        
+                        f_resolve(true);
 
-     
+                    }
+                )
+                o_el.o_meta.f_cancel_rendering = o.f_cancel
+                try {
+                    await o.o_promise;
+                    if(o_el?.o_meta?.o_js?.f_after_render){
+                        await o_el?.o_meta?.o_js?.f_after_render();
+                    }
+
+                } catch (error) {
+                    if (error.message === s_cancel_msg) {
+                        console.warn('it may be that your element is trying to be rendered before it has finished rendering!')
+                        // Ignore the 'Cancelled' error
+                        return;
+                    }
+                }
+                o_el.o_meta.b_rendering = false;
+
             }
+
         }
      }
      
@@ -3561,11 +3616,10 @@ let f_o_mod__image_gallery = async function(
     o_state
 ){
     
-
+    let a_o_image = []
 
     let s_class_name = `class_${f_s_random_uuid__with_unsecure_fallback()}`;
     let o_div = document.createElement('div');
-    let a_o_img = []
     Object.assign(
         o_state, 
         {
@@ -3595,6 +3649,8 @@ let f_o_mod__image_gallery = async function(
     let s_css = `
         .o_mod__image_gallery.${s_class_name}{
             overflow-y: scroll;
+            overflow-x:hidden;
+            position:relative;
 
         }
         .o_mod__image_gallery.${s_class_name} img{
@@ -3602,7 +3658,7 @@ let f_o_mod__image_gallery = async function(
         
     `
     let f_o_img_info = function(o_img){
-        let n_ratio_x_to_y = o_img.width / o_img.height;
+        let n_ratio_x_to_y = o_img.naturalWidth / o_img.naturalHeight;
         let o_el_parent = document.querySelector(`.${s_class_name}`)?.parentElement;
         let o_bounds = o_el_parent?.getBoundingClientRect();
         let n_width = (o_bounds?.width) ? o_bounds?.width : 1000;
@@ -3617,8 +3673,14 @@ let f_o_mod__image_gallery = async function(
         }
     }
     let f_recalculate_images = function(){
+        
+        
+        let a_o_img = Array.from(document.querySelectorAll(`.${s_class_name} img`));
+        console.log(a_o_img);
+        let n_trn2_y_max = 0;
         for(let n_idx in a_o_img){
             let o = a_o_img[n_idx];
+            
             n_idx = parseInt(n_idx);
             let n_idx_above = n_idx-o_state.n_images_per_x;
             let n_trn_y = 0;
@@ -3629,43 +3691,47 @@ let f_o_mod__image_gallery = async function(
             }
             o.o_data.n_trn_x = (n_idx%o_state.n_images_per_x)*o.o_data.n_scl_x;
             o.o_data.n_trn_y = n_trn_y;
-            if(n_idx == a_o_img.length-1 && document.querySelector(`.${s_class_name}`)){
-                document.querySelector(`.${s_class_name}`).style.height = o.o_data.n_trn_y+o.o_data.n_trn_y + "px";
-            }
 
+            o.style.width = `${o.o_data.n_scl_x}px`
+            o.style.height = `${o.o_data.n_scl_y}px`
+            o.style.left = `${o.o_data.n_trn_x}px`
+            o.style.top = `${o.o_data.n_trn_y}px`
+            let n_trn2_y = o.o_data.n_scl_y+o.o_data.n_trn_y;
+            if(n_trn2_y > n_trn2_y_max){
+                n_trn2_y_max = n_trn2_y
+            }
         }
+        let o2 = document.querySelector(`.${s_class_name}`);
+        if(o2){
+            o2.style.height = n_trn2_y_max + "px";
+        }
+        // debugger
+
     }
     window.onresize = function(){
         f_recalculate_images();
-        o_state.n_render_images = new Date().getTime()
 
     }
     let o_js = {
         class: `o_mod__image_gallery ${s_class_name}`,
         f_a_o: async ()=>{
 
-            a_o_img = await Promise.all(
-                o_state.a_s_url_image.map(s=>{
-                    return f_o_img_cached(s,a_o_img);
-                })
-            )
-            f_recalculate_images();
-            return [
-                ...a_o_img.map((o,n_idx)=>{
-                // ...o_state.a_s_url_image.map((s)=>{
+            return [                    
+                ...o_state.a_s_url_image.map(async (s)=>{
+                    // we have to make sure the image is loaded...
+                    let o = await f_o_img_cached(s, a_o_image);
                     return {
                         s_tag: "img", 
-                        src: o.src,
+                        src: s,
                         style: [
                             `position:absolute`,
-                            `left: ${o.o_data.n_trn_x}px`,
-                            `top: ${o.o_data.n_trn_y}px`,
-                            `width: ${o.o_data.n_scl_x}px`,
-                            `height: ${o.o_data.n_scl_y}px`,
                         ].join(';')
                     }
                 })
             ]
+        },
+        f_after_render: ()=>{
+            f_recalculate_images();
         },
         a_s_prop_sync: ['a_s_url_image', 'n_render_images']
     };
@@ -3678,7 +3744,8 @@ let f_o_mod__image_gallery = async function(
         o_div, 
         o_state, 
         o_js,
-        s_css
+        s_css, 
+        f_recalculate_images
     }
     return o;
 }
