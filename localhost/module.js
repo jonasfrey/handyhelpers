@@ -3886,6 +3886,7 @@ let f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container = async func
         let n_trn_y2 = o_img.o_data_img_gal.n_trn_y+o_img.o_data_img_gal.n_scl_y+n_px_margin_y;
         n_trn_y_max = Math.max(n_trn_y2, n_trn_y_max);
     }
+    return a_o_img;
 
 }
 
