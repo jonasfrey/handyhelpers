@@ -2797,6 +2797,9 @@ let f_o_html_from_o_js = async function(
         o_html2.o_meta = {o_js, o_state}
         return o_html2;
     }
+    if(o_js?.f_after_render){
+        o_js.f_after_render(o_html)
+    }
 
    return o_html;
 }
