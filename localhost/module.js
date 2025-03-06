@@ -3585,6 +3585,14 @@ let f_o_img_cached = async function(s_url, a_o_img=[]){
                     return o.src == s_url_absolute
                 }
             )
+            if(document){
+                let o_img__existing_in_dom = Array.from(document.querySelectorAll('img')).find(o=>{
+                    o.src == s_url_absolute
+                });
+                if(o_img__existing_in_dom){
+                    return f_res(o_img__existing_in_dom);
+                }
+            }
             if(o_img__existing){
                 return f_res(o_img__existing);
             }
@@ -3750,6 +3758,137 @@ let f_o_mod__image_gallery = async function(
     return o;
 }
 
+let f_a_o_img__gallery_from_a_o_img = function(
+    a_o_img, 
+    n_scl_x_px_container,
+    n_images_per_x,
+    n_px_margin_x,
+    n_px_margin_y,
+
+){
+    for(let n_idx in a_o_img){
+        let o_img = a_o_img[n_idx];
+        n_idx = parseInt(n_idx);
+        let n_idx_above = n_idx-n_images_per_x;
+        let n_trn_y = 0;
+
+        let n_ratio_x_to_y = o_img.naturalWidth / o_img.naturalHeight;
+        let n_scl_x = (n_scl_x_px_container / n_images_per_x)-n_px_margin_x;
+        let n_scl_y = (n_scl_x * (1./n_ratio_x_to_y));
+
+        if(n_idx_above >= 0){
+            let o_img_above = a_o_img[n_idx_above];
+            n_trn_y = o_img_above.o_data_img_gal.n_trn_y + o_img_above.o_data_img_gal.n_scl_y + n_px_margin_y;
+        }
+        let n_trn_x = (n_idx%n_images_per_x)*(n_scl_x + n_px_margin_x);
+
+        o_img.o_data_img_gal = {
+            n_scl_x, 
+            n_scl_y, 
+            n_ratio_x_to_y, 
+            n_trn_x, 
+            n_trn_y
+        }
+    }
+    return a_o_img
+}
+
+let f_a_o_img__gallery_from_a_s_url = async function(
+    a_s_url,
+    n_scl_x_px_container,
+    n_images_per_x,
+    n_px_margin_x,
+    n_px_margin_y
+){
+    let a_o_img = await Promise.all(
+        a_s_url.map(s_url=>{
+            return f_o_img_cached(s_url, [])
+        })
+    );
+    a_o_img = f_a_o_img__gallery_from_a_o_img(
+        a_o_img,
+        n_scl_x_px_container,
+        n_images_per_x,
+        n_px_margin_x,
+        n_px_margin_y
+    );
+    return a_o_img;
+
+}
+
+let f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container = async function(
+    a_s_url, 
+    o_el_container,
+    n_images_per_x,
+    n_px_margin_x,
+    n_px_margin_y,
+){
+
+    let o_bounds = o_el_container?.getBoundingClientRect();
+    let n_scl_x_px_container = (o_bounds?.width) ? o_bounds?.width : 1000;
+
+    let a_o_img = await f_a_o_img__gallery_from_a_s_url(
+        a_s_url, 
+        n_scl_x_px_container,
+        n_images_per_x,
+        n_px_margin_x,
+        n_px_margin_y,
+    );
+    let n_trn_y_max = 0; 
+
+    let a_o_img_existing_in_dom = Array.from(o_el_container.querySelectorAll('img'));
+    
+    for(let o_img of a_o_img){
+        let s_url_absolute = o_img.src;//new URL(s_url, window.location.href).href;
+        let o_img_in_dom = a_o_img_existing_in_dom.find(o=>o.src == s_url_absolute);
+        if(o_img_in_dom){
+            o_img = o_img_in_dom;
+        }else{
+            o_el_container.appendChild(o_img)
+        }
+        
+        o_img.style.position = `absolute`;
+        o_img.style.width = `${o_img.o_data_img_gal.n_scl_x}px`
+        o_img.style.height = `${o_img.o_data_img_gal.n_scl_y}px`
+        o_img.style.left = `${o_img.o_data_img_gal.n_trn_x}px`
+        o_img.style.top = `${o_img.o_data_img_gal.n_trn_y}px`
+
+        let n_trn_y2 = o_img.o_data_img_gal.n_trn_y+o_img.o_data_img_gal.n_scl_y+n_px_margin_y;
+        n_trn_y_max = Math.max(n_trn_y2, n_trn_y_max);
+    }
+
+    a_o_img.map(o=>{
+        o.o_data_img_gal.n_scl_y_px_container = n_trn_y_max;
+    })
+
+    o_el_container.style.position = `relative`;
+    
+    o_el_container.style.height = `${n_trn_y_max}px`;
+    // o_bounds = o_el_container?.getBoundingClientRect();
+    n_scl_x_px_container = (o_bounds?.width) ? o_bounds?.width : 1000;
+    let n_scl_y_px_container = (o_bounds?.width) ? o_bounds?.width : 1000;
+    // let n_scl_y_px_container = (o_bounds?.width) ? o_bounds?.width : 1000;
+    let n_ratio_y_x = n_scl_y_px_container/n_scl_x_px_container;
+    o_el_container.style.height = `auto`
+    o_el_container.style.aspectRatio = `1/${n_ratio_y_x}`;
+    // o_bounds = o_el_container?.getBoundingClientRect();
+    // n_scl_x_px_container = (o_bounds?.width) ? o_bounds?.width : 1000;
+    // n_scl_y_px_container = (o_bounds?.width) ? o_bounds?.width : 1000;
+    for(let o_img of a_o_img){
+
+        // o_img.style.position = `absolute`;
+        // o_img.style.aspectRatio = `${o_img.o_data_img_gal.n_scl_x/o_img.o_data_img_gal.n_scl_y}/1`
+        o_img.style.width = `${(o_img.o_data_img_gal.n_scl_x/n_scl_x_px_container)*100}%`
+        o_img.style.height = `${(o_img.o_data_img_gal.n_scl_y/n_scl_x_px_container)*100}%`
+        o_img.style.left = `${(o_img.o_data_img_gal.n_trn_x/n_scl_x_px_container)*100}%`
+        o_img.style.top = `${(o_img.o_data_img_gal.n_trn_y/n_scl_y_px_container)*100}%`
+
+        let n_trn_y2 = o_img.o_data_img_gal.n_trn_y+o_img.o_data_img_gal.n_scl_y+n_px_margin_y;
+        n_trn_y_max = Math.max(n_trn_y2, n_trn_y_max);
+    }
+
+}
+
 
 export {
    f_o_empty_recursive,
@@ -3824,5 +3963,6 @@ export {
    f_o_mod__notifire, 
    f_o_mod__image_gallery,
    f_o_img_cached,
+   f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container
 }
 

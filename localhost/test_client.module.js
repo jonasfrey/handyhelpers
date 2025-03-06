@@ -75,7 +75,8 @@ import {
     f_o_mod__notifire,
     f_o_mod__image_gallery,
     f_o_img_cached,
-    f_v_from_path_dotnotation
+    f_v_from_path_dotnotation,
+    f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container
 } from "./module.js"
 
 
@@ -2984,9 +2985,9 @@ let a_o_test =
             let o_div = document.createElement('div');
             document.body.appendChild(o_div);
             let a_s_url_image = [
-                './images/jonas-frey-1IWoSFH-Oog-unsplash.jpg',
-                './images/jonas-frey-d8AgCj2epJc-unsplash.jpg',
-                './images/jonas-frey-cqbAPdIs0QA-unsplash.jpg'
+                './images/resized000.png',
+                './images/resized001.png',
+                './images/resized002.png'
                 // './images/jonas-frey-HI70Ja1LRiE-unsplash.jpg',
                 // './images/jonas-frey-KIq_SpUCnaw-unsplash.jpg',
                 // './images/jonas-frey-PFifKbMhwJU-unsplash.jpg',
@@ -3083,15 +3084,15 @@ let a_o_test =
             let o_div = document.createElement('div');
             document.body.appendChild(o_div);
             let a_s_url_image = [
-                './images/jonas-frey-1IWoSFH-Oog-unsplash.jpg',
-                './images/jonas-frey-cqbAPdIs0QA-unsplash.jpg',
-                './images/jonas-frey-d8AgCj2epJc-unsplash.jpg',
-                './images/jonas-frey-HI70Ja1LRiE-unsplash.jpg',
-                './images/jonas-frey-KIq_SpUCnaw-unsplash.jpg',
-                './images/jonas-frey-PFifKbMhwJU-unsplash.jpg',
-                './images/jonas-frey-pWOKLjx0zFI-unsplash.jpg',
-                './images/jonas-frey-VRVbT_i1YP0-unsplash.jpg',
-                './images/jonas-frey-y2y02HYrvKY-unsplash.jpg',
+                './images/resized000.png',
+                './images/resized001.png',
+                './images/resized002.png',
+                './images/resized003.png',
+                './images/resized004.png',
+                './images/resized005.png',
+                './images/resized006.png',
+                './images/resized007.png',
+                './images/resized008.png',
             ];
             // first we define our data in a state object
             let o_state = f_o_proxified_and_add_listeners(
@@ -3107,7 +3108,7 @@ let a_o_test =
                 o_div
             );
 
-            
+
             let o_mod__image_gallery = await f_o_mod__image_gallery(o_state.o_state__o_mod_image_gallery);
             
             // Create a new <style> element
@@ -3146,6 +3147,34 @@ let a_o_test =
             o_mod__image_gallery.f_recalculate_images();
             //readme.md:end
 
+        }),
+
+        f_o_test("image_gallery_framework_independent", async () => {
+            let o_parent = await f_o_html_element__from_s_tag('div');
+            o_parent.style.maxWidth = '1000px';
+            o_parent.style.width = '100vw';
+
+            document.body.appendChild(o_parent);
+            let a_s_url_image = [
+                './images/resized000.png',
+                './images/resized001.png',
+                './images/resized002.png',
+                './images/resized003.png',
+                './images/resized004.png',
+                './images/resized005.png',
+                './images/resized006.png',
+                './images/resized007.png',
+                './images/resized008.png',
+            ];
+            let a_o_img = await f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container(
+                a_s_url_image,
+                o_parent, 
+                3, 
+                10, 
+                10
+            );
+
+            
         }),
 
 
