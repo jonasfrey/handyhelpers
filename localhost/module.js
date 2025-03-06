@@ -3046,9 +3046,9 @@ const f_o_proxified = function (
                 o_el.o_meta.f_cancel_rendering = o.f_cancel
                 try {
                     await o.o_promise;
-                    if(o_el?.o_meta?.o_js?.f_after_render){
-                        await o_el?.o_meta?.o_js?.f_after_render(o_el);
-                    }
+                    // if(o_el?.o_meta?.o_js?.f_after_render){
+                    //     await o_el?.o_meta?.o_js?.f_after_render(o_el);
+                    // }
 
                 } catch (error) {
                     if (error.message === s_cancel_msg) {
