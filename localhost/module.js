@@ -3029,7 +3029,7 @@ const f_o_proxified = function (
                                         let o_html2 = await f_o_html_from_o_js(o_js2, o_el?.o_meta?.o_state);
                                         o_el.appendChild(o_html2)
                                         if(o_js2?.f_after_render){
-                                            await o_js2?.f_after_render();
+                                            await o_js2?.f_after_render(o_html2);
                                         }
                                         // console.log('appending child')
                                         // console.log(o_html2)
@@ -3047,7 +3047,7 @@ const f_o_proxified = function (
                 try {
                     await o.o_promise;
                     if(o_el?.o_meta?.o_js?.f_after_render){
-                        await o_el?.o_meta?.o_js?.f_after_render();
+                        await o_el?.o_meta?.o_js?.f_after_render(o_el);
                     }
 
                 } catch (error) {
