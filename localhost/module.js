@@ -1650,7 +1650,8 @@ let f_a_o_shader_error = function(
    return a_o;
 }
 
-let f_o_shader_info = function(
+
+let f_o_shader_info_and_compile_shader = function(
    s_type, 
    s_code_shader, 
    o_ctx
@@ -1682,7 +1683,7 @@ let f_o_shader_info = function(
    }
    return o_shader_info;
 }
-
+let f_o_shader_info = f_o_shader_info_and_compile_shader
 let f_o_webgl_program = function(
    o_canvas, 
    s_code_shader__vertex = '',
@@ -3967,6 +3968,7 @@ export {
    f_o_mod__notifire, 
    f_o_mod__image_gallery,
    f_o_img_cached,
-   f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container
+   f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container, 
+   f_o_shader_info_and_compile_shader
 }
 
