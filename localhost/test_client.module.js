@@ -2800,6 +2800,8 @@ let a_o_test =
             o_tmp.s_name = o_tmp.s_name+'_n3wcrypt1cn4m3' // change by reference // changes ueli to ludolf
             console.log('pop1')
             o_state.a_o_person.pop()
+
+            o_state.a_n_test = [33,44,55];
             window.setTimeout(()=>{
 
                     console.log('pop2')
