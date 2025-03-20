@@ -2526,6 +2526,11 @@ let a_o_test =
             // first we define our data in a state object
             let o_state = f_o_proxified_and_add_listeners(
                 {
+                    a_n_test: [4,8],
+                    o_test: {
+                        n: 2, 
+                        s: "test"
+                    },
                     o_person: a_o_person[0],
                     a_o_person, 
                     n_test: 1, 
@@ -2558,6 +2563,14 @@ let a_o_test =
                     f_a_o: ()=>{
                         return [
                             {
+                                s_tag: "input", 
+                                a_s_prop_sync: 'a_n_test.0'
+                            },
+                            {
+                                s_tag: "input", 
+                                a_s_prop_sync: 'o_test.s'
+                            },
+                            {
                                 s_tag: "button",
                                 f_s_innerText:()=>`${(o_state.b_show_inputs ? 'hide': 'show')}`,
                                 onclick:()=>{
@@ -2584,17 +2597,30 @@ let a_o_test =
                                                 s_tag: 'input'
                                                 // f_s_innerText: ()=>`name ${a_o_person[0].s_name}`
                                             },
+                                            // either we do ad a_s_prop_sync for each single property
                                             {
-                                                f_s_innerText: ()=>`age ${a_o_person[0].n_age}`
+                                                f_s_innerText: ()=>`age ${a_o_person[0].n_age}`,
+                                                a_s_prop_sync: ['a_o_person.0.n_age'],
                                             },
                                             {
-                                                f_s_innerText: ()=>`gender male ${a_o_person[0].b_male}`
+                                                f_s_innerText: ()=>`gender male ${a_o_person[0].b_male}`,
+                                                a_s_prop_sync: ['a_o_person.0.b_male'],
                                             }, 
+                                            // or we group in another object 
+                                            {
+                                                f_a_o:()=>[
+                                                    {f_s_innerText: ()=>`age ${a_o_person[0].n_age}`},
+                                                    {f_s_innerText: ()=>`gender male ${a_o_person[0].b_male}`},
+                                                ],
+                                                a_s_prop_sync: ['a_o_person.0']
+                                            },
                                             {
                                                 s_tag: "hr"
                                             }
                                         ], 
-                                        a_s_prop_sync: ['a_o_person.0']
+                                        // a_s_prop_sync: ['a_o_person.0'] //this should not be done since 
+                                        // it renders the whole f_a_o, and the focus on the input will be lost!
+                                        //
                                     },
                                     {
                                         style: "background:red",
@@ -3176,6 +3202,11 @@ let a_o_test =
 
             
         }),
+        f_o_test("shader_simple", async () => {
+
+            
+        }),
+
 
 
     ]

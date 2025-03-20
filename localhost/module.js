@@ -2932,9 +2932,9 @@ const f_o_proxified = function (
         // <a_s_prop_sync='a_o_person,'...>
         let a_s_path_tmp = [...a_s_path];
         let a_o_el = [];
-        if(!isNaN(a_s_path_tmp.at(-1))){
-            a_s_path_tmp = a_s_path_tmp.slice(0,-1)
-        }
+        // if(!isNaN(a_s_path_tmp.at(-1))){
+        //     a_s_path_tmp = a_s_path_tmp.slice(0,-1)
+        // }
         while(a_s_path_tmp.length > 0){
             let s_path = a_s_path_tmp.join('.');
             const a_o_el2 = o_div.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_path}"]`);
@@ -2950,7 +2950,7 @@ const f_o_proxified = function (
         // console.log(a_o_el)
 
         for(let o_el of a_o_el){
-            console.log(`o_el.o_meta.b_rendering: ${o_el.o_meta.b_rendering}`)
+            // console.log(`o_el.o_meta.b_rendering: ${o_el.o_meta.b_rendering}`)
             if(o_el.o_meta?.f_cancel_rendering && o_el.o_meta.b_rendering === true){
                 await o_el.o_meta?.f_cancel_rendering();
                 o_el.o_meta.b_rendering = false;
