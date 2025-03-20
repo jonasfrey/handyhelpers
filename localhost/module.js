@@ -2893,9 +2893,12 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
     return { o_promise, f_cancel };
   }
   const getLastNumberPart = (path) => {
-    // Match the last part of the path that starts with a number and includes everything after it
-    const match = path.match(/\d\.[^.]*$/);
-    return match ? match[0] : null;
+    // Match the last number and optionally the string after it
+    const match = path.match(/(\d+)(\.[^\.]+)?$/);
+    if (!match) return null; // No number found
+  
+    // Return the number and the optional string after it
+    return match[1] + (match[2] || '');
   };
 
 
@@ -2941,21 +2944,36 @@ const f_o_proxified = function (
         let a_s_path_tmp = [...a_s_path];
         let a_o_el = [];
 
-        // if(!isNaN(a_s_path_tmp.at(-1))){
-        //     a_s_path_tmp = a_s_path_tmp.slice(0,-1)
-        // }
+
+        let n_its = 0.;
         while(a_s_path_tmp.length > 0){
+            
             let s_path = a_s_path_tmp.join('.');
             const a_o_el2 = o_div.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_path}"]`);
             const a_o_el__filtered = Array.from(a_o_el2).filter(el => {
                 const a_s = el.getAttribute(s_name_attr_prop_sync).split(',');
+                
                 let s = a_s.find(s=>{
-                    return s.startsWith(s_path);
+                    if(n_its >= 1){
+                        return s == s_path;
+                    }else{
+                        return s.startsWith(s_path);
+                    }
                 })
+                
                 return s && el != o_el_global_event;
             });
-            a_o_el.push(...a_o_el__filtered)
+            for(let o_el of a_o_el__filtered){
+                if(!a_o_el.includes(o_el)){
+                    a_o_el.push(o_el)
+                }
+            }
             a_s_path_tmp.pop();
+
+            // if(!isNaN(a_s_path_tmp.at(-1))){
+            //     a_s_path_tmp = a_s_path_tmp.slice(0,-1)
+            // }
+            n_its +=1;
         }
         // console.log(o_el_global_event)
         // console.log('a_o_el')
@@ -2995,20 +3013,15 @@ const f_o_proxified = function (
                             &&
                             !o_el?.o_meta?.f_s_innerHTML
                         ){
-                            if(f_b_object_or_array(v_new)){
-
-                                const a_s = o_el.getAttribute(s_name_attr_prop_sync).split(',');
-                                const sortedPaths = a_s.sort((a, b) => b.length - a.length);
-                                // Get the longest path (first element in the sorted array)
-                                const longestPath = sortedPaths[0];
-                                // console.log({v_new})
-                                let s_last_part = getLastNumberPart(longestPath)
-                                // console.log({s_last_part, longestPath, o_el})
-                                let v = f_v_from_path_dotnotation(s_last_part,v_target)
-                                o_el.value = v
-                            }else{
-                                o_el.value = v_new
-                            }
+                            const a_s = o_el.getAttribute(s_name_attr_prop_sync).split(',');
+                            const sortedPaths = a_s.sort((a, b) => b.length - a.length);
+                            // Get the longest path (first element in the sorted array)
+                            const longestPath = sortedPaths[0];
+                            // console.log({v_new})
+                            let s_last_part = getLastNumberPart(longestPath)
+                            // console.log({s_last_part, longestPath, o_el})
+                            let v = f_v_from_path_dotnotation(s_last_part,v_target)
+                                
                         }
                         if(o_el?.o_meta?.f_s_innerText){
                             let s = o_el.o_meta.f_s_innerText();

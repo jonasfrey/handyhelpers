@@ -2568,6 +2568,10 @@ let a_o_test =
                             },
                             {
                                 s_tag: "input", 
+                                a_s_prop_sync: 'a_n_test.1'
+                            },
+                            {
+                                s_tag: "input", 
                                 a_s_prop_sync: 'o_test.s'
                             },
                             {
