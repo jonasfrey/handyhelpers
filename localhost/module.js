@@ -2657,6 +2657,17 @@ function f_b_numeric(str) {
           !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
  }
 
+ let f_try_to_update_input_select_or_checkbox_element = function(
+    o_el_html, 
+    v_value
+ ){
+    // 4. Update element based on type
+    if (o_el_html.type === 'checkbox' || o_el_html.type === 'radio') {
+        o_el_html.checked = !!v_value;
+    } else {
+        o_el_html.value = v_value != null ? v_value.toString() : '';
+    }
+ }
  const f_try_to_update_element_from_params = function(
     o_el_html, 
     o_state,
@@ -2923,61 +2934,18 @@ const f_o_proxified = function (
         signal, 
         o_div = document
      ){
-     //    console.log('f_async_callback was called with following params')
-     //    console.log({
-     //        v_target,
-     //        a_s_path,
-     //        v_old,
-     //        v_new,
-     //        a_n_idx_array_item__removed,
-     //        a_n_idx_array_item__added,
-     //        n_idx_array_item__modified,
-     //        signal
-     //    }); 
-     
-     
-        // console.log('proxy callback called')
-        //recursively search for all elements that could be 
-        // <a_s_prop_sync='a_o_person.0.s_name,'...>
-        // <a_s_prop_sync='a_o_person.0,'...>
-        // <a_s_prop_sync='a_o_person,'...>
-        let a_s_path_tmp = [...a_s_path];
+
         let a_o_el = [];
-
-
-        let n_its = 0.;
-        while(a_s_path_tmp.length > 0){
-            
-            let s_path = a_s_path_tmp.join('.');
-            const a_o_el2 = o_div.querySelectorAll(`[${s_name_attr_prop_sync}*="${s_path}"]`);
-            const a_o_el__filtered = Array.from(a_o_el2).filter(el => {
-                const a_s = el.getAttribute(s_name_attr_prop_sync).split(',');
-                
-                let s = a_s.find(s=>{
-                    if(n_its >= 1){
-                        return s == s_path;
-                    }else{
-                        return s.startsWith(s_path);
-                    }
-                })
-                
-                return s && el != o_el_global_event;
-            });
-            for(let o_el of a_o_el__filtered){
-                if(!a_o_el.includes(o_el)){
-                    a_o_el.push(o_el)
-                }
-            }
-            a_s_path_tmp.pop();
-
-            // if(!isNaN(a_s_path_tmp.at(-1))){
-            //     a_s_path_tmp = a_s_path_tmp.slice(0,-1)
-            // }
-            n_its +=1;
+    
+        let b_object_or_array = f_b_object_or_array(v_new);
+        if(b_object_or_array){
+            a_o_el = Array.from(o_div.querySelectorAll(`[${s_name_attr_prop_sync}^="${s_path}"]`));
+        }else{
+            a_o_el = Array.from(o_div.querySelectorAll(`[${s_name_attr_prop_sync}="${s_path}"]`));
         }
-        // console.log(o_el_global_event)
-        // console.log('a_o_el')
-        // console.log(a_o_el)
+        a_o_el = a_o_el.filter(o=>{
+            return o != o_el_global_event
+        });
 
         for(let o_el of a_o_el){
             // console.log(`o_el.o_meta.b_rendering: ${o_el.o_meta.b_rendering}`)
@@ -3006,23 +2974,10 @@ const f_o_proxified = function (
                             f_resolve(true);
                             
                         }
-                        if(
-                            !o_el?.o_meta?.f_a_o
-                            &&
-                            !o_el?.o_meta?.f_s_innerText
-                            &&
-                            !o_el?.o_meta?.f_s_innerHTML
-                        ){
-                            const a_s = o_el.getAttribute(s_name_attr_prop_sync).split(',');
-                            const sortedPaths = a_s.sort((a, b) => b.length - a.length);
-                            // Get the longest path (first element in the sorted array)
-                            const longestPath = sortedPaths[0];
-                            // console.log({v_new})
-                            let s_last_part = getLastNumberPart(longestPath)
-                            // console.log({s_last_part, longestPath, o_el})
-                            let v = f_v_from_path_dotnotation(s_last_part,v_target)
-                                
-                        }
+                        f_try_to_update_input_select_or_checkbox_element(
+                            o_el, 
+                            v_new
+                        )
                         if(o_el?.o_meta?.f_s_innerText){
                             let s = o_el.o_meta.f_s_innerText();
                             o_el.innerText = s;
