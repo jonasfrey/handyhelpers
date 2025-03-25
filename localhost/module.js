@@ -2936,7 +2936,7 @@ const f_o_proxified = function (
      ){
 
         let a_o_el = [];
-    
+        let s_path = a_s_path.join('.')
         let b_object_or_array = f_b_object_or_array(v_new);
         if(b_object_or_array){
             a_o_el = Array.from(o_div.querySelectorAll(`[${s_name_attr_prop_sync}^="${s_path}"]`));
