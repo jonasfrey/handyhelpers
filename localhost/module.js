@@ -3578,6 +3578,7 @@ let f_o_mod__notifire = async function(){
     }
     return o;
 }
+
 let f_o_img_cached = async function(s_url, a_o_img=[]){
     let s_url_absolute = new URL(s_url, window.location.href).href;
     return new Promise(
@@ -3893,6 +3894,125 @@ let f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container = async func
 
 }
 
+let o_state_a_o_toast = {
+    a_o_toast: []
+};      
+let f_o_toast = function(
+    s_message, 
+    s_class = 'info', 
+    n_ms = 5000
+){
+    let s_uuidv4 = f_s_uuidv4();
+    let o_toast = {
+        s_uuidv4, 
+        s_class: `o_toast ${s_class}`,
+        s_message_init: s_message, 
+        s_message: s_message, 
+        b_render: true,
+        n_id_interval: 0,
+    };
+    o_state.a_o_toast.push(o_toast);
+
+    let o = o_state.a_o_toast.find(o=>{return o.s_uuidv4 == s_uuidv4})
+    o.f_hide = function(){
+        o.b_render = false;
+        clearInterval(o.n_id_interval);
+        o_state.a_o_toast = o_state.a_o_toast.filter((o, n_idx)=>{
+            let b = o.s_uuidv4 != s_uuidv4
+            return b
+        });
+    }
+    window.setTimeout(()=>{
+        o.f_hide();
+    },n_ms)
+    
+    if(s_class == 'loading'){
+        o.n_id_interval = window.setInterval(()=>{
+            let a_s_char_spinner = ['|', '/', '-', '\\'];
+            a_s_char_spinner = ['◴', '◷', '◶', '◵']
+            a_s_char_spinner = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏']
+            let n = (parseInt(window.performance.now()*0.007)%a_s_char_spinner.length);
+            o.s_message = `${o.s_message_init} ${a_s_char_spinner[n]}`
+        }, 100)
+    }
+    return o
+}
+let s_css_a_o_toast = `
+.a_o_toast {
+    position:fixed;
+    top: 1rem;
+    right: 1rem;
+    left: auto;
+    width: auto;
+    max-width: 90%;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+}
+
+.o_toast {
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 0.95rem;
+    pointer-events: all;
+    animation: fadeSlideIn 0.3s ease-out;
+}
+
+.o_toast{
+    padding: .5rem;
+}
+.o_toast.info, .o_toast.loading{
+    background:rgba(103, 111, 218, 0.6);
+    color: #fff;
+}
+.o_toast.warning{
+    background:rgba(235, 140, 62, 0.6);
+    color: #fff;
+}
+.o_toast.error{
+    background:rgba(218, 103, 111, 0.6);
+    color: #fff;
+}`
+let f_o_js_a_o_toast = function(o_state){
+    let o_js_a_o_toast = {
+        f_a_o:async ()=> [
+            {
+                innerText: "name is: staticaddedperson"
+            },
+            {
+                a_s_prop_sync: 'a_o_toast',
+                class: 'a_o_toast',
+                f_a_o: ()=>{
+                    return o_state.a_o_toast.map((o, n_idx)=>{
+                        
+                        // console.log(sp)
+                        return {
+                            class: o.s_class, 
+                            f_s_innerText: ()=>{return o.s_message},
+                            f_b_render: ()=>{return o.b_render},
+                            onclick: ()=>{
+                                o_state.a_o_toast = o_state.a_o_toast.filter((o2, n_idx2)=>{
+                                    return n_idx != n_idx2
+                                })
+                            },
+                            a_s_prop_sync: [
+                                `a_o_toast.${n_idx}.s_message`,
+                            ],
+                        }
+                    })
+                }
+            },
+    
+        ],
+        a_s_prop_sync: 'a_s_name',
+    }
+    return o_js_a_o_toast
+}
+
+
 
 export {
    f_o_empty_recursive,
@@ -3968,6 +4088,10 @@ export {
    f_o_mod__image_gallery,
    f_o_img_cached,
    f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container, 
-   f_o_shader_info_and_compile_shader
+   f_o_shader_info_and_compile_shader,
+   o_state_a_o_toast,
+   f_o_toast,
+   s_css_a_o_toast,
+   f_o_js_a_o_toast,
 }
 

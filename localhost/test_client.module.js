@@ -8,6 +8,15 @@ import {
     f_o_test
 } from "https://deno.land/x/deno_test_server_and_client_side@0.6/mod.js"
 
+
+import {
+    f_add_css,
+    f_s_css_prefixed,
+    o_variables, 
+    f_s_css_from_o_variables
+} from "https://deno.land/x/f_add_css@2.0.0/mod.js"
+
+
 import {
     f_b_denojs, 
     f_o_html_element__from_s_tag, 
@@ -76,7 +85,11 @@ import {
     f_o_mod__image_gallery,
     f_o_img_cached,
     f_v_from_path_dotnotation,
-    f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container
+    f_a_o_img__gallery_from_a_s_url_and_resize_images_and_container,
+    f_o_js_a_o_toast,
+    f_o_toast,
+    o_state_a_o_toast,
+    s_css_a_o_toast
 } from "./module.js"
 
 
@@ -2910,6 +2923,9 @@ let a_o_test =
             o_mod__notifire.f_message_warning('warning :/', 5000)
             globalThis.o_state = o_mod__notifire.o_state
             globalThis.o_mod__notifire = o_mod__notifire
+            window.onmousedown = function(){
+                o_mod__notifire.f_message_success(`mousedown: ${new Date()}`, 5000)
+            }
         }),
 
 
@@ -3208,9 +3224,48 @@ let a_o_test =
 
             
         }),
-        f_o_test("shader_simple", async () => {
 
+        f_o_test("f_flat_frontend_framework_toaster", async () => {
+
+            f_add_css(s_css_a_o_toast);
+
+            let o_div = document.createElement('div');
+            document.body.appendChild(o_div);
+            // first we define our data in a state object
+            let o_state = f_o_proxified_and_add_listeners(
+                {
+                    ...o_state_a_o_toast
+                }, 
+                ()=>{},
+                ()=>{}, 
+                o_div
+            )
             
+            window.o_state = o_state
+
+            globalThis.f_o_toast = f_o_toast
+            // then we build the html
+            f_o_toast('this is info', 'info', 5000)
+            f_o_toast('this is warning','warning', 5000)
+            f_o_toast('this is error','error', 5000)
+            f_o_toast('this will take a while','loading', 5000)
+
+            // then we build the html 
+            let o = await f_o_html_from_o_js(
+                {
+                    class: "test",
+                    f_a_o: ()=>{
+                        return [
+                            
+                            f_o_js_a_o_toast(o_state),
+                        
+                        ]
+                    }
+                }, 
+                o_state
+            )
+            o_div.appendChild(o);
+
         }),
 
 
