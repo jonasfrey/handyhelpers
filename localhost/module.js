@@ -2913,426 +2913,466 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
   };
 
 
-const f_o_proxified = function (
-   v_target, 
-   f_callback_beforevaluechange = (a_s_path, v_old, v_new)=>{},
-   f_callback_aftervaluechange = (a_s_path, v_old, v_new)=>{},
-   o_div = document,
-   a_s_prop_path_part = []
+  const f_o_proxified = function (
+    v_target, 
+    f_callback_beforevaluechange = (a_s_path, v_old, v_new)=>{},
+    f_callback_aftervaluechange = (a_s_path, v_old, v_new)=>{},
+    o_div = document,
+    a_s_prop_path_part = []
+ 
+ ) {
+     let o_state_readable = {}
+ 
+     let f_async_callback = async function(
+         v_target,
+         a_s_path,
+         v_old,
+         v_new,
+         a_n_idx_array_item__removed,
+         a_n_idx_array_item__added,
+         n_idx_array_item__modified,
+         signal, 
+         o_div = document
+      ){
+ 
+         let s_path = a_s_path.join('.')
+         let a_s_path_with_n = a_s_path.map(v => {
+            // Check if the v is a number (either as a number or a string that can be parsed to an integer)
+            if (typeof v === 'number' && Number.isInteger(v)) {
+              return '[n]';
+            } else if (typeof v === 'string' && !isNaN(v) && Number.isInteger(Number(v))) {
+              return '[n]';
+            } else {
+              return v;
+            }
+          });
+          let a_o_el_original = Array.from(document.querySelectorAll(`[${s_name_attr_prop_sync}]`)).map(o_el => {
+            let a_s_path = o_el.getAttribute(s_name_attr_prop_sync)?.split(','); 
+            return {
+                o_el, 
+                a_s_path,
+            }
+          }); 
 
-) {
-    let o_state_readable = {}
+        let a_o_el = []
+         let b_object_or_array = f_b_object_or_array(v_new);
+         if(b_object_or_array){
+            a_o_el = a_o_el_original.filter(o=>{
+                return o?.a_s_path.find(s_path2 =>{
+                    return s_path2.startsWith(s_path)
+                }) != undefined
+            })
+         }else{
+            a_o_el = a_o_el_original.filter(o=>{
+                return o.a_s_path.find(s_path2 =>{
+                    return s_path2 == (s_path)
+                }) != undefined
+            })
+         }
+         let a_tmp = a_s_path_with_n.slice(); // clone a_s_path_with_n
+         while(a_tmp.length > 0 && a_tmp.includes('[n]')){
+            let s_path3 = a_tmp.join('.');
+            a_o_el.push(
+                ...a_o_el_original.filter(o=>{
+                    return o?.a_s_path.find(s_path2 =>{
+                        return s_path2.startsWith(s_path3)
+                    }) != undefined
+                })
+            )
+            a_tmp.pop();
+         }
 
-    let f_async_callback = async function(
-        v_target,
-        a_s_path,
-        v_old,
-        v_new,
-        a_n_idx_array_item__removed,
-        a_n_idx_array_item__added,
-        n_idx_array_item__modified,
-        signal, 
-        o_div = document
-     ){
-
-        let a_o_el = [];
-        let s_path = a_s_path.join('.')
-        let b_object_or_array = f_b_object_or_array(v_new);
-        if(b_object_or_array){
-            a_o_el = Array.from(o_div.querySelectorAll(`[${s_name_attr_prop_sync}^="${s_path}"]`));
-        }else{
-            a_o_el = Array.from(o_div.querySelectorAll(`[${s_name_attr_prop_sync}="${s_path}"]`));
-        }
-        a_o_el = a_o_el.filter(o=>{
-            return o != o_el_global_event
-        });
-
-        for(let o_el of a_o_el){
-            // console.log(`o_el.o_meta.b_rendering: ${o_el.o_meta.b_rendering}`)
-            if(o_el.o_meta?.f_cancel_rendering && o_el.o_meta.b_rendering === true){
-                await o_el.o_meta?.f_cancel_rendering();
-                o_el.o_meta.b_rendering = false;
-            }else{
-                let o = f_o_promise_and_cancelfunction(
-                    async (f_resolve, f_reject, f_onCancel)=>{
-
-                        o_el.o_meta.b_rendering = true;
-                        let b_render = o_el?.o_meta?.o_js?.f_b_render?.();
-                        if(b_render === false){
-                            // o_el.style.display = 'none';
-                            let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js, o_el?.o_meta?.o_state); 
-                            o_el.replaceWith(o_el2)
-                            f_resolve(true);
-                        }
-                        if(b_render === true){
-                            let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js, o_el?.o_meta?.o_state); 
-                            o_el.replaceWith(o_el2)
-                            f_resolve(true);
-                            
-                        }
-                        if(o_el == o_el_global_event){
-                            f_resolve(true);
-                            
-                        }
-                        f_try_to_update_input_select_or_checkbox_element(
-                            o_el, 
-                            v_new
-                        )
-                        if(o_el?.o_meta?.f_s_innerText){
-                            let s = o_el.o_meta.f_s_innerText();
-                            o_el.innerText = s;
-                        }
-                        if(o_el?.o_meta?.f_s_innerHTML){
-                            let s = o_el.o_meta.f_s_innerHTML();
-                            o_el.innerHTML = s;
-                        }
-                        if(o_el?.o_meta?.f_a_o){
-                            // console.log(o.o_meta)
-                            // debugger
-                 
-                            // console.log(`starting: ${new Date().getTime()}`)
-                            // console.log(o_el.o_meta.b_done)
-                 
-                            let a_o_js = await o_el?.o_meta?.f_a_o();
-                            // console.log('a_o_js')
-                            // console.log(a_o_js)
-                 
-                            // we always have to render the full array
-                            // since there could also be a 'static' html object in f_a_o that is not part of the array of the proxy. 
-            
-                            // for(let n_idx_array_item__removed of a_n_idx_array_item__removed){
-                            //      o_el.removeChild(o_el.children[n_idx_array_item__removed]);
-                            // }
-                            // for(let n_idx_array_item__added of a_n_idx_array_item__added){
-                            //      let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__added], o_el?.o_meta?.o_state);
-                            //      o_el.insertBefore(o_el2, o_el.childNodes[n_idx_array_item__added+1]);
-                            // }
-                            // if(!isNaN(n_idx_array_item__modified)){
-                            //      let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__modified], o_el?.o_meta?.o_state);
-                            //      f_update_element_to_match(
-                            //          o_el2,
-                            //          o_el.childNodes[n_idx_array_item__modified]
-                            //      )
-                            // }
-                            
-                            // if(
-                            //      (
-                            //         //  Array.isArray(v_old) && Array.isArray(v_new)
-                            //         //  &&
-                            //          a_n_idx_array_item__removed.length == 0
-                            //          && 
-                            //          a_n_idx_array_item__added.length == 0
-                            //          &&
-                            //          isNaN(n_idx_array_item__modified)
-                            //      )
-                            //     ){
-                                    o_el.innerHTML = ''
-                                    for(let n_idx in a_o_js){
-                                        let o_js2 = a_o_js[n_idx];
-                                        let o_html2 = await f_o_html_from_o_js(o_js2, o_el?.o_meta?.o_state);
-                                        o_el.appendChild(o_html2)
-                                        if(o_js2?.f_after_render){
-                                            await o_js2?.f_after_render(o_html2);
-                                        }
-                                        // console.log('appending child')
-                                        // console.log(o_html2)
-                                    }
-                            // }
-            
-                 
-                        }
-                        
-                        f_resolve(true);
-
-                    }
-                )
-                o_el.o_meta.f_cancel_rendering = o.f_cancel
-                try {
-                    await o.o_promise;
-                    // if(o_el?.o_meta?.o_js?.f_after_render){
-                    //     await o_el?.o_meta?.o_js?.f_after_render(o_el);
-                    // }
-
-                } catch (error) {
-                    if (error.message === s_cancel_msg) {
-                        console.warn('it may be that your element is trying to be rendered before it has finished rendering!')
-                        // Ignore the 'Cancelled' error
-                        return;
+         a_o_el = a_o_el.filter(o=>{
+             return o != o_el_global_event
+         });
+         
+         for(let o2 of a_o_el){
+            let o_el = o2.o_el;
+             // console.log(`o_el.o_meta.b_rendering: ${o_el.o_meta.b_rendering}`)
+             if(o_el.o_meta?.f_cancel_rendering && o_el.o_meta.b_rendering === true){
+                 await o_el.o_meta?.f_cancel_rendering();
+                 o_el.o_meta.b_rendering = false;
+             }else{
+                 let o = f_o_promise_and_cancelfunction(
+                     async (f_resolve, f_reject, f_onCancel)=>{
+ 
+                         o_el.o_meta.b_rendering = true;
+                         let b_render = o_el?.o_meta?.o_js?.f_b_render?.();
+                         if(b_render === false){
+                             // o_el.style.display = 'none';
+                             let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js, o_el?.o_meta?.o_state); 
+                             o_el.replaceWith(o_el2)
+                             f_resolve(true);
+                         }
+                         if(b_render === true){
+                             let o_el2 = await f_o_html_from_o_js(o_el?.o_meta?.o_js, o_el?.o_meta?.o_state); 
+                             o_el.replaceWith(o_el2)
+                             f_resolve(true);
+                             
+                         }
+                         if(o_el == o_el_global_event){
+                             f_resolve(true);
+                             
+                         }
+                         f_try_to_update_input_select_or_checkbox_element(
+                             o_el, 
+                             v_new
+                         )
+                         if(o_el?.o_meta?.f_s_innerText){
+                             let s = o_el.o_meta.f_s_innerText();
+                             o_el.innerText = s;
+                         }
+                         if(o_el?.o_meta?.f_s_innerHTML){
+                             let s = o_el.o_meta.f_s_innerHTML();
+                             o_el.innerHTML = s;
+                         }
+                         if(o_el?.o_meta?.f_a_o){
+                             // console.log(o.o_meta)
+                             // debugger
+                  
+                             // console.log(`starting: ${new Date().getTime()}`)
+                             // console.log(o_el.o_meta.b_done)
+                  
+                             let a_o_js = await o_el?.o_meta?.f_a_o();
+                             // console.log('a_o_js')
+                             // console.log(a_o_js)
+                  
+                             // we always have to render the full array
+                             // since there could also be a 'static' html object in f_a_o that is not part of the array of the proxy. 
+             
+                             // for(let n_idx_array_item__removed of a_n_idx_array_item__removed){
+                             //      o_el.removeChild(o_el.children[n_idx_array_item__removed]);
+                             // }
+                             // for(let n_idx_array_item__added of a_n_idx_array_item__added){
+                             //      let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__added], o_el?.o_meta?.o_state);
+                             //      o_el.insertBefore(o_el2, o_el.childNodes[n_idx_array_item__added+1]);
+                             // }
+                             // if(!isNaN(n_idx_array_item__modified)){
+                             //      let o_el2 = await f_o_html_from_o_js(a_o_js[n_idx_array_item__modified], o_el?.o_meta?.o_state);
+                             //      f_update_element_to_match(
+                             //          o_el2,
+                             //          o_el.childNodes[n_idx_array_item__modified]
+                             //      )
+                             // }
+                             
+                             // if(
+                             //      (
+                             //         //  Array.isArray(v_old) && Array.isArray(v_new)
+                             //         //  &&
+                             //          a_n_idx_array_item__removed.length == 0
+                             //          && 
+                             //          a_n_idx_array_item__added.length == 0
+                             //          &&
+                             //          isNaN(n_idx_array_item__modified)
+                             //      )
+                             //     ){
+                                     o_el.innerHTML = ''
+                                     for(let n_idx in a_o_js){
+                                         let o_js2 = a_o_js[n_idx];
+                                         let o_html2 = await f_o_html_from_o_js(o_js2, o_el?.o_meta?.o_state);
+                                         o_el.appendChild(o_html2)
+                                         if(o_js2?.f_after_render){
+                                             await o_js2?.f_after_render(o_html2);
+                                         }
+                                         // console.log('appending child')
+                                         // console.log(o_html2)
+                                     }
+                             // }
+             
+                  
+                         }
+                         
+                         f_resolve(true);
+ 
+                     }
+                 )
+                 o_el.o_meta.f_cancel_rendering = o.f_cancel
+                 try {
+                     await o.o_promise;
+                     // if(o_el?.o_meta?.o_js?.f_after_render){
+                     //     await o_el?.o_meta?.o_js?.f_after_render(o_el);
+                     // }
+ 
+                 } catch (error) {
+                     if (error.message === s_cancel_msg) {
+                         console.warn('it may be that your element is trying to be rendered before it has finished rendering!')
+                         // Ignore the 'Cancelled' error
+                         return;
+                     }
+                 }
+                 o_el.o_meta.b_rendering = false;
+ 
+             }
+ 
+         }
+      }
+      
+    // i want to be able to trigger a async function 'f_async_callback' when a possibly nested object gets manipulated in any way. 
+    // the function should receive the following parameters.
+    // also if f_async_callback has already called and has not yet ended (can take up to 2 sec) 
+    // if it will get called again the last call of it should be canceled
+    // remember that i want to be able to monitor all changes on the object which could be 
+    // example: 
+ 
+    // o = f_o_proxified({n:2});
+ 
+    // o.n = 3 // this change should trigger the 'f_async_callback'
+    // o.o_nested = {n:1} // this should also add a proxy on o.o_nested  
+    // o.o_nested.n = 55 // this should also trigger the 'f_async_callback'
+    
+    // o.a = [1,2,3,4,{n:9}] 
+    // now for arrays those are a bit special in javascript i guess
+    // so a normal change would be 
+    // o.a[2] = 22
+    // but also those functions should trigger the callback 'f_async_callback' but only once !
+    // o.a.push(99)
+    // o.a.pop()
+    // o.a.splice(2, 0, "Lemon", "Kiwi"); // At position 2, add "Lemon" and "Kiwi":
+    // o.a = o.a.filter((v)=>{return !isNaN(v)})
+    // when any array manipulation happens the according parameters should be 
+    // built, the possible parameters are 
+    // a_n_idx_array_item_removed // an array with the indices of the removed elements 
+    // a_n_idx_array_item_added // an array with the indices of the added elements
+    // n_idx_array_item_modified // the index of the array item that has been modified
+    // so for example 
+    // o.a[3] = 11 // n_idx_array_item_modified would be 3
+    // o.a[3] = {n:9} // n_idx_array_item_modified would be also 3
+    // o.a.push() // a_n_idx_array_item_added would be [{last_index_of_array_depending_on_array_size}]
+    // o.a.splice(5, 0, item);// a_n_idx_array_item_added would be [5]
+    // i dont know if this is even possible  
+    // but i assume one can not find out what indices are removed if for example 
+    // a .map  function is used on the array, it is not possible
+    // to know what of the new items are the same as the old items
+    // but this is ok. in this case a_n_idx_array_item_removed and a_n_idx_array_item_added 
+    // would just be an empty array 
+    // o.a = o.a.filter((v)=>{return isNaN(v)})
+ 
+ 
+ 
+    // so basically there are three ways to manipulate an array
+    // 1. directly manipulate an item by using an index, a[n_idx] = 2
+    // 2. using 'helper?' functions like .pop() .shift() .splice() etc. 
+    // 3. reassigning by using filter or map like a = a.filter(...)
+ 
+ 
+    // so in the 'f_async_callback' there should be the following parameters passed to it
+    // 'v_target' // the target if for example o.o2.n = 2 the target would be the object o.o2
+    // 'a_s_prop_path_part' an array containing strings that represent the path of manipulated object
+    //        so for example o.o2.o_nested.a[5] = {n:9} , would be ['o','o2','o_nested','a','5']
+    //           for example o.o2.o_nested.a.splice(2, 0, "Lemon", "Kiwi");, would be ['o','o2','o_nested','a']
+    // 'v_old' // the old value 
+    // 'v_new' // the new value
+ 
+    // are there more edge cases i did not consider?
+ 
+    // stick to the following coding conventions  
+    // variable names all have prefixes
+    // v_ => 'value' a variable with a 'unknown' type
+    // n_ => numnbers , eg. a.map((n_idx, v)=>{...})
+    // b_ => boolean 
+    // o_ => object
+    // a_ => array
+    // f_ => functions, yes also functions are variables, like let f_test = ()=>{return 'test'}
+    // define all functions with a variable declaration keyword for example 
+    // let f_test = function(){return 'test'}
+    // a_n_ => an array containing numbers eg. [1,2,3]
+    // a_o_ => an array containing objects eg. [{},{},{}]
+    // s_f_ => a string that is a function that then could be used in 
+    // new Function or eval 
+    // s_f_test = `return 'test'`, ->new Function(s_f_test);
+    // s_json__o_person = JSON.stringify(o_person), would be a object o_person in json / string format
+    // an exeption: if objects with same structure are needed ofen times classes are used, 
+    // but instead of having classes we have functions in this style 
+    // f_O_person = function(s_name, n_age){return {s_name, n_age}}
+    // this would return an object that represents a person. the equivalent of a class would be 
+    //   class O_person {
+    //     constructor(s_name, n_age) {
+    //       this.s_name = s_name;
+    //       this.n_age = n_age;
+    //     }
+    //   }
+    // but like i said a simple function is preferred!
+    // if a function returns a certain type this prefix comes at second place for example
+    // f_a_n_=> a function that returns an array of numbers like let f_a_n_test = () =>{return [1,2,3]}
+    
+ 
+    // another important this is , the plural form of words has to be omitted completly
+    // example: 'hans' would be the value, we could use 's_name' as a variable name
+    // ['hans', 'gretel', 'ueli', 'jasmin'] would be the value 
+    // 'a_s_name' would be the variable name, since this is an array of names, 
+    // so 'a_s_names' is wrong, it is an array 'a_', containing 's_name' variables, so 'a_s_name'! 
+ 
+    // the last thing: try to always 'group' variable names, so if the values are similar but the variable names 
+    // have to be distinguished always use the basic / more general variable name in front of it , for example 
+ 
+    // let o_person__hans = new O_person('hans', 20);
+    // let o_person__gretel = new O_person('gretel', '19'); 
+ 
+    // more exmaples
+    // for example an id is a very generic term so it comes first
+    // n_timeout_id wrong, correct: n_id__timeout
+    // n_frame_id wrong, correct: n_id__frame
+    // n_start_index wrong, correct: n_idx__start, respectively n_idx__end 
+    // n_timestamp_ms wrong, correct: n_ms__timestamp, or n_sec__timestamp or n_min__timestamp
+    
+ 
+    // thats all, now solve my problem
+    if (typeof v_target !== 'object' || v_target === null) return v_target;
+ 
+    
+    const a_s_array_methods = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'];
+    const o_map_proxies = new WeakMap();
+    let o_pending_async_callback = null;
+ 
+    const f_wrap_array_method = function (
+        o_array_target, 
+        s_method_name, 
+        a_args, 
+        a_s_prop_path_part, 
+    ) {
+        const f_original_method = Array.prototype[s_method_name];
+        const a_v_array_old = [...o_array_target];
+        const n_array_length_old = a_v_array_old.length;
+        const v_result = f_original_method.apply(o_array_target, a_args);
+        const a_v_array_new = [...o_array_target];
+        const n_array_length_new = a_v_array_new.length;
+ 
+        let a_n_idx_array_item__removed = [];
+        let a_n_idx_array_item__added = [];
+        let n_idx_array_item__modified = undefined;
+ 
+        switch (s_method_name) {
+            case 'push':
+                a_n_idx_array_item__added = Array.from(
+                    { length: a_args.length }, 
+                    (_, n_idx) => n_array_length_old + n_idx
+                );
+                break;
+            case 'pop':
+                if (n_array_length_old > 0) a_n_idx_array_item__removed = [n_array_length_old - 1];
+                break;
+            case 'shift':
+                if (n_array_length_old > 0) a_n_idx_array_item__removed = [0];
+                break;
+            case 'unshift':
+                a_n_idx_array_item__added = Array.from({ length: a_args.length }, (_, n_idx) => n_idx);
+                break;
+            case 'splice': {
+                const n_start_idx = a_args[0] < 0 
+                    ? Math.max(n_array_length_old + a_args[0], 0) 
+                    : Math.min(a_args[0], n_array_length_old);
+                const n_delete_count = a_args[1] || 0;
+                a_n_idx_array_item__removed = Array.from(
+                    { length: Math.min(n_delete_count, n_array_length_old - n_start_idx) },
+                    (_, n_idx) => n_start_idx + n_idx
+                );
+                a_n_idx_array_item__added = Array.from(
+                    { length: a_args.length - 2 },
+                    (_, n_idx) => n_start_idx + n_idx
+                );
+                break;
+            }
+            default: {
+                const a_n_idx_modified = [];
+                for (let n_idx = 0; n_idx < Math.max(n_array_length_old, n_array_length_new); n_idx++) {
+                    if (a_v_array_old[n_idx] !== a_v_array_new[n_idx]) {
+                        a_n_idx_modified.push(n_idx);
                     }
                 }
-                o_el.o_meta.b_rendering = false;
-
+                if (a_n_idx_modified.length > 0) n_idx_array_item__modified = a_n_idx_modified[0];
+                break;
             }
-
         }
-     }
-     
-   // i want to be able to trigger a async function 'f_async_callback' when a possibly nested object gets manipulated in any way. 
-   // the function should receive the following parameters.
-   // also if f_async_callback has already called and has not yet ended (can take up to 2 sec) 
-   // if it will get called again the last call of it should be canceled
-   // remember that i want to be able to monitor all changes on the object which could be 
-   // example: 
-
-   // o = f_o_proxified({n:2});
-
-   // o.n = 3 // this change should trigger the 'f_async_callback'
-   // o.o_nested = {n:1} // this should also add a proxy on o.o_nested  
-   // o.o_nested.n = 55 // this should also trigger the 'f_async_callback'
-   
-   // o.a = [1,2,3,4,{n:9}] 
-   // now for arrays those are a bit special in javascript i guess
-   // so a normal change would be 
-   // o.a[2] = 22
-   // but also those functions should trigger the callback 'f_async_callback' but only once !
-   // o.a.push(99)
-   // o.a.pop()
-   // o.a.splice(2, 0, "Lemon", "Kiwi"); // At position 2, add "Lemon" and "Kiwi":
-   // o.a = o.a.filter((v)=>{return !isNaN(v)})
-   // when any array manipulation happens the according parameters should be 
-   // built, the possible parameters are 
-   // a_n_idx_array_item_removed // an array with the indices of the removed elements 
-   // a_n_idx_array_item_added // an array with the indices of the added elements
-   // n_idx_array_item_modified // the index of the array item that has been modified
-   // so for example 
-   // o.a[3] = 11 // n_idx_array_item_modified would be 3
-   // o.a[3] = {n:9} // n_idx_array_item_modified would be also 3
-   // o.a.push() // a_n_idx_array_item_added would be [{last_index_of_array_depending_on_array_size}]
-   // o.a.splice(5, 0, item);// a_n_idx_array_item_added would be [5]
-   // i dont know if this is even possible  
-   // but i assume one can not find out what indices are removed if for example 
-   // a .map  function is used on the array, it is not possible
-   // to know what of the new items are the same as the old items
-   // but this is ok. in this case a_n_idx_array_item_removed and a_n_idx_array_item_added 
-   // would just be an empty array 
-   // o.a = o.a.filter((v)=>{return isNaN(v)})
-
-
-
-   // so basically there are three ways to manipulate an array
-   // 1. directly manipulate an item by using an index, a[n_idx] = 2
-   // 2. using 'helper?' functions like .pop() .shift() .splice() etc. 
-   // 3. reassigning by using filter or map like a = a.filter(...)
-
-
-   // so in the 'f_async_callback' there should be the following parameters passed to it
-   // 'v_target' // the target if for example o.o2.n = 2 the target would be the object o.o2
-   // 'a_s_prop_path_part' an array containing strings that represent the path of manipulated object
-   //        so for example o.o2.o_nested.a[5] = {n:9} , would be ['o','o2','o_nested','a','5']
-   //           for example o.o2.o_nested.a.splice(2, 0, "Lemon", "Kiwi");, would be ['o','o2','o_nested','a']
-   // 'v_old' // the old value 
-   // 'v_new' // the new value
-
-   // are there more edge cases i did not consider?
-
-   // stick to the following coding conventions  
-   // variable names all have prefixes
-   // v_ => 'value' a variable with a 'unknown' type
-   // n_ => numnbers , eg. a.map((n_idx, v)=>{...})
-   // b_ => boolean 
-   // o_ => object
-   // a_ => array
-   // f_ => functions, yes also functions are variables, like let f_test = ()=>{return 'test'}
-   // define all functions with a variable declaration keyword for example 
-   // let f_test = function(){return 'test'}
-   // a_n_ => an array containing numbers eg. [1,2,3]
-   // a_o_ => an array containing objects eg. [{},{},{}]
-   // s_f_ => a string that is a function that then could be used in 
-   // new Function or eval 
-   // s_f_test = `return 'test'`, ->new Function(s_f_test);
-   // s_json__o_person = JSON.stringify(o_person), would be a object o_person in json / string format
-   // an exeption: if objects with same structure are needed ofen times classes are used, 
-   // but instead of having classes we have functions in this style 
-   // f_O_person = function(s_name, n_age){return {s_name, n_age}}
-   // this would return an object that represents a person. the equivalent of a class would be 
-   //   class O_person {
-   //     constructor(s_name, n_age) {
-   //       this.s_name = s_name;
-   //       this.n_age = n_age;
-   //     }
-   //   }
-   // but like i said a simple function is preferred!
-   // if a function returns a certain type this prefix comes at second place for example
-   // f_a_n_=> a function that returns an array of numbers like let f_a_n_test = () =>{return [1,2,3]}
-   
-
-   // another important this is , the plural form of words has to be omitted completly
-   // example: 'hans' would be the value, we could use 's_name' as a variable name
-   // ['hans', 'gretel', 'ueli', 'jasmin'] would be the value 
-   // 'a_s_name' would be the variable name, since this is an array of names, 
-   // so 'a_s_names' is wrong, it is an array 'a_', containing 's_name' variables, so 'a_s_name'! 
-
-   // the last thing: try to always 'group' variable names, so if the values are similar but the variable names 
-   // have to be distinguished always use the basic / more general variable name in front of it , for example 
-
-   // let o_person__hans = new O_person('hans', 20);
-   // let o_person__gretel = new O_person('gretel', '19'); 
-
-   // more exmaples
-   // for example an id is a very generic term so it comes first
-   // n_timeout_id wrong, correct: n_id__timeout
-   // n_frame_id wrong, correct: n_id__frame
-   // n_start_index wrong, correct: n_idx__start, respectively n_idx__end 
-   // n_timestamp_ms wrong, correct: n_ms__timestamp, or n_sec__timestamp or n_min__timestamp
-   
-
-   // thats all, now solve my problem
-   if (typeof v_target !== 'object' || v_target === null) return v_target;
-
-   
-   const a_s_array_methods = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'];
-   const o_map_proxies = new WeakMap();
-   let o_pending_async_callback = null;
-
-   const f_wrap_array_method = function (
-       o_array_target, 
-       s_method_name, 
-       a_args, 
-       a_s_prop_path_part, 
-   ) {
-       const f_original_method = Array.prototype[s_method_name];
-       const a_v_array_old = [...o_array_target];
-       const n_array_length_old = a_v_array_old.length;
-       const v_result = f_original_method.apply(o_array_target, a_args);
-       const a_v_array_new = [...o_array_target];
-       const n_array_length_new = a_v_array_new.length;
-
-       let a_n_idx_array_item__removed = [];
-       let a_n_idx_array_item__added = [];
-       let n_idx_array_item__modified = undefined;
-
-       switch (s_method_name) {
-           case 'push':
-               a_n_idx_array_item__added = Array.from(
-                   { length: a_args.length }, 
-                   (_, n_idx) => n_array_length_old + n_idx
-               );
-               break;
-           case 'pop':
-               if (n_array_length_old > 0) a_n_idx_array_item__removed = [n_array_length_old - 1];
-               break;
-           case 'shift':
-               if (n_array_length_old > 0) a_n_idx_array_item__removed = [0];
-               break;
-           case 'unshift':
-               a_n_idx_array_item__added = Array.from({ length: a_args.length }, (_, n_idx) => n_idx);
-               break;
-           case 'splice': {
-               const n_start_idx = a_args[0] < 0 
-                   ? Math.max(n_array_length_old + a_args[0], 0) 
-                   : Math.min(a_args[0], n_array_length_old);
-               const n_delete_count = a_args[1] || 0;
-               a_n_idx_array_item__removed = Array.from(
-                   { length: Math.min(n_delete_count, n_array_length_old - n_start_idx) },
-                   (_, n_idx) => n_start_idx + n_idx
-               );
-               a_n_idx_array_item__added = Array.from(
-                   { length: a_args.length - 2 },
-                   (_, n_idx) => n_start_idx + n_idx
-               );
-               break;
-           }
-           default: {
-               const a_n_idx_modified = [];
-               for (let n_idx = 0; n_idx < Math.max(n_array_length_old, n_array_length_new); n_idx++) {
-                   if (a_v_array_old[n_idx] !== a_v_array_new[n_idx]) {
-                       a_n_idx_modified.push(n_idx);
-                   }
-               }
-               if (a_n_idx_modified.length > 0) n_idx_array_item__modified = a_n_idx_modified[0];
-               break;
-           }
-       }
-
-       f_async_callback(
-           o_array_target,
-           a_s_prop_path_part,
-           a_v_array_old,
-           a_v_array_new,
-           a_n_idx_array_item__removed,
-           a_n_idx_array_item__added,
-           n_idx_array_item__modified, 
-       );
-
-       return v_result;
-   };
-
-   const f_create_proxy_handler = function (a_s_prop_path_part, o_div = document) {
-       return {
-           get: function (o_target, s_prop) {
-               const v_value = Reflect.get(...arguments);
-
-               if (Array.isArray(o_target) && a_s_array_methods.includes(s_prop)) {
-                   return (...a_args) => f_wrap_array_method(o_target, s_prop, a_args, a_s_prop_path_part, o_div);
-               }
-
-               if (typeof v_value === 'object' && v_value !== null) {
-                   return f_o_proxified(
-                       v_value,
-                       f_callback_beforevaluechange,
-                       f_callback_aftervaluechange, 
-                       o_div,
-                       a_s_prop_path_part.concat(s_prop), 
-                   );
-               }
-
-               return v_value;
-           },
-           set: function (o_target, s_prop, v_value) {
-               const v_old_value = o_target[s_prop];
-               const a_s_full_prop_path = a_s_prop_path_part.concat(s_prop);
-
-               const v_new_proxified = f_o_proxified(
-                   v_value,
-                   f_callback_beforevaluechange,
-                   f_callback_aftervaluechange,
-                   o_div,
-                   a_s_full_prop_path
-               );
-
-               f_callback_beforevaluechange(a_s_full_prop_path, v_old_value, v_new_proxified);
-               const b_success = Reflect.set(o_target, s_prop, v_new_proxified);
-               f_callback_aftervaluechange(a_s_full_prop_path, v_old_value, v_new_proxified);
-
-               if (b_success) {
-                   const a_n_idx_array_item__removed = [];
-                   const a_n_idx_array_item__added = [];
-                   let n_idx_array_item__modified = undefined;
-
-                   if (Array.isArray(o_target) && typeof s_prop === 'string' && !isNaN(s_prop)) {
-                       n_idx_array_item__modified = parseInt(s_prop, 10);
-                   }
-
-                   let s_prop2 = a_s_full_prop_path?.at(-2);
-                    if(!isNaN(s_prop2)){
-                        n_idx_array_item__modified = Number(s_prop2)
+ 
+        f_async_callback(
+            o_array_target,
+            a_s_prop_path_part,
+            a_v_array_old,
+            a_v_array_new,
+            a_n_idx_array_item__removed,
+            a_n_idx_array_item__added,
+            n_idx_array_item__modified, 
+        );
+ 
+        return v_result;
+    };
+ 
+    const f_create_proxy_handler = function (a_s_prop_path_part, o_div = document) {
+        return {
+            get: function (o_target, s_prop) {
+                const v_value = Reflect.get(...arguments);
+ 
+                if (Array.isArray(o_target) && a_s_array_methods.includes(s_prop)) {
+                    return (...a_args) => f_wrap_array_method(o_target, s_prop, a_args, a_s_prop_path_part, o_div);
+                }
+ 
+                if (typeof v_value === 'object' && v_value !== null) {
+                    return f_o_proxified(
+                        v_value,
+                        f_callback_beforevaluechange,
+                        f_callback_aftervaluechange, 
+                        o_div,
+                        a_s_prop_path_part.concat(s_prop), 
+                    );
+                }
+ 
+                return v_value;
+            },
+            set: function (o_target, s_prop, v_value) {
+                const v_old_value = o_target[s_prop];
+                const a_s_full_prop_path = a_s_prop_path_part.concat(s_prop);
+ 
+                const v_new_proxified = f_o_proxified(
+                    v_value,
+                    f_callback_beforevaluechange,
+                    f_callback_aftervaluechange,
+                    o_div,
+                    a_s_full_prop_path
+                );
+ 
+                f_callback_beforevaluechange(a_s_full_prop_path, v_old_value, v_new_proxified);
+                const b_success = Reflect.set(o_target, s_prop, v_new_proxified);
+                f_callback_aftervaluechange(a_s_full_prop_path, v_old_value, v_new_proxified);
+ 
+                if (b_success) {
+                    const a_n_idx_array_item__removed = [];
+                    const a_n_idx_array_item__added = [];
+                    let n_idx_array_item__modified = undefined;
+ 
+                    if (Array.isArray(o_target) && typeof s_prop === 'string' && !isNaN(s_prop)) {
+                        n_idx_array_item__modified = parseInt(s_prop, 10);
                     }
-
-                   f_async_callback(
-                       o_target,
-                       a_s_full_prop_path,
-                       v_old_value,
-                       v_new_proxified,
-                       a_n_idx_array_item__removed,
-                       a_n_idx_array_item__added,
-                       n_idx_array_item__modified, 
-                   );
-               }
-
-               return b_success;
-           }
-       };
-   };
-
-   if (o_map_proxies.has(v_target)) return o_map_proxies.get(v_target);
-
-   const o_proxy_handler = f_create_proxy_handler(a_s_prop_path_part);
-   const o_proxy = new Proxy(v_target, o_proxy_handler);
-   o_map_proxies.set(v_target, o_proxy);
-   o_state_readable = o_proxy
-   return o_proxy
-
-};
+ 
+                    let s_prop2 = a_s_full_prop_path?.at(-2);
+                     if(!isNaN(s_prop2)){
+                         n_idx_array_item__modified = Number(s_prop2)
+                     }
+ 
+                    f_async_callback(
+                        o_target,
+                        a_s_full_prop_path,
+                        v_old_value,
+                        v_new_proxified,
+                        a_n_idx_array_item__removed,
+                        a_n_idx_array_item__added,
+                        n_idx_array_item__modified, 
+                    );
+                }
+ 
+                return b_success;
+            }
+        };
+    };
+ 
+    if (o_map_proxies.has(v_target)) return o_map_proxies.get(v_target);
+ 
+    const o_proxy_handler = f_create_proxy_handler(a_s_prop_path_part);
+    const o_proxy = new Proxy(v_target, o_proxy_handler);
+    o_map_proxies.set(v_target, o_proxy);
+    o_state_readable = o_proxy
+    return o_proxy
+ 
+ };
 let f_v_from_path_dotnotation = function(path, obj) {
     if(path.trim()==''){return obj}
     // Split the path by dots to get the individual keys
