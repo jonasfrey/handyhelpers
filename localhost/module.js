@@ -3025,10 +3025,6 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
                              v_new
                          )
                          for(let s_name_rendered_prop of a_s_name_rendered_prop){
-                            if(o_js?.[s_name_rendered_prop]){
-                                o_html[s_name_rendered_prop] = o_js?.[`f_${s_name_rendered_prop}`]()
-                            }
-                    
                             if(o_el?.o_meta?.[`f_s_${s_name_rendered_prop}`]){
                                 let s = o_el?.o_meta?.[`f_s_${s_name_rendered_prop}`]();;
                                 o_el[s_name_rendered_prop] = s;
