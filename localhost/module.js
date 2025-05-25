@@ -2734,7 +2734,7 @@ let f_o_html_from_o_js = async function(
        
 
        let s_type_v = typeof v;
-       let s_prop_function_possible = s_prop.replace('f_', '');
+       let s_prop_function_possible = s_prop.replace('f_s_', '');
        let b_a_s_name_rendered_prop_includes = a_s_name_rendered_prop.includes(s_prop_function_possible);
        if(s_type_v == "function" && !b_a_s_name_rendered_prop_includes){
            let f_event_handler = function(){
