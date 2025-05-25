@@ -2747,28 +2747,28 @@ let f_o_html_from_o_js = async function(
                o_html.o_meta = {o_js, o_state}
            }
            o_html.o_meta[s_prop] = v
+           continue
           
        }
-       if(typeof v != 'function' || b_a_s_name_rendered_prop_includes){
-            // if the value is a function, we have to evaluate it
-            if(b_a_s_name_rendered_prop_includes){
-                v = o_js?.[`${s_prop}`]?.() || v;
-                s_prop = s_prop_function_possible
-            }
-           // some attributes such as 'datalist' do only have a getter
 
-            try {
-                o_html.setAttribute(s_prop, v);
-            } catch (error) {
-                console.warn(error)
-            }
-           try {
-               o_html[s_prop] = v;
-           } catch (error) {
-               console.warn(error)
-           }
+        // if the value is a function, we have to evaluate it
+        if(b_a_s_name_rendered_prop_includes && s_type_v == "function" ){
+            v = o_js?.[`${s_prop}`]?.() || v;
+            s_prop = s_prop_function_possible
+        }
+        // some attributes such as 'datalist' do only have a getter
 
-       }
+        try {
+            o_html.setAttribute(s_prop, v);
+        } catch (error) {
+            console.warn(error)
+        }
+        try {
+            o_html[s_prop] = v;
+        } catch (error) {
+            console.warn(error)
+        }
+       
 
    }
    for(let s_name_rendered_prop of a_s_name_rendered_prop){
