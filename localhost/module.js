@@ -2768,7 +2768,7 @@ let f_o_html_from_o_js = async function(
 
    }
    for(let s_name_rendered_prop of a_s_name_rendered_prop){
-        if(o_js?.[s_name_rendered_prop]){
+        if(o_js?.[`f_${s_name_rendered_prop}`]){
             o_html[s_name_rendered_prop] = o_js?.[`f_${s_name_rendered_prop}`]()
         }
    }
