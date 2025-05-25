@@ -3026,6 +3026,10 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
                              let s = o_el.o_meta.f_s_innerHTML();
                              o_el.innerHTML = s;
                          }
+                         if(o_el?.o_meta?.f_s_style){
+                            let s = o_el.o_meta.f_s_style();
+                            o_el.style = s;
+                        }
                          if(o_el?.o_meta?.f_a_o){
                              // console.log(o.o_meta)
                              // debugger
