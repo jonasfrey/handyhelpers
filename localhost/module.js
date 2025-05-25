@@ -2734,7 +2734,8 @@ let f_o_html_from_o_js = async function(
        
 
        let s_type_v = typeof v;
-       if(s_type_v == "function"){
+       let b_a_s_name_rendered_prop_includes = a_s_name_rendered_prop.includes(s_prop);
+       if(s_type_v == "function" && !b_a_s_name_rendered_prop_includes){
            let f_event_handler = function(){
                v.call(this, ...arguments, o_js);
            }
@@ -2747,7 +2748,12 @@ let f_o_html_from_o_js = async function(
            o_html.o_meta[s_prop] = v
           
        }
-       if(typeof v != 'function'){
+       if(typeof v != 'function' || b_a_s_name_rendered_prop_includes){
+            // if the value is a function, we have to evaluate it
+            if(b_a_s_name_rendered_prop_includes){
+                v = o_js?.[`f_${s_prop}`]?.() || v;
+                s_prop = s_prop.replace('f_', '');
+            }
            // some attributes such as 'datalist' do only have a getter
 
             try {
@@ -2761,9 +2767,6 @@ let f_o_html_from_o_js = async function(
                console.warn(error)
            }
 
-       }
-       if(v == 'hello'){
-        window.o_el = o_html
        }
 
    }
