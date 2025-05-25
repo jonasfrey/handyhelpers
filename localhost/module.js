@@ -4024,9 +4024,6 @@ let f_o_js_a_o_toast = function(o_state){
     let o_js_a_o_toast = {
         f_a_o:async ()=> [
             {
-                innerText: "name is: staticaddedperson"
-            },
-            {
                 a_s_prop_sync: 'a_o_toast',
                 class: 'a_o_toast',
                 f_a_o: ()=>{
