@@ -2705,6 +2705,12 @@ const f_v_from_path = function(o_state, a_s_path_part) {
 };
 
 
+let a_s_name_rendered_prop = [
+    'innerHTML',
+    'innerText', 
+    'style'
+]
+
 let f_o_html_from_o_js = async function(
    o_js,
    o_state = {}
@@ -2761,13 +2767,13 @@ let f_o_html_from_o_js = async function(
        }
 
    }
-   
-   if(o_js?.f_s_innerText){
-       o_html.innerText = o_js?.f_s_innerText()
+   for(let s_name_rendered_prop of a_s_name_rendered_prop){
+        if(o_js?.[s_name_rendered_prop]){
+            o_html[s_name_rendered_prop] = o_js?.[`f_${s_name_rendered_prop}`]()
+        }
    }
-   if(o_js?.f_s_innerHTML){
-       o_html.innerHTML = o_js?.f_s_innerHTML()
-   }
+
+
    
    if(o_js?.f_a_o){
        let a_o = await o_js?.f_a_o();
@@ -3018,18 +3024,17 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
                              o_el, 
                              v_new
                          )
-                         if(o_el?.o_meta?.f_s_innerText){
-                             let s = o_el.o_meta.f_s_innerText();
-                             o_el.innerText = s;
-                         }
-                         if(o_el?.o_meta?.f_s_innerHTML){
-                             let s = o_el.o_meta.f_s_innerHTML();
-                             o_el.innerHTML = s;
-                         }
-                         if(o_el?.o_meta?.f_s_style){
-                            let s = o_el.o_meta.f_s_style();
-                            o_el.style = s;
+                         for(let s_name_rendered_prop of a_s_name_rendered_prop){
+                            if(o_js?.[s_name_rendered_prop]){
+                                o_html[s_name_rendered_prop] = o_js?.[`f_${s_name_rendered_prop}`]()
+                            }
+                    
+                            if(o_el?.o_meta?.[`f_s_${s_name_rendered_prop}`]){
+                                let s = o_el?.o_meta?.[`f_s_${s_name_rendered_prop}`]();;
+                                o_el[s_name_rendered_prop] = s;
+                            }
                         }
+
                          if(o_el?.o_meta?.f_a_o){
                              // console.log(o.o_meta)
                              // debugger
