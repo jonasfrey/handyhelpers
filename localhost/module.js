@@ -2705,11 +2705,6 @@ const f_v_from_path = function(o_state, a_s_path_part) {
 };
 
 
-let a_s_name_rendered_prop = [
-    'innerHTML',
-    'innerText', 
-    'style'
-]
 
 let f_o_html_from_o_js = async function(
    o_js,
@@ -2735,7 +2730,7 @@ let f_o_html_from_o_js = async function(
 
        let s_type_v = typeof v;
        let s_prop_function_possible = s_prop.replace('f_s_', '');
-       let b_a_s_name_rendered_prop_includes = a_s_name_rendered_prop.includes(s_prop_function_possible);
+       let b_a_s_name_rendered_prop_includes = s_prop.startsWith('f_s_');
        if(s_type_v == "function" && !b_a_s_name_rendered_prop_includes){
            let f_event_handler = function(){
                v.call(this, ...arguments, o_js);
@@ -2770,11 +2765,6 @@ let f_o_html_from_o_js = async function(
         }
        
 
-   }
-   for(let s_name_rendered_prop of a_s_name_rendered_prop){
-        if(o_js?.[`f_${s_name_rendered_prop}`]){
-            o_html[s_name_rendered_prop] = o_js?.[`f_${s_name_rendered_prop}`]()
-        }
    }
 
 
@@ -3028,13 +3018,14 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
                              o_el, 
                              v_new
                          )
-                         for(let s_name_rendered_prop of a_s_name_rendered_prop){
-                            if(o_el?.o_meta?.[`f_s_${s_name_rendered_prop}`]){
-                                let s = o_el?.o_meta?.[`f_s_${s_name_rendered_prop}`]();;
-                                o_el[s_name_rendered_prop] = s;
-                            }
-                        }
 
+                         for(let s_prop in o_el.o_meta?.o_js){
+                             if(s_prop.startsWith('f_s_') && o_el.o_meta?.o_js[s_prop] && typeof o_el.o_meta?.o_js[s_prop] == 'function'){
+                                let f = o_el.o_meta?.o_js[s_prop];
+                                let v = f();
+                                o_el[s_prop.replace('f_s_', '')] = v;
+                             }
+                         }
                          if(o_el?.o_meta?.f_a_o){
                              // console.log(o.o_meta)
                              // debugger

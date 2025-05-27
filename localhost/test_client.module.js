@@ -2576,6 +2576,10 @@ let a_o_test =
                     f_a_o: ()=>{
                         return [
                             {
+                                a_s_prop_sync: 'n_1',
+                                f_s_innerText: ()=>`test text init-render ${Date.now()}`
+                            },
+                            {
                                 s_tag: "input", 
                                 a_s_prop_sync: 'a_n_test.0'
                             },
