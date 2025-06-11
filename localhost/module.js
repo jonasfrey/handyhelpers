@@ -3025,8 +3025,8 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
                                 let v = f();
                                 o_el[s_prop.replace('f_s_', '')] = v;
                              }
-                             if(o_js2?.f_after_update){
-                                await o_js2?.f_after_update(o_el);
+                             if(o_el.o_meta?.o_js?.f_after_update){
+                                await o_el.o_meta?.o_js?.f_after_update(o_el);
                             }
                          }
                          if(o_el?.o_meta?.f_a_o){
