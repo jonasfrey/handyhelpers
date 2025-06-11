@@ -2554,6 +2554,24 @@ let a_o_test =
                     b_test: true, 
                     f_test:()=>{return 'test function executed succesfully'},
                     a_o: [{n:1},{n:2}], 
+                    a_o_person: [
+                        {
+                            s_name: 'hans', 
+                            n_age: 10,
+                        }, 
+                        {
+                            s_name: "gretel",
+                            n_age: 12,
+                        }, 
+                        {
+                            s_name: "regina",
+                            n_age: 15,
+                        }, 
+                        {
+                            s_name: "ludolf",
+                            n_age: 20,
+                        }
+                    ]
                 }, 
                 f_callback_beforevaluechange,
                 f_callback_aftervaluechange, 
@@ -2575,6 +2593,26 @@ let a_o_test =
                     class: "test",
                     f_a_o: ()=>{
                         return [
+                            {
+                                a_s_prop_sync: 'a_o_person',
+                                f_a_o: ()=>{
+                                    return o_state.a_o_person.map((o, n_idx)=>{
+                                        return {
+                                            f_a_o: ()=>[
+                                                {
+                                                    f_s_innerText: ()=>`name is:${o.s_name} random number: ${Math.random()}`
+                                                },
+                                                {
+                                                    f_s_innerText: ()=>`age is: ${o.n_age}`
+                                                },
+                                                {
+                                                    s_tag: 'hr'
+                                                }
+                                            ],
+                                        }
+                                    })
+                                }
+                            }, 
                             {
                                 a_s_prop_sync: 'n_1',
                                 f_s_innerText: ()=>`test text init-render ${Date.now()}`
@@ -2957,11 +2995,11 @@ let a_o_test =
             // first we define our data in a state object
             let o_state = f_o_proxified_and_add_listeners(
                 {
-                    a_s_name: [
-                        'hans', 
-                        'frida', 
-                        'gretel', 
-                        'ferdinand'
+                    a_o_person: [
+                        {s_name: 'hans', n_age: 10}, 
+                        {s_name: 'frida', n_age: 10}, 
+                        {s_name: 'gretel', n_age: 10}, 
+                        {s_name: 'ferdinand', n_age: 10}
                     ]
                 }, 
                 f_callback_beforevaluechange,
@@ -2975,7 +3013,7 @@ let a_o_test =
                 return new Promise((f_res, f_rej)=>{
                     setTimeout(()=>{
                         return f_res(true)
-                    },n_ms)
+                    },n_ms);
                 })
             }
             // then we build the html 
@@ -2990,18 +3028,18 @@ let a_o_test =
                                     {
                                         innerText: "name is: staticaddedperson"
                                     },
-                                    ...o_state.a_s_name.map(async s=>{
+                                    ...o_state.a_o_person.map(async o=>{
                                         await f_sleep_ms(Math.random()*1000)
                                         return {
                                             style: `background: rgb(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255})`,
                                             f_s_innerText: ()=>{
-                                                return `name is: ${s}`
+                                                return `name is: ${o.s_name}`
                                             }
                                         }
                                     }), 
 
                                 ],
-                                a_s_prop_sync: 'a_s_name',
+                                a_s_prop_sync: ['a_o_person', 'a_o_person.[n]'],
                             },
                         
                         ]
@@ -3010,13 +3048,13 @@ let a_o_test =
                 o_state
             )
             o_div.appendChild(o);
-            o_state.a_s_name.push('new 1');
-            o_state.a_s_name.push('new 2');
-            o_state.a_s_name.push('new 3');
+            o_state.a_o_person.push({s_name: 'new 1', n_age: 22});
+            o_state.a_o_person.push({s_name: 'new 2', n_age: 22});
+            o_state.a_o_person.push({s_name: 'new 3', n_age: 22});
             
             setTimeout(()=>{
-                o_state.a_s_name.push('jakob');
-                o_state.a_s_name.push('new 4');
+                o_state.a_o_person.push({s_name: 'jakob', n_age: 44});
+                o_state.a_o_person.push({s_name: 'new 4', n_age: 44});
             },2000)
 
         }),
