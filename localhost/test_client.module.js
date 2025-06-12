@@ -3322,7 +3322,15 @@ let a_o_test =
                 o_img
             );
             let o_img2 = document.createElement('img');
-            o_img2.src = f_s_image_url_from_s_text('email@mail.com'.replace('@', '[at]'), 100, 0.5, 0.02);
+            o_img2.src = f_s_image_url_from_s_text(
+                'email@mail.com'.replace('@', '[at]'),
+                 100,
+                 0.5,
+                 0.0,
+                 'red',
+                 'blue', 
+                 'white'
+            );
             o_img2.style.maxWidth = '100%';
             o_img2.style.maxHeight = '100%';
             document.body.appendChild(

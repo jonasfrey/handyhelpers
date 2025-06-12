@@ -4057,7 +4057,10 @@ let f_s_image_url_from_s_text = function(
     s_text, 
     n_font_size_px = 16,
     n_padding_factor = 0.5,
-    n_outline_factor = 0.05
+    n_outline_factor = 0.05, 
+    s_color_font = 'black', 
+    s_color_background = 'transparent', // Default to transparent background
+    s_color_outline = 'white',
 ){
     let o_canvas = document.createElement('canvas');
     let o_ctx = o_canvas.getContext('2d');
@@ -4078,12 +4081,17 @@ let f_s_image_url_from_s_text = function(
     let n_trn_x = n_padding_px / 2;
     let n_trn_y = (n_padding_px / 2) + n_font_size_px - n_px_baseline_compensation; // Adjust for baseline
 
+    // fill background color
+    o_ctx.fillStyle = s_color_background;
+    o_ctx.fillRect(0, 0, o_canvas.width, o_canvas.height);
     o_ctx.font = `${n_font_size_px}px Arial`;
-    o_ctx.strokeStyle = 'white';
-    o_ctx.lineWidth = n_font_size_px *n_outline_factor;
-    o_ctx.strokeText(s_text, n_trn_x, n_trn_y);
+    if(n_outline_factor > 0){
+        o_ctx.strokeStyle = s_color_outline;
+        o_ctx.lineWidth = n_font_size_px *n_outline_factor;
+        o_ctx.strokeText(s_text, n_trn_x, n_trn_y);
+    }
     // Draw text
-    o_ctx.fillStyle = 'black';
+    o_ctx.fillStyle = s_color_font;
     o_ctx.fillText(s_text, n_trn_x, n_trn_y);
 
     // Convert the canvas to a data URL
