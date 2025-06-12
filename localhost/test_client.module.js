@@ -89,7 +89,8 @@ import {
     f_o_js_a_o_toast,
     f_o_toast,
     o_state_a_o_toast,
-    s_css_a_o_toast
+    s_css_a_o_toast,
+    f_s_image_url_from_s_text
 } from "./module.js"
 
 
@@ -3308,6 +3309,26 @@ let a_o_test =
             )
             o_div.appendChild(o);
 
+        }),
+
+        f_o_test("f_s_image_url_from_s_text", async () => {
+            //readme.md:start 
+            
+            let o_img = document.createElement('img');
+            o_img.src = f_s_image_url_from_s_text('this is a test text', 100, 0.2, 0.02);
+            o_img.style.maxWidth = '100%';
+            o_img.style.maxHeight = '100%';
+            document.body.appendChild(
+                o_img
+            );
+            let o_img2 = document.createElement('img');
+            o_img2.src = f_s_image_url_from_s_text('email@mail.com'.replace('@', '[at]'), 100, 0.5, 0.02);
+            o_img2.style.maxWidth = '100%';
+            o_img2.style.maxHeight = '100%';
+            document.body.appendChild(
+                o_img2
+            );
+            //readme.md:end
         }),
 
 

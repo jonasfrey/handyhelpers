@@ -4053,6 +4053,48 @@ let f_o_js_a_o_toast = function(o_state){
 }
 
 
+let f_s_image_url_from_s_text = function(
+    s_text, 
+    n_font_size_px = 16,
+    n_padding_factor = 0.5,
+    n_outline_factor = 0.05
+){
+    let o_canvas = document.createElement('canvas');
+    let o_ctx = o_canvas.getContext('2d');
+
+    let n_padding_px = n_font_size_px * n_padding_factor;
+        
+    o_ctx.font = `${n_font_size_px}px sans-serif`;
+    let n_text_width = o_ctx.measureText(s_text).width;
+    let n_text_height = n_font_size_px; // Approximate height based on font size
+    o_canvas.width = n_text_width + n_padding_px; // Add some padding
+    o_canvas.height = n_text_height + n_padding_px; // Add some padding
+    
+
+    // fill text outline color 
+
+    let n_px_baseline_compensation = n_font_size_px * 0.2; // Adjust for baseline compensation
+    // Draw text - position it slightly above center (y position is the baseline)
+    let n_trn_x = n_padding_px / 2;
+    let n_trn_y = (n_padding_px / 2) + n_font_size_px - n_px_baseline_compensation; // Adjust for baseline
+
+    o_ctx.font = `${n_font_size_px}px Arial`;
+    o_ctx.strokeStyle = 'white';
+    o_ctx.lineWidth = n_font_size_px *n_outline_factor;
+    o_ctx.strokeText(s_text, n_trn_x, n_trn_y);
+    // Draw text
+    o_ctx.fillStyle = 'black';
+    o_ctx.fillText(s_text, n_trn_x, n_trn_y);
+
+    // Convert the canvas to a data URL
+    let s_data_url = o_canvas.toDataURL('image/png');
+    // Clean up
+    o_canvas.remove();
+    return s_data_url;
+
+}
+
+
 
 export {
    f_o_empty_recursive,
@@ -4133,5 +4175,6 @@ export {
    f_o_toast,
    s_css_a_o_toast,
    f_o_js_a_o_toast,
+   f_s_image_url_from_s_text
 }
 
