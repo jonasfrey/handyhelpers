@@ -2769,8 +2769,14 @@ let f_o_html_from_o_js = async function(
 
 
    
-   if(o_js?.f_a_o){
-       let a_o = await o_js?.f_a_o();
+   if(o_js?.f_a_o || o_js?.a_o){
+       let a_o = [];
+       if(o_js?.f_a_o){
+           a_o = await o_js?.f_a_o();
+       }
+       if(o_js?.a_o){
+            a_o = o_js?.a_o;
+       }
        a_o = await Promise.all(a_o);
        for(let o_js2 of a_o){
            let n_idx = a_o.indexOf(o_js2);
@@ -3029,14 +3035,22 @@ let f_set_by_path_with_type = function(obj, s_prop_path, value) {
                                 await o_el.o_meta?.o_js?.f_after_update(o_el);
                             }
                          }
-                         if(o_el?.o_meta?.f_a_o){
+                            
+                        if(o_el?.o_meta?.f_a_o || o_el?.o_meta?.a_o){
+                            let a_o = [];
+                            if(o_el?.o_meta?.f_a_o){
+                                a_o = await o_el?.o_meta?.f_a_o();
+                            }
+                            if(o_js?.a_o){
+                                a_o = o_el?.o_meta?.a_o;
+                            }
                              // console.log(o.o_meta)
                              // debugger
                   
                              // console.log(`starting: ${new Date().getTime()}`)
                              // console.log(o_el.o_meta.b_done)
                   
-                             let a_o_js = await o_el?.o_meta?.f_a_o();
+                             let a_o_js = a_o;
                              // console.log('a_o_js')
                              // console.log(a_o_js)
                   
